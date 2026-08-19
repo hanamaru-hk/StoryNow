@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://settings_overlay"]
+[gd_scene load_steps=2 format=3 uid="uid://game_settings_overlay"]
 
-[ext_resource type="Script" path="res://scripts/settings_overlay.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/game_settings_overlay.gd" id="1"]
 
-[node name="SettingsOverlay" type="Control"]
+[node name="GameSettingsOverlay" type="Control"]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -103,3 +103,10 @@ layout_mode = 2
 custom_minimum_size = Vector2(240, 48)
 size_flags_horizontal = 4
 text = "Reset"
+
+[node name="Save" type="Button" parent="CenterContainer/VBoxContainer/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+size_flags_horizontal = 4
+text = "Save"
