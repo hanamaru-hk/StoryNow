@@ -3,17 +3,12 @@ extends Control
 
 func _ready() -> void:
 	%Random.pressed.connect(_on_random_pressed)
-	%Enhance.pressed.connect(_on_enhance_pressed)
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
 	_update_labels()
 
 
 func _on_random_pressed() -> void:
-	pass
-
-
-func _on_enhance_pressed() -> void:
 	pass
 
 
@@ -30,6 +25,5 @@ func _update_labels() -> void:
 	$MarginContainer/VBoxContainer/Description.text = I18n.translate("prompt_desc")
 	$MarginContainer/VBoxContainer/BackgroundInput.placeholder_text = I18n.translate("prompt_placeholder")
 	%Random.text = I18n.translate("btn_random")
-	%Enhance.text = I18n.translate("btn_enhance")
 	%Start.text = I18n.translate("btn_start")
 	%Back.text = I18n.translate("btn_back")
