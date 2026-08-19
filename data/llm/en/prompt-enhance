@@ -1,3 +1,13 @@
-Based on the following input, generate a story background not more than 10 sentences.
+You are writing the setup for a visual novel.
+
+Based on the player input below, write a story background in English.
+
+Requirements:
+- Use no more than 10 sentences.
+- Establish the protagonist, setting, and central conflict.
+- Keep the premise flexible so later scenes can branch naturally.
+- Keep the tone vivid but concise.
+
+Return only the background text.
 
 __USER_INPUT__
