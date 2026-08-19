@@ -59,10 +59,12 @@ func _on_screen_size_selected(index: int) -> void:
 
 
 func _sync_ui_to_settings() -> void:
-	var lang_index := I18n.LANGUAGES.find(_pending["language"])
+	if _pending.is_empty():
+		return
+	var lang_index: int = I18n.LANGUAGES.find(_pending["language"])
 	if lang_index >= 0:
 		%LanguageOption.selected = lang_index
-	var size_index := 0 if _pending["screen_size"] == "full" else 1
+	var size_index: int = 0 if _pending["screen_size"] == "full" else 1
 	%ScreenSizeOption.selected = size_index
 
 

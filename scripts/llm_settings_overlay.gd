@@ -48,14 +48,16 @@ func _on_port_submitted(_text: String) -> void:
 
 
 func _apply_port() -> void:
-	var port_text := %PortInput.text.strip_edges()
+	var port_text: String = %PortInput.text.strip_edges()
 	if port_text.is_valid_int():
-		var port := port_text.to_int()
+		var port: int = port_text.to_int()
 		if port > 0 and port <= 65535:
 			_pending["port"] = port
 
 
 func _sync_ui_to_settings() -> void:
+	if _pending.is_empty():
+		return
 	%PortInput.text = str(_pending["port"])
 
 
