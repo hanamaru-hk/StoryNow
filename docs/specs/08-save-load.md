@@ -1,13 +1,15 @@
 # 8. Save / Load System
 
+> **Status:** Not yet implemented. This is a design specification.
+
 ## 8.1 Save Data
 
 Each save stores:
 - Full story state object (characters, flags, mood, etc.)
 - List of all previous scene narrations (for context window reconstruction)
-- All `scene_prompt` values and paths to generated images
+- All `scenePrompt` values and paths to generated images
 - Player choices history
-- Current `scene_id`
+- Current scene ID
 
 ## 8.2 Save Slots
 
