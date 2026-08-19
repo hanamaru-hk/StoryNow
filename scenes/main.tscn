@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/image_settings_overlay.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/image_server_settings_overlay.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/llm_settings_overlay.tscn" id="4"]
 
 [node name="MainMenu" type="Control"]
@@ -78,7 +78,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(240, 48)
 size_flags_horizontal = 4
-text = "Image Setting"
+text = "Image Server Setting"
 
 [node name="LLMSetting" type="Button" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
@@ -97,7 +97,7 @@ text = "Exit"
 [node name="GameSettingsOverlay" parent="." instance=ExtResource("2")]
 unique_name_in_owner = true
 
-[node name="ImageSettingsOverlay" parent="." instance=ExtResource("3")]
+[node name="ImageServerSettingsOverlay" parent="." instance=ExtResource("3")]
 unique_name_in_owner = true
 
 [node name="LLMSettingsOverlay" parent="." instance=ExtResource("4")]
