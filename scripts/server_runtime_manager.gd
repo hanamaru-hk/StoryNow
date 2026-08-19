@@ -23,6 +23,8 @@ var _original_ollama_host := ""
 
 func _ready() -> void:
 	_original_ollama_host = OS.get_environment("OLLAMA_HOST")
+	LLMManager.status_changed.connect(_on_llm_status_changed)
+	ImageServerManager.status_changed.connect(_on_image_status_changed)
 	_reconcile_stale_state()
 	_start_servers()
 	_start_heartbeat()
@@ -50,9 +52,9 @@ func _start_servers() -> void:
 func _start_heartbeat() -> void:
 	_heartbeat_timer = Timer.new()
 	_heartbeat_timer.wait_time = HEARTBEAT_INTERVAL
-	_heartbeat_timer.autostart = true
 	_heartbeat_timer.timeout.connect(_on_heartbeat)
 	add_child(_heartbeat_timer)
+	_heartbeat_timer.start()
 
 	var initial_timer := Timer.new()
 	initial_timer.wait_time = INITIAL_CHECK_DELAY
@@ -68,17 +70,28 @@ func _add_overlay() -> void:
 
 
 func _on_heartbeat() -> void:
-	var llm_healthy := LLMManager.health_check()
-	var image_healthy := ImageServerManager.health_check()
+	print_verbose("_on_heartbeat")
+	LLMManager.health_check()
+	ImageServerManager.health_check()
 
-	var new_llm := ServerState.HEALTHY if llm_healthy else ServerState.UNHEALTHY
-	var new_image := ServerState.HEALTHY if image_healthy else ServerState.UNHEALTHY
 
-	if new_llm != llm_state:
-		llm_state = new_llm
+func _on_llm_status_changed(status: Dictionary) -> void:
+	_set_llm_state(ServerState.HEALTHY if status.get("healthy", false) else ServerState.UNHEALTHY)
+
+
+func _on_image_status_changed(status: Dictionary) -> void:
+	_set_image_state(ServerState.HEALTHY if status.get("healthy", false) else ServerState.UNHEALTHY)
+
+
+func _set_llm_state(new_state: ServerState) -> void:
+	if new_state != llm_state:
+		llm_state = new_state
 		llm_state_changed.emit(llm_state)
-	if new_image != image_state:
-		image_state = new_image
+
+
+func _set_image_state(new_state: ServerState) -> void:
+	if new_state != image_state:
+		image_state = new_state
 		image_state_changed.emit(image_state)
 
 

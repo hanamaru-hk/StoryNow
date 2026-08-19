@@ -52,46 +52,82 @@ func stop_server() -> void:
 
 func health_check() -> bool:
 	var port: int = LLMSettingsManager.settings["port"]
-	var url := "http://127.0.0.1:" + str(port) + "/api/tags"
 	var http := HTTPClient.new()
+
 	var error := http.connect_to_host("127.0.0.1", port)
 	if error != OK:
 		_set_unhealthy()
 		return false
+
 	var timeout := HEALTH_TIMEOUT
-	while http.get_status() == HTTPClient.STATUS_CONNECTING:
+
+	# Wait for connection
+	while http.get_status() == HTTPClient.STATUS_CONNECTING \
+			or http.get_status() == HTTPClient.STATUS_RESOLVING:
 		http.poll()
+		await get_tree().process_frame
+
 		timeout -= get_process_delta_time()
 		if timeout <= 0:
 			http.close()
 			_set_unhealthy()
 			return false
+
 	if http.get_status() != HTTPClient.STATUS_CONNECTED:
 		http.close()
 		_set_unhealthy()
 		return false
-	error = http.request(HTTPClient.METHOD_GET, "/api/tags", PackedStringArray())
+
+	# Send request
+	error = http.request(
+		HTTPClient.METHOD_GET,
+		"/api/tags",
+		PackedStringArray()
+	)
+
 	if error != OK:
 		http.close()
 		_set_unhealthy()
 		return false
+
 	timeout = HEALTH_TIMEOUT
+
+	# Wait for response
 	while http.get_status() == HTTPClient.STATUS_REQUESTING:
 		http.poll()
+		await get_tree().process_frame
+
 		timeout -= get_process_delta_time()
 		if timeout <= 0:
 			http.close()
 			_set_unhealthy()
 			return false
-	http.poll()
+
+	# Make sure we actually received a response
+	if not http.has_response():
+		http.close()
+		_set_unhealthy()
+		return false
+
 	var response_code := http.get_response_code()
+
+	# Consume response body
+	while http.get_status() == HTTPClient.STATUS_BODY:
+		http.poll()
+		var chunk := http.read_response_body_chunk()
+
+		if chunk.is_empty():
+			await get_tree().process_frame
+
 	http.close()
+
 	if response_code >= 200 and response_code < 400:
 		status["healthy"] = true
 		status["running"] = true
 		save_status()
 		status_changed.emit(status)
 		return true
+
 	_set_unhealthy()
 	return false
 
