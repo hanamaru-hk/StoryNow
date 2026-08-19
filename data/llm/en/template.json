@@ -1,0 +1,7 @@
+{
+	scenePrompt:"standing person", // sd1.5 prompts, no matter what language is, the prompt is english
+	dialog:[{"John":"I want an ice-cream"},{"narration":"people move"}], // based on the language the user use.
+	language: "en",
+	choices:["jump into the",{}],
+	storyBackground:"John is a mechanic and always eat ice-cream." // the background before this scene
+}
