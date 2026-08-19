@@ -39,6 +39,6 @@ func _update_labels() -> void:
 	%Start.text = I18n.translate("btn_start")
 	%Load.text = I18n.translate("btn_load")
 	%Gallery.text = I18n.translate("btn_gallery")
-	%Setting.text = I18n.translate("btn_settings")
+	%Setting.text = I18n.translate("btn_game_setting")
 	%Exit.text = I18n.translate("btn_exit")
 	$CenterContainer/VBoxContainer/Title.text = I18n.translate("main_title")
