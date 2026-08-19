@@ -8,6 +8,10 @@ config/name="Instant Visual Novel"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.3")
 
+[autoload]
+
+I18n="*res://scripts/i18n.gd"
+
 [display]
 
 window/size/viewport_width=1920
