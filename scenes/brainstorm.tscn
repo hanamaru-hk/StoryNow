@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://prompt_page"]
 
-[ext_resource type="Script" path="res://scripts/prompt.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/brainstorm.gd" id="1"]
 
 [node name="PromptPage" type="Control"]
 layout_mode = 3
