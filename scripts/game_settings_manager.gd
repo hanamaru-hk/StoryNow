@@ -1,6 +1,6 @@
 extends Node
 
-const SETTINGS_PATH := "user://settings.json"
+const SETTINGS_PATH := "user://game_settings.json"
 const DEFAULT_SETTINGS_PATH := "res://data/default_settings.json"
 
 var settings := {
