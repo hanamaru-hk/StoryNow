@@ -11,6 +11,7 @@ config/features=PackedStringArray("4.3")
 [autoload]
 
 I18n="*res://scripts/i18n.gd"
+SettingsManager="*res://scripts/settings_manager.gd"
 
 [display]
 

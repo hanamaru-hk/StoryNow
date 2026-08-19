@@ -7,11 +7,13 @@ func _ready() -> void:
 	%Back.pressed.connect(_on_back_pressed)
 	%LanguageOption.item_selected.connect(_on_language_selected)
 	%ScreenSizeOption.item_selected.connect(_on_screen_size_selected)
+	_sync_ui_to_settings()
 	_update_labels()
 
 
 func open() -> void:
 	visible = true
+	_sync_ui_to_settings()
 	_update_labels()
 
 
@@ -21,22 +23,24 @@ func _on_back_pressed() -> void:
 
 
 func _on_language_selected(index: int) -> void:
-	I18n.set_language(I18n.LANGUAGES[index])
+	SettingsManager.set_language(I18n.LANGUAGES[index])
 	_update_labels()
 
 
 func _on_screen_size_selected(index: int) -> void:
 	match index:
 		0:
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+			SettingsManager.set_screen_size("full")
 		1:
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-			DisplayServer.window_set_size(Vector2i(1344, 768))
-			DisplayServer.window_set_title("Instant Visual Novel")
-			var screen_size := DisplayServer.screen_get_size()
-			var window_size := Vector2i(1344, 768)
-			var centered := (screen_size - window_size) / 2
-			DisplayServer.window_set_position(centered)
+			SettingsManager.set_screen_size("1344x768")
+
+
+func _sync_ui_to_settings() -> void:
+	var lang_index := I18n.LANGUAGES.find(SettingsManager.settings["language"])
+	if lang_index >= 0:
+		%LanguageOption.selected = lang_index
+	var size_index := 0 if SettingsManager.settings["screen_size"] == "full" else 1
+	%ScreenSizeOption.selected = size_index
 
 
 func _update_labels() -> void:
