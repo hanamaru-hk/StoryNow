@@ -14,6 +14,8 @@ I18n="*res://scripts/i18n.gd"
 GameSettingsManager="*res://scripts/game_settings_manager.gd"
 ImageServerSettingsManager="*res://scripts/image_server_settings_manager.gd"
 LLMSettingsManager="*res://scripts/llm_settings_manager.gd"
+LLMManager="*res://scripts/llm_manager.gd"
+ImageServerManager="*res://scripts/image_server_manager.gd"
 
 [display]
 
