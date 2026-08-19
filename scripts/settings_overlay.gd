@@ -5,6 +5,7 @@ signal closed
 
 func _ready() -> void:
 	%Back.pressed.connect(_on_back_pressed)
+	%Reset.pressed.connect(_on_reset_pressed)
 	%LanguageOption.item_selected.connect(_on_language_selected)
 	%ScreenSizeOption.item_selected.connect(_on_screen_size_selected)
 	_sync_ui_to_settings()
@@ -20,6 +21,12 @@ func open() -> void:
 func _on_back_pressed() -> void:
 	visible = false
 	closed.emit()
+
+
+func _on_reset_pressed() -> void:
+	SettingsManager.reset_to_defaults()
+	_sync_ui_to_settings()
+	_update_labels()
 
 
 func _on_language_selected(index: int) -> void:
@@ -48,6 +55,7 @@ func _update_labels() -> void:
 	%LanguageLabel.text = I18n.translate("settings_language")
 	%ScreenSizeLabel.text = I18n.translate("settings_screen_size")
 	%Back.text = I18n.translate("btn_back")
+	%Reset.text = I18n.translate("btn_reset")
 	%LanguageOption.set_item_text(0, I18n.translate("lang_en"))
 	%LanguageOption.set_item_text(1, I18n.translate("lang_zh_cn"))
 	%LanguageOption.set_item_text(2, I18n.translate("lang_zh_tw"))

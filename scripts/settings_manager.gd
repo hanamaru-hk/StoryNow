@@ -1,6 +1,7 @@
 extends Node
 
 const SETTINGS_PATH := "user://settings.json"
+const DEFAULT_SETTINGS_PATH := "res://data/default_settings.json"
 
 var settings := {
 	"language": "en",
@@ -31,6 +32,19 @@ func load_settings() -> void:
 		file.close()
 		if error == OK and json.data is Dictionary:
 			settings.merge(json.data, true)
+
+
+func reset_to_defaults() -> void:
+	var file := FileAccess.open(DEFAULT_SETTINGS_PATH, FileAccess.READ)
+	if file:
+		var json := JSON.new()
+		var error := json.parse(file.get_as_text())
+		file.close()
+		if error == OK and json.data is Dictionary:
+			settings = json.data.duplicate()
+			_apply_language()
+			_apply_screen_size()
+			save_settings()
 
 
 func set_language(lang: String) -> void:

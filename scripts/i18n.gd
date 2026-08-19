@@ -19,6 +19,7 @@ var _translations := {
 		"btn_random": "Random",
 		"btn_enhance": "Enhance",
 		"btn_back": "Back",
+		"btn_reset": "Reset",
 		"settings_title": "Settings",
 		"settings_language": "Language",
 		"settings_screen_size": "Screen Size",
