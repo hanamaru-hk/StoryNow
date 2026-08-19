@@ -18,9 +18,11 @@ var image_state := ServerState.STARTING
 var _heartbeat_timer: Timer
 var _llm_started_this_session := false
 var _image_started_this_session := false
+var _original_ollama_host := ""
 
 
 func _ready() -> void:
+	_original_ollama_host = OS.get_environment("OLLAMA_HOST")
 	_reconcile_stale_state()
 	_start_servers()
 	_start_heartbeat()
@@ -92,3 +94,4 @@ func _exit_tree() -> void:
 	if _image_started_this_session:
 		ImageServerManager.stop_server()
 		_image_started_this_session = false
+	OS.set_environment("OLLAMA_HOST", _original_ollama_host)

@@ -22,11 +22,13 @@ func start_server() -> void:
 	if status["running"]:
 		return
 	var port: int = LLMSettingsManager.settings["port"]
+	var port_number := str(port)
 	var exe_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/ollama.exe")
 	if not FileAccess.file_exists(exe_path):
 		push_error("Ollama executable not found: " + exe_path)
 		return
-	var args := PackedStringArray(["serve", "--port", str(port)])
+	OS.set_environment("OLLAMA_HOST", "127.0.0.1:" + port_number)
+	var args := PackedStringArray(["serve"])
 	var pid: int = OS.create_process(exe_path, args, true)
 	if pid < 0:
 		push_error("Failed to start Ollama process")
