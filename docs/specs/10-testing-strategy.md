@@ -24,6 +24,8 @@
 
 ## 10.4 Test Structure
 
+> **Note:** Tests are not yet implemented. The following is the planned structure.
+
 ```
 tests/
 ├── test_scene_parser.gd       # Scene JSON parsing & validation
