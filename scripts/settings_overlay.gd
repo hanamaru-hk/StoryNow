@@ -2,6 +2,8 @@ extends Control
 
 signal closed
 
+var _pending := {}
+
 
 func _ready() -> void:
 	%Back.pressed.connect(_on_back_pressed)
@@ -15,45 +17,52 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	_pending = SettingsManager.settings.duplicate(true)
 	_sync_ui_to_settings()
 	_update_labels()
 
 
 func _on_back_pressed() -> void:
+	_pending = {}
 	visible = false
 	closed.emit()
 
 
 func _on_reset_pressed() -> void:
 	SettingsManager.reset_to_defaults()
+	_pending = SettingsManager.settings.duplicate(true)
 	_sync_ui_to_settings()
 	_update_labels()
 
 
 func _on_save_pressed() -> void:
+	SettingsManager.settings = _pending.duplicate(true)
+	SettingsManager._apply_language()
+	SettingsManager._apply_screen_size()
 	SettingsManager.save_settings()
+	_pending = {}
 	visible = false
 	closed.emit()
 
 
 func _on_language_selected(index: int) -> void:
-	SettingsManager.set_language(I18n.LANGUAGES[index])
+	_pending["language"] = I18n.LANGUAGES[index]
 	_update_labels()
 
 
 func _on_screen_size_selected(index: int) -> void:
 	match index:
 		0:
-			SettingsManager.set_screen_size("full")
+			_pending["screen_size"] = "full"
 		1:
-			SettingsManager.set_screen_size("1344x768")
+			_pending["screen_size"] = "1344x768"
 
 
 func _sync_ui_to_settings() -> void:
-	var lang_index := I18n.LANGUAGES.find(SettingsManager.settings["language"])
+	var lang_index := I18n.LANGUAGES.find(_pending["language"])
 	if lang_index >= 0:
 		%LanguageOption.selected = lang_index
-	var size_index := 0 if SettingsManager.settings["screen_size"] == "full" else 1
+	var size_index := 0 if _pending["screen_size"] == "full" else 1
 	%ScreenSizeOption.selected = size_index
 
 
