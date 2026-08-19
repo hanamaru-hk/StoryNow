@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://image_settings_overlay"]
+[gd_scene load_steps=2 format=3 uid="uid://image_server_settings_overlay"]
 
-[ext_resource type="Script" path="res://scripts/image_settings_overlay.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/image_server_settings_overlay.gd" id="1"]
 
-[node name="ImageSettingsOverlay" type="Control"]
+[node name="ImageServerSettingsOverlay" type="Control"]
 visible = false
 layout_mode = 3
 anchors_preset = 15

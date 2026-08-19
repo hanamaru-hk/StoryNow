@@ -1,7 +1,7 @@
 extends Node
 
-const SETTINGS_PATH := "user://image_settings.json"
-const DEFAULT_SETTINGS_PATH := "res://data/default_image_settings.json"
+const SETTINGS_PATH := "user://image_server_settings.json"
+const DEFAULT_SETTINGS_PATH := "res://data/default_image_server_settings.json"
 
 var settings := {
 	"port": 56321,
