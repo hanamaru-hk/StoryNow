@@ -1,0 +1,16 @@
+Based on the following story background, generate the opening visual novel scene.
+
+Story background:
+__BACKGROUND__
+
+Output requirements:
+- Return only one JSON object.
+- Follow the structure of the template below.
+- Keep `scenePrompt` in English and suitable for an SD1.5-style image prompt.
+- Write natural opening dialogue and/or narration for the first scene.
+- Include 2 to 4 meaningful player choices.
+- Set `language` to `en`.
+- Keep `storyBackground` aligned with the supplied background.
+
+JSON template:
+__JSON_TEMPLATE__

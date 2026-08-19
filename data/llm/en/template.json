@@ -1,0 +1,18 @@
+{
+  "scenePrompt": "standing person, city sidewalk, evening light",
+  "dialog": [
+    {
+      "John": "I want an ice cream."
+    },
+    {
+      "narration": "People move past him as he stands outside the repair shop."
+    }
+  ],
+  "language": "en",
+  "choices": [
+    "Walk to the ice cream truck",
+    "Stay at the shop and keep working",
+    "Ask a passing customer for advice"
+  ],
+  "storyBackground": "John is a mechanic who often craves ice cream after a long day at the shop."
+}

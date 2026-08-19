@@ -1,0 +1,18 @@
+{
+  "scenePrompt": "standing person, city sidewalk, evening light",
+  "dialog": [
+    {
+      "约翰": "我想吃冰淇淋。"
+    },
+    {
+      "narration": "他站在修理店门外，看着人群从身边匆匆走过。"
+    }
+  ],
+  "language": "zh_CN",
+  "choices": [
+    "走向冰淇淋车",
+    "留在店里继续工作",
+    "向路过的顾客征求意见"
+  ],
+  "storyBackground": "约翰是一名机械师，忙完一天后总想吃点冰淇淋。"
+}
