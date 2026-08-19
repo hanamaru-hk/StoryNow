@@ -33,6 +33,10 @@ func _on_screen_size_selected(index: int) -> void:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 			DisplayServer.window_set_size(Vector2i(1344, 768))
 			DisplayServer.window_set_title("Instant Visual Novel")
+			var screen_size := DisplayServer.screen_get_size()
+			var window_size := Vector2i(1344, 768)
+			var centered := (screen_size - window_size) / 2
+			DisplayServer.window_set_position(centered)
 
 
 func _update_labels() -> void:
