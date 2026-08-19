@@ -26,7 +26,8 @@ func start_server() -> void:
 	if not FileAccess.file_exists(exe_path):
 		push_error("Ollama executable not found: " + exe_path)
 		return
-	var pid: int = OS.create_process(exe_path, ["serve"], true)
+	var args := PackedStringArray(["serve", "--port", str(port)])
+	var pid: int = OS.create_process(exe_path, args, true)
 	if pid < 0:
 		push_error("Failed to start Ollama process")
 		return
@@ -39,7 +40,7 @@ func start_server() -> void:
 
 func stop_server() -> void:
 	if status["pid"] > 0:
-		OS.kill(status["pid"])
+		OS.execute("taskkill", ["/T", "/F", "/PID", str(status["pid"])])
 		status["pid"] = -1
 	status["running"] = false
 	status["healthy"] = false

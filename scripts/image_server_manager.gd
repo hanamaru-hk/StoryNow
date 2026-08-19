@@ -39,7 +39,7 @@ func start_server() -> void:
 
 func stop_server() -> void:
 	if status["pid"] > 0:
-		OS.kill(status["pid"])
+		OS.execute("taskkill", ["/T", "/F", "/PID", str(status["pid"])])
 		status["pid"] = -1
 	status["running"] = false
 	status["healthy"] = false
