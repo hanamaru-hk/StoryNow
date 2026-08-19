@@ -12,6 +12,8 @@ config/features=PackedStringArray("4.3")
 
 I18n="*res://scripts/i18n.gd"
 GameSettingsManager="*res://scripts/game_settings_manager.gd"
+ImageSettingsManager="*res://scripts/image_settings_manager.gd"
+LLMSettingsManager="*res://scripts/llm_settings_manager.gd"
 
 [display]
 
