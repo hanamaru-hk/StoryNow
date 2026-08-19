@@ -7,7 +7,7 @@ func _ready() -> void:
 	%Gallery.pressed.connect(_on_gallery_pressed)
 	%Setting.pressed.connect(_on_setting_pressed)
 	%Exit.pressed.connect(_on_exit_pressed)
-	%SettingsOverlay.closed.connect(_on_settings_closed)
+	%GameSettingsOverlay.closed.connect(_on_settings_closed)
 	_update_labels()
 
 
@@ -24,7 +24,7 @@ func _on_gallery_pressed() -> void:
 
 
 func _on_setting_pressed() -> void:
-	%SettingsOverlay.open()
+	%GameSettingsOverlay.open()
 
 
 func _on_settings_closed() -> void:

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/settings_overlay.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -78,5 +78,5 @@ custom_minimum_size = Vector2(240, 48)
 size_flags_horizontal = 4
 text = "Exit"
 
-[node name="SettingsOverlay" parent="." instance=ExtResource("2")]
+[node name="GameSettingsOverlay" parent="." instance=ExtResource("2")]
 unique_name_in_owner = true

@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://settings_overlay"]
+[gd_scene load_steps=2 format=3 uid="uid://game_settings_overlay"]
 
 [ext_resource type="Script" path="res://scripts/game_settings_overlay.gd" id="1"]
 
-[node name="SettingsOverlay" type="Control"]
+[node name="GameSettingsOverlay" type="Control"]
 visible = false
 layout_mode = 3
 anchors_preset = 15

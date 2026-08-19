@@ -17,7 +17,7 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
-	_pending = SettingsManager.settings.duplicate(true)
+	_pending = GameSettingsManager.settings.duplicate(true)
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -29,17 +29,17 @@ func _on_back_pressed() -> void:
 
 
 func _on_reset_pressed() -> void:
-	SettingsManager.reset_to_defaults()
-	_pending = SettingsManager.settings.duplicate(true)
+	GameSettingsManager.reset_to_defaults()
+	_pending = GameSettingsManager.settings.duplicate(true)
 	_sync_ui_to_settings()
 	_update_labels()
 
 
 func _on_save_pressed() -> void:
-	SettingsManager.settings = _pending.duplicate(true)
-	SettingsManager._apply_language()
-	SettingsManager._apply_screen_size()
-	SettingsManager.save_settings()
+	GameSettingsManager.settings = _pending.duplicate(true)
+	GameSettingsManager._apply_language()
+	GameSettingsManager._apply_screen_size()
+	GameSettingsManager.save_settings()
 	_pending = {}
 	visible = false
 	closed.emit()
