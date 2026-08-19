@@ -22,11 +22,13 @@ func start_server() -> void:
 	if status["running"]:
 		return
 	var port: int = ImageServerSettingsManager.settings["port"]
-	var exe_path := ProjectSettings.globalize_path("res://" + COMFYUI_DIR + "/run_nvidia_gpu.bat")
+	var base_path := ProjectSettings.globalize_path("res://" + COMFYUI_DIR)
+	var exe_path := base_path + "/python_embeded/python.exe"
 	if not FileAccess.file_exists(exe_path):
-		push_error("ComfyUI launcher not found: " + exe_path)
+		push_error("ComfyUI Python not found: " + exe_path)
 		return
-	var pid: int = OS.create_process(exe_path, [], true)
+	var args := PackedStringArray(["-s", base_path + "/ComfyUI/main.py", "--port", str(port), "--windows-standalone-build"])
+	var pid: int = OS.create_process(exe_path, args, true)
 	if pid < 0:
 		push_error("Failed to start ComfyUI process")
 		return
