@@ -16,6 +16,7 @@ ImageServerSettingsManager="*res://scripts/image_server_settings_manager.gd"
 LLMSettingsManager="*res://scripts/llm_settings_manager.gd"
 LLMManager="*res://scripts/llm_manager.gd"
 ImageServerManager="*res://scripts/image_server_manager.gd"
+ServerRuntimeManager="*res://scripts/server_runtime_manager.gd"
 
 [display]
 
