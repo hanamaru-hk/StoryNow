@@ -28,7 +28,7 @@ func start_server() -> void:
 		push_error("ComfyUI Python not found: " + exe_path)
 		return
 	var args := PackedStringArray(["-s", base_path + "/ComfyUI/main.py", "--port", str(port), "--windows-standalone-build", "--disable-auto-launch"])
-	var pid: int = OS.create_process(exe_path, args, true)
+	var pid: int = OS.create_process(exe_path, args, OS.is_stdout_verbose())
 	if pid < 0:
 		push_error("Failed to start ComfyUI process")
 		return

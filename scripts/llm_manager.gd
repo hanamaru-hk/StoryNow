@@ -29,7 +29,7 @@ func start_server() -> void:
 		return
 	OS.set_environment("OLLAMA_HOST", "127.0.0.1:" + port_number)
 	var args := PackedStringArray(["serve"])
-	var pid: int = OS.create_process(exe_path, args, true)
+	var pid: int = OS.create_process(exe_path, args, OS.is_stdout_verbose())
 	if pid < 0:
 		push_error("Failed to start Ollama process")
 		return
