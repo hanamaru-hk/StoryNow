@@ -70,7 +70,7 @@ All overlays follow an **open/save/reset/back** pattern with pending state manag
 
 ## 7.8 Error Handling
 
-- **Hard error** — if Ollama or ComfyUI is unreachable or returns an error, freeze the game and show an error message. Player can retry manually.
+- **Hard error** — if llama.cpp or ComfyUI is unreachable or returns an error, freeze the game and show an error message. Player can retry manually.
 - No graceful degradation — errors must be resolved.
 - *(Error handling UI not yet implemented for story/image generation.)*
 

@@ -7,7 +7,7 @@
 
 ## Open
 
-- [ ] Ollama system prompt design for reliable JSON output
+- [ ] llama.cpp system prompt design for reliable JSON output
 - [ ] Scene limit / ending detection for infinite mode
 - [ ] How many save slots
 - [ ] Whether to support exporting/sharing stories

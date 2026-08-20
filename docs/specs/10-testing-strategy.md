@@ -18,7 +18,7 @@
 | High | Scene data parsing | Valid JSON → scene object, malformed JSON → error |
 | High | State management | State updates correctly, rolling window truncation |
 | High | Save/Load | Round-trip serialization, slot management |
-| Medium | Story manager | Ollama request/response handling, prompt construction |
+| Medium | Story manager | llama.cpp request/response handling, prompt construction |
 | Medium | Image manager | ComfyUI request construction, image path management |
 | Low | UI rendering | Typewriter timing, choice button display |
 
@@ -31,14 +31,14 @@ tests/
 ├── test_scene_parser.gd       # Scene JSON parsing & validation
 ├── test_state_manager.gd      # Story state tracking & updates
 ├── test_save_manager.gd       # Save/load serialization
-├── test_story_manager.gd      # Ollama integration logic
+├── test_story_manager.gd      # llama.cpp integration logic
 ├── test_image_manager.gd      # ComfyUI integration logic
 └── test_helpers.gd            # Shared test utilities & fixtures
 ```
 
 ## 10.5 Mocking External Services
 
-- Ollama and ComfyUI are HTTP services — tests should **not** require running servers.
+- llama.cpp and ComfyUI are HTTP services — tests should **not** require running servers.
 - Use a mock HTTP layer that returns canned JSON responses for unit tests.
 - Integration tests (optional, manual) can hit real servers.
 

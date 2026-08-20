@@ -30,7 +30,7 @@ instant-visual-novel/
 │   ├── i18n.gd                    # Internationalization (en, zh_CN, zh_TW)
 │   ├── game_settings_manager.gd   # Game settings persistence & apply
 │   ├── game_settings_overlay.gd   # Game settings UI overlay
-│   ├── llm_manager.gd             # Ollama process lifecycle
+│   ├── llm_manager.gd             # llama.cpp process lifecycle
 │   ├── llm_settings_manager.gd    # LLM settings persistence
 │   ├── llm_settings_overlay.gd    # LLM settings UI overlay
 │   ├── image_server_manager.gd    # ComfyUI process lifecycle
@@ -51,7 +51,7 @@ instant-visual-novel/
 │   └── translations/
 │       └── translations.csv           # Translation strings
 ├── server/                             # AI server binaries (gitignored)
-│   ├── ollama/
+│   ├── llama/
 │   └── ComfyUI/
 ├── project.godot
 ├── .gitignore
@@ -68,7 +68,7 @@ Registered in `project.godot`:
 | `GameSettingsManager` | `scripts/game_settings_manager.gd` | Game settings (language, screen size) |
 | `ImageServerSettingsManager` | `scripts/image_server_settings_manager.gd` | Image server port config |
 | `LLMSettingsManager` | `scripts/llm_settings_manager.gd` | LLM port config |
-| `LLMManager` | `scripts/llm_manager.gd` | Ollama process lifecycle |
+| `LLMManager` | `scripts/llm_manager.gd` | llama.cpp process lifecycle |
 | `ImageServerManager` | `scripts/image_server_manager.gd` | ComfyUI process lifecycle |
 | `ServerRuntimeManager` | `scripts/server_runtime_manager.gd` | Server coordinator |
 

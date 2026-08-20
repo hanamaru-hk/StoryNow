@@ -1,9 +1,9 @@
 # 9. Technical Notes
 
-## 9.1 Ollama API
+## 9.1 llama.cpp API
 
-- Health check endpoint: `GET http://127.0.0.1:<port>/api/tags`
-- Chat endpoint: `POST http://127.0.0.1:<port>/api/chat`
+- Health check endpoint: `GET http://127.0.0.1:<port>/health`
+- Chat endpoint: `POST http://127.0.0.1:<port>/v1/chat/completions`
 - Default port: **48763** (configurable via LLM Settings overlay)
 - Model: configurable, ≤9B parameter models.
 - System prompt forces JSON output with the scene schema.
@@ -54,7 +54,7 @@ The workflow template uses the following placeholders, to be replaced at runtime
   - Shuts down owned processes on exit (`taskkill /T /F /PID` on Windows).
 - **LLMManager** / **ImageServerManager** manage individual processes:
   - Status persisted to `user://llm_status.json` / `user://image_server_status.json`.
-  - Ollama started via `server/ollama/ollama.exe serve` with `OLLAMA_HOST` env var.
+  - llama.cpp started via `server/llama/llama-server.exe` with `--host` and `--port` flags.
   - ComfyUI started via `server/ComfyUI/ComfyUI_windows_portable/python_embeded/python.exe -s ComfyUI/main.py --port <port> --windows-standalone-build --disable-auto-launch`.
 
 ## 9.4 Display
