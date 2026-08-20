@@ -5,7 +5,7 @@
 │                   Godot 4.x Client               │
 │  ┌────────────┐  ┌──────────┐  ┌──────────────┐ │
 │  │ Story Gen  │  │ Image Gen│  │  UI / VN     │ │
-│  │ (Ollama)   │  │ (ComfyUI)│  │  Renderer    │ │
+│  │(llama.cpp) │  │ (ComfyUI)│  │  Renderer    │ │
 │  └─────┬──────┘  └────┬─────┘  └──────────────┘ │
 │        │              │                          │
 │        └──────┬───────┘                          │
@@ -20,13 +20,13 @@
     ┌───────────┴────────────┐
     │                        │
 ┌───▼─────┐           ┌─────▼──────┐
-│ Ollama  │           │  ComfyUI   │
+│llama.cpp│           │  ComfyUI   │
 │ (local) │           │  (local)   │
 │ ≤9B     │           │  API       │
 └─────────┘           └────────────┘
 ```
 
-Communication: **Direct HTTP from GDScript** to both Ollama and ComfyUI. No middleware.
+Communication: **Direct HTTP from GDScript** to both llama.cpp and ComfyUI. No middleware.
 
 ## Key Components
 

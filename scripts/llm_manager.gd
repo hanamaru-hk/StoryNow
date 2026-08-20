@@ -2,7 +2,7 @@ extends Node
 ## Library functions for managing the Ollama (LLM) server process.
 
 const STATUS_PATH := "user://llm_status.json"
-const OLLAMA_DIR := "server/ollama"
+const OLLAMA_DIR := "server/llama"
 const HEALTH_TIMEOUT := 5.0
 
 signal status_changed(status: Dictionary)
@@ -23,12 +23,12 @@ func start_server() -> void:
 		return
 	var port: int = LLMSettingsManager.settings["port"]
 	var port_number := str(port)
-	var exe_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/ollama.exe")
+	var exe_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/llama-server.exe")
+	var model_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/models/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
 	if not FileAccess.file_exists(exe_path):
-		push_error("Ollama executable not found: " + exe_path)
+		push_error("llama-server executable not found: " + exe_path)
 		return
-	OS.set_environment("OLLAMA_HOST", "127.0.0.1:" + port_number)
-	var args := PackedStringArray(["serve"])
+	var args := PackedStringArray(["-ngl","99","-m", model_path, "--port", port_number])
 	var pid: int = OS.create_process(exe_path, args, OS.is_stdout_verbose())
 	if pid < 0:
 		push_error("Failed to start Ollama process")
@@ -81,7 +81,7 @@ func health_check() -> bool:
 	# Send request
 	error = http.request(
 		HTTPClient.METHOD_GET,
-		"/api/tags",
+		"/health",
 		PackedStringArray()
 	)
 
