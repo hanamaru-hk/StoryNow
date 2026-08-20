@@ -9,7 +9,7 @@ enum ServerState { STARTING, HEALTHY, UNHEALTHY }
 signal llm_state_changed(state: ServerState)
 signal image_state_changed(state: ServerState)
 
-const HEARTBEAT_INTERVAL := 15.0
+const HEARTBEAT_INTERVAL := 8.0
 const INITIAL_CHECK_DELAY := 2.0
 
 var llm_state := ServerState.STARTING
