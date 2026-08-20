@@ -1,11 +1,8 @@
 {
-  "scenePrompt": "standing person, city sidewalk, evening light",
+  "scenePrompt": "man, mechanic",
   "dialog": [
     {
       "John": "I want an ice cream."
-    },
-    {
-      "narration": "People move past him as he stands outside the repair shop."
     }
   ],
   "language": "en",
@@ -14,5 +11,5 @@
     "Stay at the shop and keep working",
     "Ask a passing customer for advice"
   ],
-  "storyBackground": "John is a mechanic who often craves ice cream after a long day at the shop."
+  "summary": "John is a mechanic who often craves ice cream after a long day at the shop."
 }

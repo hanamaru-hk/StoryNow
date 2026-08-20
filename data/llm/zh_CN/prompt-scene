@@ -1,19 +1,18 @@
-根据以下信息，生成视觉小说的下一幕场景。
+严格以原始JSON格式回复，不要使用Markdown格式。
+根据以下信息，生成视觉小说的下一个场景。
 
-上一幕场景的 JSON：
+<previous-scene-json>
 __LAST_JSON__
+</previous-scene-json>
 
-玩家对下一步的输入：
+<player-input-for-the-next-step>
 __USER_INPUT__
+</player-input-for-the-next-step>
 
-输出要求：
-- 只返回一个 JSON 对象。
-- 遵循下面模板的结构。
-- `scenePrompt` 必须使用英文，并适合作为 SD1.5 风格的图像提示词。
-- `dialog` 只聚焦当前这一幕的内容。
-- 包含 2 到 4 个有意义的选项。
-- 更新 `storyBackground`，用简洁的方式反映目前为止的剧情。
-- 叙事语言要与 `language` 的值一致。
+<output-requirements>
+__OUTPUT_REQUIREMENT__
+</output-requirements>
 
-JSON 模板：
+<output-json-template>
 __JSON_TEMPLATE__
+</output-json-template>

@@ -1,9 +1,7 @@
 Create an original visual novel story background in English.
 
-Requirements:
-- Use no more than 10 sentences.
-- Invent a clear protagonist, setting, and central conflict.
-- Pick a distinct genre or tone instead of a generic setup.
-- Leave room for future branching choices.
+<requirements>
+__REQUIREMENTS__
+</requirements>
 
 Return only the background text.

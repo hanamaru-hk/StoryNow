@@ -2,12 +2,13 @@ You are writing the setup for a visual novel.
 
 Based on the player input below, write a story background in English.
 
-Requirements:
-- Use no more than 10 sentences.
-- Establish the protagonist, setting, and central conflict.
-- Keep the premise flexible so later scenes can branch naturally.
-- Keep the tone vivid but concise.
+<user-input>
+__USER_INPUT__
+</user-input>
+
+<requirements>
+__REQUIREMENTS__
+</requirements>
 
 Return only the background text.
 
-__USER_INPUT__
