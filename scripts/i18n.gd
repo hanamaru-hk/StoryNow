@@ -34,6 +34,9 @@ var _translations := {
 		"lang_en": "English",
 		"lang_zh_cn": "简体中文",
 		"lang_zh_tw": "繁體中文",
+		"loading_title": "Loading...",
+		"error_dialog_title": "Error",
+		"error_dialog_text": "Something went wrong. Please try again.",
 	},
 	"zh_CN": {
 		"main_title": "即时视觉小说",
@@ -63,6 +66,9 @@ var _translations := {
 		"lang_en": "English",
 		"lang_zh_cn": "简体中文",
 		"lang_zh_tw": "繁體中文",
+		"loading_title": "加载中...",
+		"error_dialog_title": "错误",
+		"error_dialog_text": "出错了，请重试。",
 	},
 	"zh_TW": {
 		"main_title": "即時視覺小說",
@@ -92,6 +98,9 @@ var _translations := {
 		"lang_en": "English",
 		"lang_zh_cn": "简体中文",
 		"lang_zh_tw": "繁體中文",
+		"loading_title": "載入中...",
+		"error_dialog_title": "錯誤",
+		"error_dialog_text": "出了問題，請重試。",
 	},
 }
 
