@@ -1,16 +1,14 @@
+严格以原始JSON格式回复，不要使用Markdown格式。
 根据以下故事背景，生成视觉小说的开场场景。
 
-故事背景：
+<background>
 __BACKGROUND__
+</background>
 
-输出要求：
-- 只返回一个 JSON 对象。
-- 遵循下面模板的结构。
-- `scenePrompt` 必须使用英文，并适合作为 SD1.5 风格的图像提示词。
-- 为第一幕写出自然的对白和/或旁白。
-- 包含 2 到 4 个有意义的玩家选项。
-- 将 `language` 设为 `zh_CN`。
-- 保持 `storyBackground` 与给定背景一致。
+<output-requirements>
+__OUTPUT_REQUIREMENT__
+</output-requirements>
 
-JSON 模板：
+<output-json-template>
 __JSON_TEMPLATE__
+</output-json-template>
