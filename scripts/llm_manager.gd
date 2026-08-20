@@ -31,7 +31,9 @@ func start_server() -> void:
 	var port: int = LLMSettingsManager.settings["port"]
 	var port_number := str(port)
 	var exe_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/llama-server.exe")
-	var model_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/models/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
+
+	var model_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/models/huihui-qwen3.5-9b-Q4_K_M.gguf")
+	# var model_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/models/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
 		return
