@@ -92,3 +92,50 @@ layout_mode = 2
 custom_minimum_size = Vector2(160, 48)
 size_flags_horizontal = 4
 text = "Back"
+
+[node name="LoadingOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="LoadingOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="CenterContainer" type="CenterContainer" parent="LoadingOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="LoadingOverlay/CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Spinner" type="ProgressBar" parent="LoadingOverlay/CenterContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(160, 8)
+indeterminate = true
+
+[node name="LoadingLabel" type="Label" parent="LoadingOverlay/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Loading..."
+horizontal_alignment = 1
+
+[node name="ErrorDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Error"
+dialog_text = "Something went wrong. Please try again."

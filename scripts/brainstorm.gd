@@ -9,7 +9,25 @@ func _ready() -> void:
 
 
 func _on_random_pressed() -> void:
-	pass
+	var input: String = %BackgroundInput.text
+	%Random.disabled = true
+	_show_loading(true)
+	var result: Dictionary = await LLMManager.brainstorm(input)
+	_show_loading(false)
+	%Random.disabled = false
+	if not result.get("success", false):
+		_show_error_dialog(result.get("error", ""))
+	else:
+		%BackgroundInput.text = result["text"]
+
+
+func _show_loading(is_visible: bool) -> void:
+	%LoadingOverlay.visible = is_visible
+
+
+func _show_error_dialog(message: String) -> void:
+	%ErrorDialog.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%ErrorDialog.popup_centered()
 
 
 func _on_start_pressed() -> void:
@@ -27,3 +45,5 @@ func _update_labels() -> void:
 	%Random.text = I18n.translate("btn_random")
 	%Start.text = I18n.translate("btn_start")
 	%Back.text = I18n.translate("btn_back")
+	%LoadingLabel.text = I18n.translate("loading_title")
+	%ErrorDialog.title = I18n.translate("error_dialog_title")
