@@ -202,6 +202,35 @@ func _update_nav_buttons() -> void:
 # ------------------------------------------------------------------
 # Input handlers
 # ------------------------------------------------------------------
+# Trigger: virtual Node._input / _unhandled_input — called automatically by Godot's
+# input dispatch (no signal connection needed). _input is used so right-click
+# works even when GUI Controls (Dialogue/TopBar) would otherwise mark the event
+# as handled and prevent _unhandled_input from firing.
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		# Don't toggle when choice/error overlays are open
+		if %ChoiceOverlay.visible or %ErrorReturnDialog.visible:
+			return
+		_toggle_chrome()
+		get_viewport().set_input_as_handled()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Fallback duplicate for cases where _input is filtered; keeps same logic.
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		if %ChoiceOverlay.visible or %ErrorReturnDialog.visible:
+			return
+		_toggle_chrome()
+		get_viewport().set_input_as_handled()
+
+
+func _toggle_chrome() -> void:
+	# Toggle TopBar and Dialogue visibility together (right-click anywhere)
+	var next_visible: bool = not %Dialogue.visible
+	%Dialogue.visible = next_visible
+	%TopBar.visible = next_visible
+
+
 func _on_dialog_area_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_on_next_dialog_pressed()
