@@ -1,0 +1,305 @@
+[gd_scene load_steps=2 format=3 uid="uid://game_scene"]
+
+[ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
+
+[node name="Gameplay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1")
+
+[node name="BackgroundImage" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+color = Color(0.12, 0.12, 0.16, 1)
+
+[node name="BackgroundFallback" type="ColorRect" parent="BackgroundImage"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.12, 0.16, 1)
+show_behind_parent = true
+
+[node name="TopBar" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="Margin" type="MarginContainer" parent="TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="HBox" type="HBoxContainer" parent="TopBar/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ScenePromptLabel" type="Label" parent="TopBar/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "scenePrompt placeholder"
+autowrap_mode = 3
+horizontal_alignment = 0
+
+[node name="SceneProgressLabel" type="Label" parent="TopBar/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Scene 1 / 1"
+horizontal_alignment = 2
+
+[node name="Dialogue" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 0.68
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DialogueBackground" type="ColorRect" parent="Dialogue"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.08, 0.1, 0.92)
+
+[node name="Margin" type="MarginContainer" parent="Dialogue"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="HBox" type="HBoxContainer" parent="Dialogue/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="DialogArea" type="PanelContainer" parent="Dialogue/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 220)
+
+[node name="Margin" type="MarginContainer" parent="Dialogue/Margin/HBox/DialogArea"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="Dialogue/Margin/HBox/DialogArea/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderRow" type="HBoxContainer" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="NameLabel" type="Label" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Alice"
+
+[node name="DialogProgressLabel" type="Label" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1 / 3"
+horizontal_alignment = 2
+
+[node name="DialogLabel" type="RichTextLabel" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 120)
+bbcode_enabled = true
+text = "Dialogue text appears here with typewriter effect. Click to advance."
+fit_content = false
+scroll_active = false
+autowrap_mode = 3
+
+[node name="SidePanel" type="PanelContainer" parent="Dialogue/Margin/HBox"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(380, 0)
+
+[node name="Margin" type="MarginContainer" parent="Dialogue/Margin/HBox/SidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Grid" type="GridContainer" parent="Dialogue/Margin/HBox/SidePanel/Margin"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="DialogButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Dialog"
+
+[node name="ImageButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Image"
+
+[node name="PlotButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Plot"
+
+[node name="SettingButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Setting"
+
+[node name="PrevDialogButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "< Prev"
+
+[node name="NextDialogButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Next >"
+
+[node name="PrevSceneButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "< Scene"
+
+[node name="NextSceneButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Next Scene >"
+
+[node name="ErrorReturnDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Error"
+ok_button_text = "Return to Menu"
+dialog_text = "Something went wrong. Returning to main menu."
+visible = false
+
+[node name="ChoiceOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDim" type="ColorRect" parent="ChoiceOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.72)
+
+[node name="CenterContainer" type="CenterContainer" parent="ChoiceOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="ChoiceOverlay/CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(720, 560)
+
+[node name="Margin" type="MarginContainer" parent="ChoiceOverlay/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="ChoiceOverlay/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Choose Next Step"
+horizontal_alignment = 1
+
+[node name="ChoiceScroll" type="ScrollContainer" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 280)
+horizontal_scroll_mode = 0
+
+[node name="ChoiceList" type="VBoxContainer" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox/ChoiceScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CustomInput" type="TextEdit" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 120)
+placeholder_text = "Or write what you want to do..."
+wrap_mode = 1
+
+[node name="ButtonRow" type="HBoxContainer" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 16
+
+[node name="ChoiceCancel" type="Button" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(160, 40)
+text = "Back"
+
+[node name="ChoiceConfirm" type="Button" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(160, 40)
+text = "Confirm"

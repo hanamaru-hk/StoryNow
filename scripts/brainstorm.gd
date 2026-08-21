@@ -31,7 +31,9 @@ func _show_error_dialog(message: String) -> void:
 
 
 func _on_start_pressed() -> void:
-	pass
+	# Pass story background to gameplay scene via autoload or scene change
+	# For now just switch to gameplay scene; Gameplay will use placeholder if empty
+	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 
 func _on_back_pressed() -> void:
