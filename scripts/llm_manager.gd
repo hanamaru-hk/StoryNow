@@ -8,9 +8,9 @@ const BRAINSTORM_TIMEOUT := 120.0
 const LLM_HOST := "127.0.0.1"
 const CHAT_ENDPOINT := "/v1/chat/completions"
 const PROMPT_DIR := "res://data/llm"
-const PROMPT_RANDOM := "prompt-random"
-const PROMPT_ENHANCE := "prompt-enhance"
-const PROMPT_REQUIREMENTS := "prompt-text-requirement"
+const PROMPT_RANDOM := "prompt_random"
+const PROMPT_ENHANCE := "prompt_enhance"
+const PROMPT_REQUIREMENTS := "prompt_text_requirement"
 
 signal status_changed(status: Dictionary)
 
