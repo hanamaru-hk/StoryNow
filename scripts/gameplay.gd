@@ -43,10 +43,36 @@ func _ready() -> void:
 		%DialogArea.gui_input.connect(_on_dialog_area_input)
 
 	_update_labels()
+	_load_default_background()
 	# If launched without preloaded scenes, create placeholder for layout testing
 	if _scenes.is_empty():
 		_load_placeholder_scenes()
 	_show_scene(0)
+
+
+func _load_default_background() -> void:
+	# Runtime load to avoid requiring .import (handles missing Texture2D loader error).
+	# Uses Image.load_from_file via globalized path, then ImageTexture.
+	var res_path := "res://assets/images/loading.jpg"
+	var global_path := ProjectSettings.globalize_path(res_path)
+	var img := Image.new()
+	var err: Error = img.load(global_path)
+	if err != OK:
+		# Fallback: try direct res:// path (works if file is imported elsewhere)
+		err = img.load(res_path)
+	if err == OK:
+		var tex := ImageTexture.create_from_image(img)
+		%BackgroundImage.texture = tex
+		%BackgroundImage.modulate = Color(1, 1, 1, 0.5)
+	else:
+		# Final fallback: try ResourceLoader (requires import)
+		var res_tex: Resource = load(res_path)
+		if res_tex is Texture2D:
+			%BackgroundImage.texture = res_tex
+		else:
+			push_warning("Failed to load default background %s: %s" % [res_path, err])
+		# Keep modulate for placeholder / 50% opacity
+		%BackgroundImage.modulate = Color(1, 1, 1, 0.5)
 
 
 func set_story_background(prompt: String) -> void:
