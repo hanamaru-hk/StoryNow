@@ -2,7 +2,7 @@ extends Control
 
 
 func _ready() -> void:
-	print_verbose(OS.get_user_data_dir())
+	print_verbose("user data dir: " + OS.get_user_data_dir())
 	%Start.pressed.connect(_on_start_pressed)
 	%Load.pressed.connect(_on_load_pressed)
 	%Gallery.pressed.connect(_on_gallery_pressed)

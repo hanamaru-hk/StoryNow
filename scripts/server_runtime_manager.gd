@@ -18,7 +18,6 @@ var image_state := ServerState.STARTING
 var _heartbeat_timer: Timer
 var _llm_started_this_session := false
 var _image_started_this_session := false
-var _original_ollama_host := ""
 
 
 func _ready() -> void:
@@ -46,7 +45,6 @@ func _ready() -> void:
 				if dst_file2:
 					dst_file2.store_string(content2)
 					dst_file2.close()
-	_original_ollama_host = OS.get_environment("OLLAMA_HOST")
 	LLMManager.status_changed.connect(_on_llm_status_changed)
 	ImageServerManager.status_changed.connect(_on_image_status_changed)
 	_reconcile_stale_state()
@@ -94,7 +92,6 @@ func _add_overlay() -> void:
 
 
 func _on_heartbeat() -> void:
-	print_verbose("_on_heartbeat")
 	LLMManager.health_check()
 	ImageServerManager.health_check()
 
@@ -131,4 +128,3 @@ func _exit_tree() -> void:
 	if _image_started_this_session:
 		ImageServerManager.stop_server()
 		_image_started_this_session = false
-	OS.set_environment("OLLAMA_HOST", _original_ollama_host)

@@ -71,15 +71,10 @@ func health_check() -> bool:
 			_set_unhealthy()
 			return false
 
-	print_verbose("Connected")
-
 	if http.get_status() != HTTPClient.STATUS_CONNECTED:
-		print_verbose("Not connected")
 		http.close()
 		_set_unhealthy()
 		return false
-
-	print_verbose("Sending request")
 
 	error = http.request(
 		HTTPClient.METHOD_GET,
@@ -88,7 +83,6 @@ func health_check() -> bool:
 	)
 
 	if error != OK:
-		print_verbose("Request failed: " + str(error))
 		http.close()
 		_set_unhealthy()
 		return false
@@ -98,27 +92,20 @@ func health_check() -> bool:
 	while http.get_status() == HTTPClient.STATUS_REQUESTING:
 		http.poll()
 
-		print_verbose("Request status: " + str(http.get_status()))
-
 		await get_tree().process_frame
 
 		timeout -= get_process_delta_time()
 		if timeout <= 0:
-			print_verbose("Request timeout")
 			http.close()
 			_set_unhealthy()
 			return false
 
-	print_verbose("Request finished, status: " + str(http.get_status()))
-
 	if not http.has_response():
-		print_verbose("No HTTP response")
 		http.close()
 		_set_unhealthy()
 		return false
 
 	var response_code := http.get_response_code()
-	print_verbose("Response code: " + str(response_code))
 
 	# Consume the response body.
 	while http.get_status() == HTTPClient.STATUS_BODY:
