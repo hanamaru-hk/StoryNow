@@ -2,7 +2,9 @@
   "scenePrompt": "man, mechanic",
   "dialog": [
     {
-      "John": "我想吃冰淇淋。"
+      "character": "John",
+      "dialog": "我想吃冰淇淋。",
+      "sex": "male"
     }
   ],
   "language": "zh_TW",

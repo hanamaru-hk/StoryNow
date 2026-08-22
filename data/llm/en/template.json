@@ -2,7 +2,9 @@
   "scenePrompt": "man, mechanic",
   "dialog": [
     {
-      "John": "I want an ice cream."
+      "character": "John",
+      "dialog": "I want an ice cream.",
+      "sex": "male"
     }
   ],
   "language": "en",
