@@ -66,6 +66,7 @@ func _on_start_pressed() -> void:
 	GameProgressManager.settings["current_uuid"] = uuid
 	GameProgressManager.settings["game_status"] = "newStory"
 	GameProgressManager.save_settings()
+	SceneDataManager.save()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 
