@@ -4,6 +4,7 @@ extends Control
 func _ready() -> void:
 	%Random.pressed.connect(_on_random_pressed)
 	%Enhance.pressed.connect(_on_enhance_pressed)
+	%Advanced.pressed.connect(_on_advanced_pressed)
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
 	_update_labels()
@@ -31,6 +32,10 @@ func _on_enhance_pressed() -> void:
 		_show_error_dialog(result.get("error", ""))
 	else:
 		%BackgroundInput.text = result["text"]
+
+
+func _on_advanced_pressed() -> void:
+	%GameProgressOverlay.open()
 
 
 func _show_loading(is_visible: bool) -> void:

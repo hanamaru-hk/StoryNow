@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://prompt_page"]
+[gd_scene load_steps=3 format=3 uid="uid://prompt_page"]
 
 [ext_resource type="Script" path="res://scripts/brainstorm.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/game_progress_overlay.tscn" id="2"]
 
 [node name="PromptPage" type="Control"]
 layout_mode = 3
@@ -153,3 +154,6 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 title = "Error"
 dialog_text = "Something went wrong. Please try again."
+
+[node name="GameProgressOverlay" parent="." instance=ExtResource("2")]
+unique_name_in_owner = true
