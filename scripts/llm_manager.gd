@@ -166,8 +166,8 @@ func load_status() -> void:
 			status = json.data
 
 
-func brainstorm(input: String) -> Dictionary:
-	var prompt_file := PROMPT_RANDOM if input.strip_edges().is_empty() else PROMPT_ENHANCE
+func request_random() -> Dictionary:
+	var prompt_file := PROMPT_RANDOM 
 	var prompt := _load_prompt(prompt_file)
 	if prompt.is_empty():
 		return {"success": false, "error": "Failed to load prompt template"}
@@ -175,8 +175,18 @@ func brainstorm(input: String) -> Dictionary:
 	if requirements.is_empty():
 		return {"success": false, "error": "Failed to load requirements template"}
 	prompt = prompt.replace("__REQUIREMENTS__", requirements)
-	if prompt_file == PROMPT_ENHANCE:
-		prompt = prompt.replace("__USER_INPUT__", input)
+	return await _request_completion(prompt)
+
+func request_enhance(input: String) -> Dictionary:
+	var prompt_file := PROMPT_ENHANCE
+	var prompt := _load_prompt(prompt_file)
+	if prompt.is_empty():
+		return {"success": false, "error": "Failed to load prompt template"}
+	var requirements := _load_prompt(PROMPT_REQUIREMENTS)
+	if requirements.is_empty():
+		return {"success": false, "error": "Failed to load requirements template"}
+	prompt = prompt.replace("__REQUIREMENTS__", requirements)
+	prompt = prompt.replace("__USER_INPUT__", input)
 	return await _request_completion(prompt)
 
 

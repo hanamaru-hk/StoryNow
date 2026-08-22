@@ -3,16 +3,28 @@ extends Control
 
 func _ready() -> void:
 	%Random.pressed.connect(_on_random_pressed)
+	%Enhance.pressed.connect(_on_enhance_pressed)
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
 	_update_labels()
 
 
 func _on_random_pressed() -> void:
+	%Random.disabled = true
+	_show_loading(true)
+	var result: Dictionary = await LLMManager.request_random()
+	_show_loading(false)
+	%Random.disabled = false
+	if not result.get("success", false):
+		_show_error_dialog(result.get("error", ""))
+	else:
+		%BackgroundInput.text = result["text"]
+
+func _on_enhance_pressed() -> void:
 	var input: String = %BackgroundInput.text
 	%Random.disabled = true
 	_show_loading(true)
-	var result: Dictionary = await LLMManager.brainstorm(input)
+	var result: Dictionary = await LLMManager.request_enhance(input)
 	_show_loading(false)
 	%Random.disabled = false
 	if not result.get("success", false):
