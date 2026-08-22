@@ -2,6 +2,7 @@ extends Control
 
 
 func _ready() -> void:
+	print_verbose(OS.get_user_data_dir())
 	%Start.pressed.connect(_on_start_pressed)
 	%Load.pressed.connect(_on_load_pressed)
 	%Gallery.pressed.connect(_on_gallery_pressed)
@@ -12,7 +13,9 @@ func _ready() -> void:
 	%GameSettingsOverlay.closed.connect(_on_settings_closed)
 	%ImageServerSettingsOverlay.closed.connect(_on_settings_closed)
 	%LLMSettingsOverlay.closed.connect(_on_settings_closed)
+	%FirstTimeLanguageOverlay.language_selected.connect(_on_first_time_language_selected)
 	_update_labels()
+	_check_first_time_overlay()
 
 
 func _on_start_pressed() -> void:
@@ -45,6 +48,15 @@ func _on_settings_closed() -> void:
 
 func _on_exit_pressed() -> void:
 	get_tree().quit()
+
+
+func _check_first_time_overlay() -> void:
+	if not FileAccess.file_exists(GameSettingsManager.SETTINGS_PATH):
+		%FirstTimeLanguageOverlay.open()
+
+
+func _on_first_time_language_selected(_lang: String) -> void:
+	_update_labels()
 
 
 func _update_labels() -> void:

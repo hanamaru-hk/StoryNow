@@ -7,6 +7,8 @@ var current_lang: String = DEFAULT_LANG
 
 var _translations := {
 	"en": {
+		"first_time_title": "Please choose your language",
+		"first_time_remark": "You can change this afterwards in Game Settings",
 		"main_title": "Instant Visual Novel",
 		"btn_start": "Start",
 		"btn_load": "Load",
@@ -52,6 +54,8 @@ var _translations := {
 		"choice_title": "Choose Next Step",
 	},
 	"zh_CN": {
+		"first_time_title": "请选择你的语言",
+		"first_time_remark": "你可以在游戏设置中更改",
 		"main_title": "即时视觉小说",
 		"btn_start": "开始",
 		"btn_load": "加载",
@@ -97,6 +101,8 @@ var _translations := {
 		"choice_title": "选择下一步",
 	},
 	"zh_TW": {
+		"first_time_title": "請選擇你的語言",
+		"first_time_remark": "你可以在遊戲設定中更改",
 		"main_title": "即時視覺小說",
 		"btn_start": "開始",
 		"btn_load": "載入",
