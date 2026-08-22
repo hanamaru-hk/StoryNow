@@ -233,3 +233,11 @@ func _request_completion(prompt: String) -> Dictionary:
 	if content.strip_edges().is_empty():
 		return {"success": false, "error": "Empty content"}
 	return {"success": true, "text": content}
+
+
+func requestScene() -> void:
+	pass
+
+
+func requestStoy() -> void:
+	pass
