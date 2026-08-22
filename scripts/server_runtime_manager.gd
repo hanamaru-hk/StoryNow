@@ -22,6 +22,30 @@ var _original_ollama_host := ""
 
 
 func _ready() -> void:
+	if not FileAccess.file_exists("user://game_progress.json"):
+		var src_progress := "res://data/default_game_progress.json"
+		if not FileAccess.file_exists(src_progress):
+			src_progress = "res://data/default_game_progess.json"
+		if FileAccess.file_exists(src_progress):
+			var src_file := FileAccess.open(src_progress, FileAccess.READ)
+			if src_file:
+				var content := src_file.get_as_text()
+				src_file.close()
+				var dst_file := FileAccess.open("user://game_progress.json", FileAccess.WRITE)
+				if dst_file:
+					dst_file.store_string(content)
+					dst_file.close()
+	if not FileAccess.file_exists("user://game_settings.json"):
+		var src_settings := "res://data/default_game_settings.json"
+		if FileAccess.file_exists(src_settings):
+			var src_file2 := FileAccess.open(src_settings, FileAccess.READ)
+			if src_file2:
+				var content2 := src_file2.get_as_text()
+				src_file2.close()
+				var dst_file2 := FileAccess.open("user://game_settings.json", FileAccess.WRITE)
+				if dst_file2:
+					dst_file2.store_string(content2)
+					dst_file2.close()
 	_original_ollama_host = OS.get_environment("OLLAMA_HOST")
 	LLMManager.status_changed.connect(_on_llm_status_changed)
 	ImageServerManager.status_changed.connect(_on_image_status_changed)
