@@ -48,9 +48,43 @@ func _show_error_dialog(message: String) -> void:
 
 
 func _on_start_pressed() -> void:
-	# Pass story background to gameplay scene via autoload or scene change
-	# For now just switch to gameplay scene; Gameplay will use placeholder if empty
+	var uuid := _generate_uuid()
+	SceneDataManager.scene_data = {
+		"id": uuid,
+		"image_filenames": [],
+		"version": "1.0",
+		"interactions": [],
+		"choices": [],
+		"image_instruction": GameProgressManager.settings.get("image_instruction", ""),
+		"image_prompt": "",
+		"summary": %BackgroundInput.text,
+		"end": false,
+		"expected_rounds": GameProgressManager.settings.get("expected_round", 20),
+		"current_round": 1,
+		"language": I18n.current_lang,
+	}
+	GameProgressManager.settings["current_uuid"] = uuid
+	GameProgressManager.settings["game_status"] = "newStory"
+	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
+
+
+func _generate_uuid() -> String:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var bytes: Array = []
+	for i in 16:
+		bytes.append(rng.randi_range(0, 255))
+	# UUID v4: set version and variant bits
+	bytes[6] = (bytes[6] & 0x0F) | 0x40
+	bytes[8] = (bytes[8] & 0x3F) | 0x80
+	return "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x" % [
+		bytes[0], bytes[1], bytes[2], bytes[3],
+		bytes[4], bytes[5],
+		bytes[6], bytes[7],
+		bytes[8], bytes[9],
+		bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]
+	]
 
 
 func _on_back_pressed() -> void:
