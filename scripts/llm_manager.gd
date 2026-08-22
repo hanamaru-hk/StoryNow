@@ -249,5 +249,5 @@ func requestScene() -> void:
 	pass
 
 
-func requestStoy() -> void:
+func requestStory() -> void:
 	pass
