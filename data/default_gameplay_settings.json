@@ -1,0 +1,10 @@
+{
+	"current_dialogue": 0,
+	"current_uuid": "",
+	"expected_round": 20,
+	"minimum_dialogue_rounds": 10,
+	"minimum_sentences_per_dialogue": 10,
+	"minimum_plot_directions": 10,
+	"minimum_summary_sentences": 10,
+	"image_instruction": ""
+}
