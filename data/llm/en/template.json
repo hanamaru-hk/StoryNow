@@ -1,5 +1,4 @@
 {
-  "image_prompt": "man, mechanic",
   "interactions": [
     {
       "character": "John",
@@ -7,11 +6,19 @@
       "sex": "male"
     }
   ],
-  "language": "en",
   "choices": [
-    "Walk to the ice cream truck",
-    "Stay at the shop and keep working",
-    "Ask a passing customer for advice"
+    {
+      "plot": "Go to the ice cream shop"
+    },
+    {
+      "plot": "Stay at the shop and keep working"
+    },
+    {
+      "plot": "Ask a passing customer for advice"
+    }
   ],
-  "summary": "John is a mechanic who often craves ice cream after a long day at the shop."
+  "image_prompt": "man, mechanic",
+  "summary": "John is a mechanic who often craves ice cream after a long day at the shop.",
+  "end": false,
+  "language": "en"
 }
