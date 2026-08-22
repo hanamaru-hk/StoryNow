@@ -1,9 +1,9 @@
 {
-  "scenePrompt": "man, mechanic",
-  "dialog": [
+  "image_prompt": "man, mechanic",
+  "interactions": [
     {
       "character": "John",
-      "dialog": "I want an ice cream.",
+      "dialogue": "I want an ice cream.",
       "sex": "male"
     }
   ],

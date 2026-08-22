@@ -1,18 +1,18 @@
 严格以原始JSON格式回复，不要使用Markdown格式。
 根据以下信息，生成视觉小说的下一个场景。
 
-<previous-scene-json>
+<previous_scene_json>
 __LAST_JSON__
-</previous-scene-json>
+</previous_scene_json>
 
-<player-input-for-the-next-step>
+<player_input_for_the_next_step>
 __USER_INPUT__
-</player-input-for-the-next-step>
+</player_input_for_the_next_step>
 
-<output-requirements>
+<output_requirements>
 __OUTPUT_REQUIREMENT__
-</output-requirements>
+</output_requirements>
 
-<output-json-template>
+<output_json_template>
 __JSON_TEMPLATE__
-</output-json-template>
+</output_json_template>

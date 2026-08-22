@@ -1,9 +1,9 @@
 {
-  "scenePrompt": "man, mechanic",
-  "dialog": [
+  "image_prompt": "man, mechanic",
+  "interactions": [
     {
       "character": "John",
-      "dialog": "我想吃冰淇淋。",
+      "dialogue": "我想吃冰淇淋。",
       "sex": "male"
     }
   ],

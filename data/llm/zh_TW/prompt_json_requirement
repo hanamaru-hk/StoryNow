@@ -1,6 +1,6 @@
 - 遵循以下模板的結構。
-- `scenePrompt`使用英文和Danbooru標籤。使用專業的Danbooru標籤來描述player-input-for-the-next-step。
-- 用至少__MINIMUM_DIALOG_ROUND__輪對話和/或旁白來編寫場景內容。
-- 包含__MAXIMUM_PLAYER_CHOICES__個有意義的玩家選項。
+- `image_prompt`使用英文和Danbooru標籤。使用專業的Danbooru標籤來描述標籤player_input_for_the_next_step之間的內容。
+- 用至少__MINIMUM_DIALOG_ROUND__輪對話和/或旁白來編寫場景內容，每輪對話至少包含__MINIMUM_DIALOGUE_SENTENCES__句話。
+- 包含__MAXIMUM_PLOT_DIRECTIONS__個有意義的選項，每個選項將故事引向不同的情節方向。
 - 將`language`設定為`zh_TW`。
 - `summary`需與提供的背景保持一致，至少包含__MINIMUM_SUMMARY_SENTENCES__句話。

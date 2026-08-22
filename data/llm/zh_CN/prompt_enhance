@@ -2,9 +2,9 @@
 
 根据以下玩家输入，用中文编写故事背景。
 
-<user-input>
+<user_input>
 __USER_INPUT__
-</user-input>
+</user_input>
 
 <requirements>
 __REQUIREMENTS__

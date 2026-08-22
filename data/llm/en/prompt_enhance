@@ -2,9 +2,9 @@ You are writing the setup for a visual novel.
 
 Based on the player input below, write a story background in English.
 
-<user-input>
+<user_input>
 __USER_INPUT__
-</user-input>
+</user_input>
 
 <requirements>
 __REQUIREMENTS__
