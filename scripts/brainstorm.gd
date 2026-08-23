@@ -63,10 +63,10 @@ func _on_start_pressed() -> void:
 		"current_round": 1,
 		"language": I18n.current_lang,
 	}
-	GameProgressManager.settings["current_uuid"] = uuid
-	GameProgressManager.settings["game_status"] = "newStory"
-	GameProgressManager.save_settings()
 	SceneDataManager.save()
+	GameProgressManager.settings["current_uuid"] = uuid
+	GameProgressManager.settings["game_status"] = "new_story"
+	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 
