@@ -7,7 +7,7 @@ var settings := {
 	"current_dialogue": 0,
 	"current_uuid": "",
 	"expected_round": 1,
-	"minimum_dialogues_per_round": 10,
+	"minimum_dialogues_per_scene": 10,
 	"minimum_sentences_per_dialogue": 10,
 	"minimum_plot_directions": 10,
 	"minimum_summary_sentences": 10,
