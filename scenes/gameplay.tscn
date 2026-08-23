@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://game_scene"]
+[gd_scene load_steps=3 format=3 uid="uid://game_scene"]
 
 [ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
+[ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2_m7w2a"]
 
 [node name="Gameplay" type="Control"]
 layout_mode = 3
@@ -183,11 +184,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Plot"
 
-[node name="SettingButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+[node name="PlayAudioButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Setting"
+text = "Play"
 
 [node name="PrevDialogButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
@@ -212,6 +213,18 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Next Scene >"
+
+[node name="SettingButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Setting"
+
+[node name="BackButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back"
 
 [node name="ErrorReturnDialog" type="AcceptDialog" parent="."]
 unique_name_in_owner = true
@@ -305,3 +318,6 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 40)
 text = "Confirm"
+
+[node name="GameSettingsOverlay" parent="." instance=ExtResource("2_m7w2a")]
+unique_name_in_owner = true

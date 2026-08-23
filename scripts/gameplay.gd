@@ -7,18 +7,24 @@ var _current_dialog_idx: int = 0
 func _ready() -> void:
 	# --- Dialogue panel grid buttons ---
 	%PlotButton.pressed.connect(_on_plot_pressed)
-	%SettingButton.pressed.connect(_on_setting_pressed)
+	%PlayAudioButton.pressed.connect(_on_play_audio_pressed)
 	%DialogButton.pressed.connect(_on_dialog_btn_pressed)
 	%ImageButton.pressed.connect(_on_image_btn_pressed)
 	%PrevDialogButton.pressed.connect(_on_prev_dialog_pressed)
 	%NextDialogButton.pressed.connect(_on_next_dialog_pressed)
 	%PrevSceneButton.pressed.connect(_on_prev_scene_pressed)
 	%NextSceneButton.pressed.connect(_on_next_scene_pressed)
+	%SettingButton.pressed.connect(_on_setting_pressed)
+	%BackButton.pressed.connect(_on_back_pressed)
 
 	# --- Choice overlay ---
 	%ChoiceConfirm.pressed.connect(_on_choice_confirm)
 	%ChoiceCancel.pressed.connect(_on_choice_cancel)
 	%ChoiceOverlay.visible = false
+
+	# --- GameSettingsOverlay (in-game settings) ---
+	if has_node("%GameSettingsOverlay"):
+		%GameSettingsOverlay.closed.connect(_on_settings_closed)
 
 	# --- ErrorReturnDialog ---
 	%ErrorReturnDialog.confirmed.connect(_on_error_return)
@@ -121,7 +127,20 @@ func _on_plot_pressed() -> void:
 
 
 func _on_setting_pressed() -> void:
+	if has_node("%GameSettingsOverlay"):
+		%GameSettingsOverlay.open()
+
+
+func _on_back_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/main.tscn")
+
+
+func _on_play_audio_pressed() -> void:
 	pass
+
+
+func _on_settings_closed() -> void:
+	_update_labels()
 
 
 # ------------------------------------------------------------------
@@ -173,10 +192,13 @@ func _update_labels() -> void:
 	%DialogButton.text = I18n.translate("btn_dialog") if I18n.translate("btn_dialog") != "btn_dialog" else "Dialog"
 	%ImageButton.text = I18n.translate("btn_image") if I18n.translate("btn_image") != "btn_image" else "Image"
 	%PlotButton.text = I18n.translate("btn_plot") if I18n.translate("btn_plot") != "btn_plot" else "Plot"
-	%SettingButton.text = I18n.translate("btn_setting") if I18n.translate("btn_setting") != "btn_setting" else "Setting"
+	%PlayAudioButton.text = I18n.translate("btn_play_audio") if I18n.translate("btn_play_audio") != "btn_play_audio" else "Play"
 	%PrevDialogButton.text = I18n.translate("btn_prev_dialog") if I18n.translate("btn_prev_dialog") != "btn_prev_dialog" else "< Prev"
 	# NextDialog text is dynamic in _show_dialog
 	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "< Scene"
+	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Next Scene >"
+	%SettingButton.text = I18n.translate("btn_setting") if I18n.translate("btn_setting") != "btn_setting" else "Setting"
+	%BackButton.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	%ChoiceCancel.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	%ChoiceConfirm.text = I18n.translate("btn_confirm") if I18n.translate("btn_confirm") != "btn_confirm" else "Confirm"
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
