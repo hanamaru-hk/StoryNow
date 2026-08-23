@@ -1,5 +1,4 @@
 {
-  "image_prompt": "man, mechanic",
   "interactions": [
     {
       "character": "John",
@@ -7,11 +6,19 @@
       "sex": "male"
     }
   ],
-  "language": "zh_CN",
   "choices": [
-    "走向冰淇淋车",
-    "留在店里继续工作",
-    "向路过的顾客寻求建议"
+    {
+      "plot": "走向冰淇淋车"
+    },
+    {
+      "plot": "留在店里继续工作"
+    },
+    {
+      "plot": "向路过的顾客寻求建议"
+    }
   ],
-  "summary": "约翰是一名机械师，在店里忙碌了一天后，总是渴望来一份冰淇淋。"
+  "image_prompt": "man, mechanic",
+  "summary": "约翰是一名机械师，在店里忙碌了一天后，总是渴望来一份冰淇淋。",
+  "end": false,
+  "language": "zh_CN"
 }
