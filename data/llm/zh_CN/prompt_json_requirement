@@ -1,7 +1,0 @@
-- 遵循以下模板的结构。
-- `image_prompt`使用英文和Danbooru标签。使用专业的Danbooru标签来描述标签player_input_for_the_next_step之间的内容。
-- 用至少__MINIMUM_DIALOGUE_PER_SCENE__轮对话和/或旁白来编写场景内容，每轮对话至少包含__MINIMUM_SENTENCES_PER_DIALOGUE__句话。
-- 包含__MAXIMUM_PLOT_DIRECTIONS__个有意义的选项，每个选项将故事引向不同的情节方向。
-- 将`language`设置为`zh_CN`。
-- `summary`需与提供的背景保持一致，至少包含__MINIMUM_SUMMARY_SENTENCES__句话。
-- 如果 current_round == expected round，请根据故事发展决定是否将 end 设为 true。

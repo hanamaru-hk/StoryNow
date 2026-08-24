@@ -2,19 +2,19 @@ extends Node
 ## Library functions for managing the Ollama (LLM) server process.
 
 const STATUS_PATH := "user://llm_status.json"
-const OLLAMA_DIR := "server/llama"
-const OLLAMA_MODELS_DIR := "server/llama-models"
+const LLAMA_DIR := "server/llama"
+const LLAMA_MODELS_DIR := "server/llama-models"
 const HEALTH_TIMEOUT := 5.0
 const BRAINSTORM_TIMEOUT := 120.0
 const LLM_HOST := "127.0.0.1"
 const CHAT_ENDPOINT := "/v1/chat/completions"
 const PROMPT_DIR := "res://data/llm"
-const PROMPT_RANDOM := "prompt_random"
-const PROMPT_ENHANCE := "prompt_enhance"
-const PROMPT_REQUIREMENTS := "prompt_text_requirement"
-const PROMPT_START := "prompt_start"
-const PROMPT_JSON_REQUIREMENT := "prompt_json_requirement"
-const TEMPLATE_JSON := "template.json"
+const RANDOM := "random"
+const ENHANCE := "enhance"
+const STORY := "story"
+const STORY_BACKGROUND_REQUIREMENT := "common/story_background_requirement"
+const OUTPUT_JSON_REQUIREMENT := "common/output_json_requirement"
+const TEMPLATE_JSON := "common/template.json"
 
 signal status_changed(status: Dictionary)
 
@@ -34,9 +34,9 @@ func start_server() -> void:
 		return
 	var port: int = LLMSettingsManager.settings["port"]
 	var port_number := str(port)
-	var exe_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/llama-server.exe")
-	var model_path := ProjectSettings.globalize_path("res://" + OLLAMA_MODELS_DIR + "/huihui-qwen3.5-9b-Q4_K_M.gguf")
-	# var model_path := ProjectSettings.globalize_path("res://" + OLLAMA_DIR + "/models/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
+	var exe_path := ProjectSettings.globalize_path("res://" + LLAMA_DIR + "/llama-server.exe")
+	var model_path := ProjectSettings.globalize_path("res://" + LLAMA_MODELS_DIR + "/huihui-qwen3.5-9b-Q4_K_M.gguf")
+	# var model_path := ProjectSettings.globalize_path("res://" + LLAMA_DIR + "/models/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
 		return
@@ -170,26 +170,26 @@ func load_status() -> void:
 
 
 func request_random() -> Dictionary:
-	var prompt_file := PROMPT_RANDOM 
+	var prompt_file := RANDOM 
 	var prompt := _load_prompt(prompt_file)
 	if prompt.is_empty():
 		return {"success": false, "error": "Failed to load prompt template"}
-	var requirements := _load_prompt(PROMPT_REQUIREMENTS)
-	if requirements.is_empty():
-		return {"success": false, "error": "Failed to load requirements template"}
-	prompt = prompt.replace("__REQUIREMENTS__", requirements)
+	var requirement := _load_prompt(STORY_BACKGROUND_REQUIREMENT)
+	if requirement.is_empty():
+		return {"success": false, "error": "Failed to load requirement template"}
+	prompt = prompt.replace("__STORY_BACKGROUND_REQUIREMENT__", requirement)
 	return await _request_completion(prompt)
 
 func request_enhance(input: String) -> Dictionary:
-	var prompt_file := PROMPT_ENHANCE
+	var prompt_file := ENHANCE
 	var prompt := _load_prompt(prompt_file)
 	if prompt.is_empty():
 		return {"success": false, "error": "Failed to load prompt template"}
-	var requirements := _load_prompt(PROMPT_REQUIREMENTS)
-	if requirements.is_empty():
-		return {"success": false, "error": "Failed to load requirements template"}
-	prompt = prompt.replace("__REQUIREMENTS__", requirements)
-	prompt = prompt.replace("__USER_INPUT__", input)
+	var requirement := _load_prompt(STORY_BACKGROUND_REQUIREMENT)
+	if requirement.is_empty():
+		return {"success": false, "error": "Failed to load requirement template"}
+	prompt = prompt.replace("__STORY_BACKGROUND_REQUIREMENT__", requirement)
+	prompt = prompt.replace("__PLAYER_INPUT__", input)
 	return await _request_completion(prompt)
 
 
@@ -234,27 +234,22 @@ func _replace_requirement_placeholders(text: String) -> String:
 	var summ_val := str(s.get("minimum_summary_sentences", 10))
 	var result := text
 	# Old and new placeholder variants
-	result = result.replace("__MINIMUM_DIALOG_ROUND__", min_dialog_per_scene_val)
 	result = result.replace("__MINIMUM_DIALOGUES_PER_SCENE__", min_dialog_per_scene_val)
-	result = result.replace("__MINIMUM_DIALOGUE_PER_SCENE__", min_dialog_per_scene_val)
-	result = result.replace("__MINIMUM_DIALOG_ROUNDS__", min_dialog_per_scene_val)
-	result = result.replace("__MINIMUM_DIALOGUE_SENTENCES__", min_sent_val)
 	result = result.replace("__MINIMUM_SENTENCES_PER_DIALOGUE__", min_sent_val)
 	result = result.replace("__MAXIMUM_PLOT_DIRECTIONS__", plot_val)
-	result = result.replace("__MINIMUM_PLOT_DIRECTIONS__", plot_val)
-	result = result.replace("__MINIMUM_SUMMARY_SENTENCES__", summ_val)
+	result = result.replace("__MINIMUM_SENTENCES_IN_SUMMARY__", summ_val)
 	return result
 
 
 func request_new_story() -> Dictionary:
 	var lang := I18n.current_lang
-	var prompt_start := _load_prompt(PROMPT_START)
-	if prompt_start.is_empty():
-		return {"success": false, "error": "Failed to load prompt_start for lang %s" % lang}
-	var req_text := _load_prompt(PROMPT_JSON_REQUIREMENT)
-	if req_text.is_empty():
+	var prompt_story := _load_prompt(STORY)
+	if prompt_story.is_empty():
+		return {"success": false, "error": "Failed to load prompt_story for lang %s" % lang}
+	var prompt_output_json_requirement := _load_prompt(OUTPUT_JSON_REQUIREMENT)
+	if prompt_output_json_requirement.is_empty():
 		return {"success": false, "error": "Failed to load prompt_json_requirement"}
-	req_text = _replace_requirement_placeholders(req_text)
+	prompt_output_json_requirement = _replace_requirement_placeholders(prompt_output_json_requirement)
 	var template_str := _load_template(lang)
 	if template_str.is_empty():
 		return {"success": false, "error": "Failed to load template.json"}
@@ -262,12 +257,12 @@ func request_new_story() -> Dictionary:
 	# Fallback: if summary empty, try GameProgress or empty
 	if background.strip_edges().is_empty():
 		background = str(SceneDataManager.scene_data.get("summary", ""))
-	prompt_start = prompt_start.replace("__BACKGROUND__", background)
-	prompt_start = prompt_start.replace("__OUTPUT_REQUIREMENT__", req_text)
-	prompt_start = prompt_start.replace("__OUTPUT__", req_text)
-	prompt_start = prompt_start.replace("__JSON_TEMPLATE__", template_str)
-	print_verbose("prompt_start"+ prompt_start)
-	return await _request_completion(prompt_start)
+	prompt_story = prompt_story.replace("__STORY_BACKGROUND__", background)
+	prompt_story = prompt_story.replace("__OUTPUT_REQUIREMENT__", prompt_output_json_requirement)
+	prompt_story = prompt_story.replace("__JSON_TEMPLATE__", template_str)
+	print_verbose("")
+	print_verbose("prompt_story:"+ prompt_story)
+	return await _request_completion(prompt_story)
 
 
 func _request_completion(prompt: String) -> Dictionary:

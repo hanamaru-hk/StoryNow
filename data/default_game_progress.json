@@ -3,8 +3,8 @@
 	"current_uuid": "",
 	"expected_round": 20,
 	"minimum_dialogues_per_scene": 10,
-	"minimum_sentences_per_dialogue": 10,
-	"minimum_plot_directions": 10,
+	"minimum_sentences_per_dialogue": 3,
+	"minimum_plot_directions": 3,
 	"minimum_summary_sentences": 10,
 	"image_instruction": "",
 	"game_status": ""
