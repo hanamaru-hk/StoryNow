@@ -12,6 +12,9 @@ const PROMPT_DIR := "res://data/llm"
 const PROMPT_RANDOM := "prompt_random"
 const PROMPT_ENHANCE := "prompt_enhance"
 const PROMPT_REQUIREMENTS := "prompt_text_requirement"
+const PROMPT_START := "prompt_start"
+const PROMPT_JSON_REQUIREMENT := "prompt_json_requirement"
+const TEMPLATE_JSON := "template.json"
 
 signal status_changed(status: Dictionary)
 
@@ -200,6 +203,71 @@ func _load_prompt(file_name: String) -> String:
 	var content := file.get_as_text()
 	file.close()
 	return content
+
+
+func _load_template(lang: String) -> String:
+	var path := "%s/%s/%s" % [PROMPT_DIR, lang, TEMPLATE_JSON]
+	if not FileAccess.file_exists(path):
+		# Fallback to en
+		path = "%s/en/%s" % [PROMPT_DIR, TEMPLATE_JSON]
+		if not FileAccess.file_exists(path):
+			return ""
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return ""
+	var content := file.get_as_text()
+	file.close()
+	return content
+
+
+func _replace_requirement_placeholders(text: String) -> String:
+	var s := GameProgressManager.settings
+	var min_dialog_per_scene_val := str(s.get("minimum_dialogues_per_scene", s.get("minimum_dialogue_per_scene", 10)))
+	var min_sent_val := str(s.get("minimum_sentences_per_dialogue", 10))
+	var plot_val: String
+	if s.has("minimum_plot_directions"):
+		plot_val = str(s["minimum_plot_directions"])
+	elif s.has("maximum_plot_directions"):
+		plot_val = str(s["maximum_plot_directions"])
+	else:
+		plot_val = "10"
+	var summ_val := str(s.get("minimum_summary_sentences", 10))
+	var result := text
+	# Old and new placeholder variants
+	result = result.replace("__MINIMUM_DIALOG_ROUND__", min_dialog_per_scene_val)
+	result = result.replace("__MINIMUM_DIALOGUES_PER_SCENE__", min_dialog_per_scene_val)
+	result = result.replace("__MINIMUM_DIALOGUE_PER_SCENE__", min_dialog_per_scene_val)
+	result = result.replace("__MINIMUM_DIALOG_ROUNDS__", min_dialog_per_scene_val)
+	result = result.replace("__MINIMUM_DIALOGUE_SENTENCES__", min_sent_val)
+	result = result.replace("__MINIMUM_SENTENCES_PER_DIALOGUE__", min_sent_val)
+	result = result.replace("__MAXIMUM_PLOT_DIRECTIONS__", plot_val)
+	result = result.replace("__MINIMUM_PLOT_DIRECTIONS__", plot_val)
+	result = result.replace("__MINIMUM_SUMMARY_SENTENCES__", summ_val)
+	return result
+
+
+func request_new_story() -> Dictionary:
+	var lang := I18n.current_lang
+	var prompt_start := _load_prompt(PROMPT_START)
+	if prompt_start.is_empty():
+		return {"success": false, "error": "Failed to load prompt_start for lang %s" % lang}
+	var req_text := _load_prompt(PROMPT_JSON_REQUIREMENT)
+	if req_text.is_empty():
+		return {"success": false, "error": "Failed to load prompt_json_requirement"}
+	req_text = _replace_requirement_placeholders(req_text)
+	var template_str := _load_template(lang)
+	if template_str.is_empty():
+		return {"success": false, "error": "Failed to load template.json"}
+	var background: String = str(SceneDataManager.scene_data.get("summary", ""))
+	# Fallback: if summary empty, try GameProgress or empty
+	if background.strip_edges().is_empty():
+		background = str(SceneDataManager.scene_data.get("summary", ""))
+	prompt_start = prompt_start.replace("__BACKGROUND__", background)
+	prompt_start = prompt_start.replace("__OUTPUT_REQUIREMENT__", req_text)
+	prompt_start = prompt_start.replace("__OUTPUT__", req_text)
+	prompt_start = prompt_start.replace("__JSON_TEMPLATE__", template_str)
+	print_verbose("prompt_start"+ prompt_start)
+	return await _request_completion(prompt_start)
 
 
 func _request_completion(prompt: String) -> Dictionary:

@@ -44,6 +44,7 @@ func _ready() -> void:
 			var ok: bool = SceneDataManager.load_data(uuid)
 			if ok:
 				_scene_data = SceneDataManager.scene_data
+			await _handle_new_story()
 		"new_scene":
 			pass
 		"running":
@@ -143,6 +144,52 @@ func _on_settings_closed() -> void:
 	_update_labels()
 
 
+func _extract_json(text: String) -> String:
+	var t := text.strip_edges()
+	if t.begins_with("```"):
+		var start := t.find("\n")
+		var end := t.rfind("```")
+		if start != -1 and end != -1 and end > start:
+			t = t.substr(start + 1, end - start - 1).strip_edges()
+		else:
+			t = t.replace("```json", "").replace("```", "").strip_edges()
+	return t
+
+
+func _handle_new_story() -> void:
+	var result: Dictionary = await LLMManager.request_new_story()
+	print_verbose("LLM request_new_story result: %s" % str(result))
+	if not result.get("success", false):
+		show_error(str(result.get("error", "Failed to generate story")))
+		return
+	var raw_text: String = str(result.get("text", ""))
+	var json_str: String = _extract_json(raw_text)
+	var json := JSON.new()
+	var err := json.parse(json_str)
+	if err != OK or not json.data is Dictionary:
+		show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300))
+		return
+	var llm_data: Dictionary = json.data as Dictionary
+	# Don't modify the format of the LLM JSON – just extract and merge into SceneDataManager.scene_data
+	if SceneDataManager.scene_data.is_empty():
+		SceneDataManager.scene_data = llm_data.duplicate(true)
+		if not SceneDataManager.scene_data.has("id"):
+			SceneDataManager.scene_data["id"] = str(GameProgressManager.settings.get("current_uuid", ""))
+	else:
+		for key in llm_data.keys():
+			SceneDataManager.scene_data[key] = llm_data[key]
+	# Ensure essential meta fields remain if LLM omitted them
+	if not SceneDataManager.scene_data.has("id"):
+		SceneDataManager.scene_data["id"] = str(GameProgressManager.settings.get("current_uuid", ""))
+	if not SceneDataManager.scene_data.has("version"):
+		SceneDataManager.scene_data["version"] = "1.0"
+	SceneDataManager.save()
+	_scene_data = SceneDataManager.scene_data
+	# Mark progress as running so next load doesn't re-request
+	GameProgressManager.settings["game_status"] = "running"
+	GameProgressManager.save_settings()
+	print_verbose("Final scene data: " + str(SceneDataManager.scene_data))
+	print_verbose("Final game progress settings: " + str(GameProgressManager.settings))
 # ------------------------------------------------------------------
 # Choice overlay (array of scene.next)
 # ------------------------------------------------------------------
