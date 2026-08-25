@@ -555,7 +555,6 @@ func _on_choice_confirm() -> void:
 		GameProgressManager.settings["game_status"] = "new_scene"
 
 	var cur_round: int = int(SceneDataManager.scene_data.get("current_round", 1))
-	SceneDataManager.scene_data["current_round"] = cur_round + 1
 	# Keep GameProgressManager in sync if it tracks current_round
 	if GameProgressManager.settings.has("current_round"):
 		GameProgressManager.settings["current_round"] = int(GameProgressManager.settings.get("current_round", cur_round)) + 1
