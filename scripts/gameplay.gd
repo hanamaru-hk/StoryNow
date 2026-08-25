@@ -554,6 +554,15 @@ func _on_choice_confirm() -> void:
 		SceneDataManager.scene_data["choices"] = choices
 		GameProgressManager.settings["game_status"] = "new_scene"
 
+	var cur_round: int = int(SceneDataManager.scene_data.get("current_round", 1))
+	SceneDataManager.scene_data["current_round"] = cur_round + 1
+	# Keep GameProgressManager in sync if it tracks current_round
+	if GameProgressManager.settings.has("current_round"):
+		GameProgressManager.settings["current_round"] = int(GameProgressManager.settings.get("current_round", cur_round)) + 1
+	else:
+		# Ensure game progress also reflects current round for new saves
+		GameProgressManager.settings["current_round"] = cur_round + 1
+
 	SceneDataManager.save()
 	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
