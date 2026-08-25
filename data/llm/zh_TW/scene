@@ -1,0 +1,20 @@
+嚴格以純 JSON 格式回應，不要使用 Markdown 格式。
+根據以下資訊，生成視覺小說的下一幕場景。
+
+__GUARDRAIL__
+
+<previous_scene_json>
+__PREVIOUS_SCENE_JSON__
+</previous_scene_json>
+
+<player_input_for_the_next_step>
+__PLAYER_INPUT__
+</player_input_for_the_next_step>
+
+<output_json_requirement>
+__OUTPUT_JSON_REQUIREMENT__
+</output_json_requirement>
+
+<output_json_template>
+__OUTPUT_JSON_TEMPLATE__
+</output_json_template>

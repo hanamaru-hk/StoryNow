@@ -1,7 +1,0 @@
-- Follow the structure of the template below.
-- Keep `image_prompt` in English and Danbooru tags. Write the expert Danbooru Tags to describe the content in between the tag player_input_for_the_next_step.
-- Write natural dialogue and/or narration for the scene in at least __MINIMUM_DIALOG_ROUND__ rounds with at least __MINIMUM_DIALOGUE_SENTENCES__ in each dialogue.
-- Include __MAXIMUM_PLOT_DIRECTIONS__ meaningful choices, with each choice leading the story in a distinct plot direction.
-- Set `language` to `en`.
-- Keep `summary` aligned with the supplied background with at least __MINIMUM_SUMMARY_SENTENCES__ sentences.
-- If current_round == expected round, please decide to set end to true based on the development of the story.

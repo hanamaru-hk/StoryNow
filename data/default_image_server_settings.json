@@ -1,3 +1,4 @@
 {
-	"port": 56321
+	"port": 56321,
+	"model_filename": "waiIllustriousSDXL_v170.safetensors"
 }

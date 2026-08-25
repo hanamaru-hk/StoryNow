@@ -4,7 +4,7 @@
     "1": {
       "class_type": "CheckpointLoaderSimple",
       "inputs": {
-        "ckpt_name": "__MODEL_NAME__"
+        "ckpt_name": "__MODEL_FILENAME__"
       }
     },
     "2": {
@@ -14,7 +14,7 @@
         "positive": ["3", 0],
         "negative": ["6", 0],
         "latent_image": ["7", 0],
-        "seed": "__SEED__",
+        "seed": __SEED__,
         "steps": 25,
         "cfg": 4,
         "sampler_name": "dpmpp_2m_sde_gpu",
@@ -26,7 +26,7 @@
       "class_type": "CLIPTextEncode",
       "inputs": {
         "clip": ["1", 1],
-        "text": "__POSITIVE_PROMPT__"
+        "text": "score_9, score_8_up, score_7_up, masterpiece, __POSITIVE_PROMPT__"
       }
     },
     "4": {
@@ -53,8 +53,8 @@
     "7": {
       "class_type": "EmptyLatentImage",
       "inputs": {
-        "width": 1280,
-        "height": 1024,
+        "width": __IMAGE_WIDTH__,
+        "height": __IMAGE_HEIGHT__,
         "batch_size": 1
       }
     }

@@ -1,0 +1,20 @@
+严格以纯 JSON 格式回应，不要使用 Markdown 格式。
+根据以下信息，生成视觉小说的下一幕场景。
+
+__GUARDRAIL__
+
+<previous_scene_json>
+__PREVIOUS_SCENE_JSON__
+</previous_scene_json>
+
+<player_input_for_the_next_step>
+__PLAYER_INPUT__
+</player_input_for_the_next_step>
+
+<output_json_requirement>
+__OUTPUT_JSON_REQUIREMENT__
+</output_json_requirement>
+
+<output_json_template>
+__OUTPUT_JSON_TEMPLATE__
+</output_json_template>

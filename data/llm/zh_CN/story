@@ -1,0 +1,16 @@
+严格以纯 JSON 格式回应，不要使用 Markdown 格式。
+根据以下故事背景，生成视觉小说的开场场景。
+
+__GUARDRAIL__
+
+<story_background>
+__STORY_BACKGROUND__
+</story_background>
+
+<output_json_requirement>
+__OUTPUT_JSON_REQUIREMENT__
+</output_json_requirement>
+
+<output_json_template>
+__OUTPUT_JSON_TEMPLATE__
+</output_json_template>

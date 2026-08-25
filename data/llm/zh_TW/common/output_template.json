@@ -1,14 +1,14 @@
 {
   "interactions": [
     {
-      "character": "John",
+      "character": "約翰",
       "dialogue": "我想吃冰淇淋。",
       "sex": "male"
     }
   ],
   "choices": [
     {
-      "plot": "走向冰淇淋車"
+      "plot": "去冰淇淋店"
     },
     {
       "plot": "留在店裡繼續工作"
@@ -18,7 +18,7 @@
     }
   ],
   "image_prompt": "man, mechanic",
-  "summary": "約翰是一名機械師，在店裡忙碌了一天後，總是渴望來一份冰淇淋。",
+  "summary": "約翰是一名機械師，在店裡漫長工作一天後常常想吃冰淇淋。",
   "end": false,
   "language": "zh_TW"
 }

@@ -74,3 +74,7 @@ func _apply_screen_size() -> void:
 			var screen_size := DisplayServer.screen_get_size()
 			var centered := (screen_size - Vector2i(1344, 768)) / 2
 			DisplayServer.window_set_position(centered)
+
+
+func is_free_mode() -> bool:
+	return not settings.get("safe_mode", false) and FileAccess.file_exists("res://data/free_mode")

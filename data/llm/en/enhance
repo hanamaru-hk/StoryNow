@@ -1,0 +1,16 @@
+You are writing the setup for a visual novel.
+
+Based on the player input below, write a story background in English.
+
+__GUARDRAIL__
+
+<player_input>
+__PLAYER_INPUT__
+</player_input>
+
+<story_background_requirement>
+__STORY_BACKGROUND_REQUIREMENT__
+</story_background_requirement>
+
+Return only the background text.
+
