@@ -132,106 +132,11 @@ func _show_current_dialogue() -> void:
 	_scene_data = SceneDataManager.scene_data
 
 # ------------------------------------------------------------------
-# ComfyUI image generation — workflow_template.json + download
+# ComfyUI image generation — delegated to ImageServerManager
 # ------------------------------------------------------------------
-func _load_workflow_template_text() -> String:
-	var path := "res://data/comfyui/workflow_template.json"
-	if not FileAccess.file_exists(path):
-		push_error("workflow_template.json not found: %s" % path)
-		return ""
-	var file := FileAccess.open(path, FileAccess.READ)
-	if file == null:
-		push_error("Failed to open workflow_template.json")
-		return ""
-	var text := file.get_as_text()
-	file.close()
-	return text
-
-
-func _load_negative_prompt() -> String:
-	var is_free: bool = GameSettingsManager.is_free_mode()
-	var candidates: Array[String] = []
-	if is_free:
-		# user spec says comfyui/free_negative_prompt (also typo free_negatvie_prompt exists)
-		candidates = ["res://data/comfyui/free_negative_prompt", "res://data/comfyui/free_negatvie_prompt"]
-	else:
-		candidates = ["res://data/comfyui/safe_negative_prompt", "res://data/comfyui/safe_negative_prompts"]
-	for p in candidates:
-		if FileAccess.file_exists(p):
-			var f := FileAccess.open(p, FileAccess.READ)
-			if f != null:
-				var t := f.get_as_text().strip_edges()
-				f.close()
-				return t
-	# fallback: try the opposite naming if first not found
-	var fallback_paths: Array[String] = ["res://data/comfyui/safe_negative_prompt", "res://data/comfyui/free_negatvie_prompt", "res://data/comfyui/free_negative_prompt"]
-	for p in fallback_paths:
-		if FileAccess.file_exists(p):
-			var f2 := FileAccess.open(p, FileAccess.READ)
-			if f2 != null:
-				var t2 := f2.get_as_text().strip_edges()
-				f2.close()
-				# if we were looking for free but only safe exists, still return it as last resort
-				# caller decides; but better than empty
-				if not candidates.has(p):
-					return t2
-	return ""
-
-
-func _fix_comfy_workflow_dict(workflow_dict: Dictionary, seed_val: int) -> void:
-	# Ensure workflow_dict has correct types and wiring for ComfyUI validation.
-	# The shipped workflow_template.json historically had SaveImage wired to latent ("7")
-	# and seed as string — both cause "prompt_outputs_failed_validation".
-	# Also JSON parsing in Godot can produce float 0.0 for link indices, which
-	# ComfyUI rejects as "tuple indices must be integers or slices, not float".
-	if not workflow_dict.has("prompt") or not workflow_dict["prompt"] is Dictionary:
-		return
-	var prompt: Dictionary = workflow_dict["prompt"] as Dictionary
-	# Fix SaveImage node "5" → must read from VAEDecode "4", not EmptyLatentImage "7"
-	if prompt.has("5") and prompt["5"] is Dictionary:
-		var n5: Dictionary = prompt["5"] as Dictionary
-		if n5.has("inputs") and n5["inputs"] is Dictionary:
-			var inputs5: Dictionary = n5["inputs"] as Dictionary
-			# If miswired to latent, correct it
-			var cur_images: Variant = inputs5.get("images", null)
-			if cur_images is Array and cur_images.size() >= 2:
-				if str(cur_images[0]) == "7":
-					inputs5["images"] = ["4", 0]
-			else:
-				inputs5["images"] = ["4", 0]
-	# Fix KSampler seed type — must be int, not string or float
-	if prompt.has("2") and prompt["2"] is Dictionary:
-		var n2: Dictionary = prompt["2"] as Dictionary
-		if n2.has("inputs") and n2["inputs"] is Dictionary:
-			var inputs2: Dictionary = n2["inputs"] as Dictionary
-			inputs2["seed"] = int(seed_val)
-	# Coerce width/height in node "7" to int in case placeholder produced string
-	if prompt.has("7") and prompt["7"] is Dictionary:
-		var n7: Dictionary = prompt["7"] as Dictionary
-		if n7.has("inputs") and n7["inputs"] is Dictionary:
-			var inputs7: Dictionary = n7["inputs"] as Dictionary
-			inputs7["width"] = int(inputs7.get("width", 1344))
-			inputs7["height"] = int(inputs7.get("height", 768))
-			inputs7["batch_size"] = int(inputs7.get("batch_size", 1))
-	# Normalize all link arrays ["node_id", idx] → idx must be int, not float/string
-	for node_id in prompt.keys():
-		var node: Variant = prompt[node_id]
-		if not node is Dictionary:
-			continue
-		var nd: Dictionary = node as Dictionary
-		if not nd.has("inputs") or not nd["inputs"] is Dictionary:
-			continue
-		var inputs: Dictionary = nd["inputs"] as Dictionary
-		for key in inputs.keys():
-			var val: Variant = inputs[key]
-			if val is Array and val.size() == 2 and val[0] is String:
-				# looks like a link
-				var idx: Variant = val[1]
-				if idx is float or idx is String:
-					inputs[key] = [str(val[0]), int(idx)]
-				elif idx is int:
-					# already int, but ensure no float contamination via Variant conversion
-					inputs[key] = [str(val[0]), int(idx)]
+func _sanitize_image_prompt(prompt: String) -> String:
+	# Thin wrapper — single source of truth lives in ImageServerManager
+	return ImageServerManager.sanitize_image_prompt(prompt)
 
 
 func _generate_comfyui_image() -> void:
@@ -239,239 +144,30 @@ func _generate_comfyui_image() -> void:
 	var image_prompt: String = _sanitize_image_prompt(raw_prompt)
 	if image_prompt != raw_prompt:
 		print_verbose("Sanitized stored image_prompt for ComfyUI: '%s'" % image_prompt.substr(0, 100))
-		# Persist cleaned version
 		SceneDataManager.scene_data["image_prompt"] = image_prompt
 		SceneDataManager.save()
 		_scene_data = SceneDataManager.scene_data
 	if image_prompt.strip_edges().is_empty():
 		push_warning("SceneDataManager image_prompt is empty after sanitize, skipping ComfyUI generation (raw was: '%s')" % raw_prompt.substr(0, 100))
 		return
-
-	var workflow_text := _load_workflow_template_text()
-	if workflow_text.is_empty():
-		show_error("Failed to load ComfyUI workflow_template.json")
-		return
-
-	var model_filename: String = str(ImageServerSettingsManager.settings.get("model_filename", ""))
-	if model_filename.is_empty():
-		model_filename = "waiIllustriousSDXL_v170.safetensors"
-
-	var negative_prompt: String = _load_negative_prompt()
-
-	var image_width: String = str(GameSettingsManager.settings.get("image_width", "1344"))
-	var image_height: String = str(GameSettingsManager.settings.get("image_height", "768"))
-
-	# Generate a random seed for __SEED__
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	var seed_val: int = rng.randi_range(0, 2147483647)
-
-	# Replace placeholders — keep order, handle both naming variants
-	workflow_text = workflow_text.replace("__MODEL_FILENAME__", model_filename)
-	workflow_text = workflow_text.replace("__MODEL_NAME__", model_filename)
-	workflow_text = workflow_text.replace("__POSITIVE_PROMPT__", image_prompt)
-	workflow_text = workflow_text.replace("__NEGATIVE_PROMPT__", negative_prompt)
-	workflow_text = workflow_text.replace("__FILENAME_PREFIX__", "SN")
-	workflow_text = workflow_text.replace("__IMAGE_WIDTH__", image_width)
-	workflow_text = workflow_text.replace("__IMAGE_HEIGHT__", image_height)
-	workflow_text = workflow_text.replace("__SEED__", str(seed_val))
-
-	print_verbose("image prompt" + image_prompt)
-	print_verbose("ComfyUI workflow: " + workflow_text)
-
-	var json := JSON.new()
-	var err := json.parse(workflow_text)
-	if err != OK or not json.data is Dictionary:
-		push_error("Failed to parse workflow_template after replacement: %s" % error_string(err))
-		show_error("Invalid ComfyUI workflow template after replacement")
-		return
-	var workflow_dict: Dictionary = json.data as Dictionary
-	_fix_comfy_workflow_dict(workflow_dict, seed_val)
-
-	# Use ImageServerManager port to queue prompt, then poll history and download
-	var prompt_id := await _queue_comfy_prompt(workflow_dict)
-	if prompt_id.is_empty():
-		show_error("Failed to queue ComfyUI prompt")
-		return
-
-	var image_info := await _poll_comfy_history(prompt_id)
-	if image_info.is_empty():
-		show_error("ComfyUI did not return image (timeout or error)")
-		return
-
-	var filename: String = str(image_info.get("filename", ""))
-	var subfolder: String = str(image_info.get("subfolder", ""))
-	var img_type: String = str(image_info.get("type", "output"))
-	if filename.is_empty():
-		show_error("ComfyUI history missing filename")
-		return
-
 	var uuid: String = str(SceneDataManager.scene_data.get("id", GameProgressManager.settings.get("current_uuid", "")))
-	var save_path := await _download_comfy_image(filename, subfolder, img_type, uuid)
-	if save_path.is_empty():
-		show_error("Failed to download ComfyUI image")
+	var result: Dictionary = await ImageServerManager.generate_scene_image(image_prompt, uuid)
+	if not result.get("success", false):
+		show_error(str(result.get("error", "Failed to generate image")))
 		return
-
+	var save_path: String = str(result.get("save_path", ""))
+	var filename: String = str(result.get("filename", ""))
 	# update background
 	_set_background_from_file(save_path)
-
 	# append filename to SceneDataManager image_filenames array and persist
 	if not SceneDataManager.scene_data.has("image_filenames") or not SceneDataManager.scene_data["image_filenames"] is Array:
 		SceneDataManager.scene_data["image_filenames"] = []
 	var arr: Array = SceneDataManager.scene_data["image_filenames"]
-	# store relative filename (or full user:// path basename)
 	arr.append(filename)
 	SceneDataManager.scene_data["image_filenames"] = arr
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
 	print_verbose("Saved ComfyUI image to %s, image_filenames: %s" % [save_path, str(arr)])
-
-
-func _queue_comfy_prompt(workflow_dict: Dictionary) -> String:
-	var port: int = int(ImageServerSettingsManager.settings.get("port", 56321))
-	var url := "http://127.0.0.1:%d/prompt" % port
-	var body := JSON.stringify(workflow_dict)
-	var headers := PackedStringArray(["Content-Type: application/json"])
-	var http := HTTPRequest.new()
-	add_child(http)
-	# Increase timeout for ComfyUI
-	http.timeout = 30.0
-	var req_err := http.request(url, headers, HTTPClient.METHOD_POST, body)
-	if req_err != OK:
-		push_error("Failed to send ComfyUI prompt request: %s" % error_string(req_err))
-		http.queue_free()
-		return ""
-	var result: Array = await http.request_completed
-	http.queue_free()
-	var result_code: int = result[0]
-	var response_code: int = result[1]
-	var response_body: PackedByteArray = result[3]
-	if result_code != HTTPRequest.RESULT_SUCCESS:
-		push_error("ComfyUI prompt request failed code %d" % result_code)
-		return ""
-	if response_code < 200 or response_code >= 300:
-		push_error("ComfyUI prompt HTTP %d: %s" % [response_code, response_body.get_string_from_utf8()])
-		return ""
-	var j := JSON.new()
-	if j.parse(response_body.get_string_from_utf8()) != OK or not j.data is Dictionary:
-		push_error("Invalid ComfyUI prompt response JSON")
-		return ""
-	var prompt_id: String = str(j.data.get("prompt_id", ""))
-	if prompt_id.is_empty():
-		# some ComfyUI versions return nested
-		prompt_id = str(j.data.get("promptId", ""))
-	return prompt_id
-
-
-func _poll_comfy_history(prompt_id: String) -> Dictionary:
-	var port: int = int(ImageServerSettingsManager.settings.get("port", 56321))
-	var url := "http://127.0.0.1:%d/history/%s" % [port, prompt_id]
-	var max_attempts: int = 120  # up to ~60s with 0.5s interval
-	for attempt in max_attempts:
-		var http := HTTPRequest.new()
-		add_child(http)
-		http.timeout = 10.0
-		var req_err := http.request(url, PackedStringArray(), HTTPClient.METHOD_GET, "")
-		if req_err != OK:
-			http.queue_free()
-			await get_tree().create_timer(0.5).timeout
-			continue
-		var result: Array = await http.request_completed
-		http.queue_free()
-		var result_code: int = result[0]
-		var response_code: int = result[1]
-		var body: PackedByteArray = result[3]
-		if result_code != HTTPRequest.RESULT_SUCCESS or response_code < 200 or response_code >= 300:
-			await get_tree().create_timer(0.5).timeout
-			continue
-		var j := JSON.new()
-		if j.parse(body.get_string_from_utf8()) != OK or not j.data is Dictionary:
-			await get_tree().create_timer(0.5).timeout
-			continue
-		# history response is { prompt_id: { outputs: { "5": { images: [...] } } } } or { prompt_id: { ... } }
-		var history: Dictionary = j.data as Dictionary
-		var entry: Dictionary = {}
-		if history.has(prompt_id) and history[prompt_id] is Dictionary:
-			entry = history[prompt_id] as Dictionary
-		elif not history.is_empty():
-			# sometimes wrapped directly
-			var first_key: String = history.keys()[0]
-			if history[first_key] is Dictionary:
-				entry = history[first_key] as Dictionary
-		if entry.is_empty():
-			await get_tree().create_timer(0.5).timeout
-			continue
-		# Try to find images in outputs
-		var outputs: Dictionary = entry.get("outputs", {}) as Dictionary
-		if outputs.is_empty() and entry.has("history"):
-			# alternative nesting
-			outputs = entry
-		for node_id in outputs.keys():
-			var node_out: Dictionary = outputs[node_id] as Dictionary if outputs[node_id] is Dictionary else {}
-			if node_out.has("images") and node_out["images"] is Array:
-				var images: Array = node_out["images"] as Array
-				if not images.is_empty() and images[0] is Dictionary:
-					return images[0] as Dictionary
-		# ComfyUI SaveImage node is "5" — check explicitly
-		if outputs.has("5"):
-			var n5: Dictionary = outputs["5"] as Dictionary if outputs["5"] is Dictionary else {}
-			if n5.has("images") and n5["images"] is Array and not (n5["images"] as Array).is_empty():
-				return (n5["images"] as Array)[0] as Dictionary
-		await get_tree().create_timer(0.5).timeout
-	return {}
-
-
-func _download_comfy_image(filename: String, subfolder: String, img_type: String, uuid: String) -> String:
-	var port: int = int(ImageServerSettingsManager.settings.get("port", 56321))
-	# Build /view URL — ComfyUI expects ?filename=&subfolder=&type=
-	var url := "http://127.0.0.1:%d/view?filename=%s&subfolder=%s&type=%s" % [port, filename.uri_encode(), subfolder.uri_encode(), img_type.uri_encode()]
-	var http := HTTPRequest.new()
-	add_child(http)
-	http.timeout = 30.0
-	var req_err := http.request(url, PackedStringArray(), HTTPClient.METHOD_GET, "")
-	if req_err != OK:
-		push_error("Failed to request ComfyUI image view: %s" % error_string(req_err))
-		http.queue_free()
-		return ""
-	var result: Array = await http.request_completed
-	http.queue_free()
-	var result_code: int = result[0]
-	var response_code: int = result[1]
-	var body: PackedByteArray = result[3]
-	if result_code != HTTPRequest.RESULT_SUCCESS:
-		push_error("ComfyUI image download failed result_code %d" % result_code)
-		return ""
-	if response_code < 200 or response_code >= 300:
-		push_error("ComfyUI image view HTTP %d" % response_code)
-		return ""
-	if body.is_empty():
-		push_error("ComfyUI image view returned empty body")
-		return ""
-
-	# Save to user://saves/<uuid>/images/<filename>
-	# fallback uuid dir if empty
-	if uuid.strip_edges().is_empty():
-		uuid = "default"
-	var dir_path := "user://saves/%s/images" % uuid
-	# ensure saves and subdirs exist
-	if not DirAccess.dir_exists_absolute("user://saves"):
-		var e0 := DirAccess.make_dir_absolute("user://saves")
-		if e0 != OK:
-			push_error("Failed to create user://saves: %s" % error_string(e0))
-			return ""
-	if not DirAccess.dir_exists_absolute(dir_path):
-		var e1 := DirAccess.make_dir_recursive_absolute(dir_path)
-		if e1 != OK:
-			push_error("Failed to create images dir %s: %s" % [dir_path, error_string(e1)])
-			return ""
-	var save_path := "%s/%s" % [dir_path, filename]
-	var file := FileAccess.open(save_path, FileAccess.WRITE)
-	if file == null:
-		push_error("Failed to open %s for writing" % save_path)
-		return ""
-	file.store_buffer(body)
-	file.close()
-	return save_path
 
 
 func _set_background_from_file(user_path: String) -> void:
@@ -616,29 +312,6 @@ func _repair_llm_json_text(text: String) -> String:
 	var before := text.substr(0, first_quote + 1)
 	var after := text.substr(close_seq)
 	return before + sanitized + after
-
-
-func _sanitize_image_prompt(prompt: String) -> String:
-	# Remove any characters that would break workflow JSON insertion.
-	# Keep only danbooru-safe chars: letters, numbers, comma, underscore, hyphen, space
-	var s := prompt.strip_edges()
-	# Remove surrounding quotes if any
-	s = s.replace("\\\"", "").replace("\\", "").replace("\"", "").replace("'", "")
-	s = s.replace("\n", " ").replace("\r", " ").replace("\t", " ")
-	# Remove player_input_for_the_next_step marker if LLM left it as literal tag
-	s = s.replace("player_input_for_the_next_step", "")
-	# Collapse whitespace and commas
-	while s.find("  ") != -1:
-		s = s.replace("  ", " ")
-	while s.find(",,") != -1:
-		s = s.replace(",,", ",")
-	s = s.strip_edges()
-	# Trim leading/trailing commas
-	while s.begins_with(","):
-		s = s.substr(1).strip_edges()
-	while s.ends_with(","):
-		s = s.substr(0, s.length() - 1).strip_edges()
-	return s
 
 
 func _handle_new_story() -> void:
