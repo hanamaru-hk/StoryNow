@@ -9,6 +9,12 @@ var _current_dialog_idx: int = 0
 var current_dialogue_index: int = 0
 var total_dialogue: int = 1
 
+# Error dialog retry handling
+signal retry_requested
+var _error_retry_button: Button = null
+var _pending_retry_action: String = ""  # "new_story" or "new_scene"
+var _retry_in_progress: bool = false
+
 func _ready() -> void:
 	# --- Dialogue panel grid buttons ---
 	%PlotButton.pressed.connect(_on_plot_pressed)
@@ -35,6 +41,8 @@ func _ready() -> void:
 	%ErrorReturnDialog.confirmed.connect(_on_error_return)
 	%ErrorReturnDialog.canceled.connect(_on_error_return)
 	# AcceptDialog close via X also triggers canceled
+	# Add Retry button for LLM JSON parse failures
+	_setup_error_dialog_retry()
 
 	# Clicking on DialogArea advances dialogue (optional convenience)
 	if has_node("%DialogArea"):
@@ -47,53 +55,9 @@ func _ready() -> void:
 
 	match GameProgressManager.settings.get("game_status", ""):
 		"new_story":
-			var uuid: String = str(GameProgressManager.settings.get("current_uuid", ""))
-			var ok: bool = SceneDataManager.load_data(uuid)
-			if ok:
-				_scene_data = SceneDataManager.scene_data
-			await _handle_new_story()
-			# --- After new_story: populate dynamic choice buttons above CustomInput ---
-			_populate_dynamic_choice_buttons()
-			# --- After new_story: update dialogue tracking and trigger image generation ---
-			GameProgressManager.settings["game_status"] = "generate_image"
-			GameProgressManager.save_settings()
-			_update_total_dialogue()
-			_show_current_dialogue()
-			# Enable Next Dialogue and Dialogue buttons
-			%NextDialogButton.disabled = false
-			%DialogButton.disabled = false
-			# Check prev dialogue eligibility
-			%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
-			await _generate_comfyui_image()
-			GameProgressManager.settings["game_status"] = "running"
-			GameProgressManager.save_settings()
-			_enable_all_side_buttons_by_eligibility()
+			await _execute_new_story_flow()
 		"new_scene":
-			var uuid_new_scene: String = str(GameProgressManager.settings.get("current_uuid", ""))
-			var ok_new_scene: bool = SceneDataManager.load_data(uuid_new_scene)
-			if ok_new_scene:
-				_scene_data = SceneDataManager.scene_data
-			print_verbose("")
-			print_verbose("GameProgressManager.settings: %s" % str(GameProgressManager.settings))
-			print_verbose("")
-			print_verbose("SceneDataManager.scene_data (pre-scene): %s" % str(SceneDataManager.scene_data))
-			await _handle_new_scene()
-			# --- After new_scene: populate dynamic choice buttons above CustomInput ---
-			_populate_dynamic_choice_buttons()
-			# --- After new_scene: update dialogue tracking and trigger image generation ---
-			GameProgressManager.settings["game_status"] = "generate_image"
-			GameProgressManager.save_settings()
-			_update_total_dialogue()
-			_show_current_dialogue()
-			# Enable Next Dialogue and Dialogue buttons
-			%NextDialogButton.disabled = false
-			%DialogButton.disabled = false
-			# Check prev dialogue eligibility
-			%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
-			await _generate_comfyui_image()
-			GameProgressManager.settings["game_status"] = "running"
-			GameProgressManager.save_settings()
-			_enable_all_side_buttons_by_eligibility()
+			await _execute_new_scene_flow()
 		"running":
 			var uuid_running: String = str(GameProgressManager.settings.get("current_uuid", ""))
 			var ok_running: bool = SceneDataManager.load_data(uuid_running)
@@ -525,12 +489,13 @@ func _repair_llm_json_text(text: String) -> String:
 	return before + sanitized + after
 
 
-func _handle_new_story() -> void:
+func _handle_new_story() -> bool:
 	var result: Dictionary = await LLMManager.request_new_story()
 	print_verbose("LLM request_new_story result: %s" % str(result))
 	if not result.get("success", false):
-		show_error(str(result.get("error", "Failed to generate story")))
-		return
+		_pending_retry_action = "new_story"
+		show_error(str(result.get("error", "Failed to generate story")), true)
+		return false
 	var raw_text: String = str(result.get("text", ""))
 	var json_str: String = _extract_json(raw_text)
 	var json := JSON.new()
@@ -551,8 +516,9 @@ func _handle_new_story() -> void:
 		if err != OK or not json.data is Dictionary:
 			print_verbose("Failed to parse JSON: %s" % error_string(err))
 			print_verbose("Failed to parse JSON: %s" % raw_text.substr(0, 300))
-			show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300))
-			return
+			_pending_retry_action = "new_story"
+			show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300), true)
+			return false
 	var llm_data: Dictionary = json.data as Dictionary
 
 	print_verbose("Parsed llm_data image_prompt: '%s'" % str(llm_data.get("image_prompt", "<missing>")))
@@ -576,14 +542,16 @@ func _handle_new_story() -> void:
 	GameProgressManager.save_settings()
 	print_verbose("Final scene data: " + str(SceneDataManager.scene_data))
 	print_verbose("Final game progress settings: " + str(GameProgressManager.settings))
+	return true
 
 
-func _handle_new_scene() -> void:
+func _handle_new_scene() -> bool:
 	var result: Dictionary = await LLMManager.request_new_scene()
 	print_verbose("LLM request_new_scene result: %s" % str(result))
 	if not result.get("success", false):
-		show_error(str(result.get("error", "Failed to generate scene")))
-		return
+		_pending_retry_action = "new_scene"
+		show_error(str(result.get("error", "Failed to generate scene")), true)
+		return false
 	var raw_text: String = str(result.get("text", ""))
 	var json_str: String = _extract_json(raw_text)
 	var json := JSON.new()
@@ -601,8 +569,9 @@ func _handle_new_scene() -> void:
 		if err != OK or not json.data is Dictionary:
 			print_verbose("Failed to parse JSON (scene): %s" % error_string(err))
 			print_verbose("Failed to parse JSON (scene): %s" % raw_text.substr(0, 300))
-			show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300))
-			return
+			_pending_retry_action = "new_scene"
+			show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300), true)
+			return false
 	var llm_data: Dictionary = json.data as Dictionary
 	print_verbose("Parsed scene llm_data image_prompt: '%s'" % str(llm_data.get("image_prompt", "<missing>")))
 	# Merge into SceneDataManager.scene_data — preserve current uuid/prev_uuid/version/current_round
@@ -627,6 +596,89 @@ func _handle_new_scene() -> void:
 	GameProgressManager.save_settings()
 	print_verbose("Final scene data (scene): " + str(SceneDataManager.scene_data))
 	print_verbose("Final game progress settings (scene): " + str(GameProgressManager.settings))
+	return true
+# ------------------------------------------------------------------
+# New story/scene flow with retry support (called from _ready)
+# ------------------------------------------------------------------
+func _execute_new_story_flow() -> void:
+	var uuid: String = str(GameProgressManager.settings.get("current_uuid", ""))
+	var ok: bool = SceneDataManager.load_data(uuid)
+	if ok:
+		_scene_data = SceneDataManager.scene_data
+	print_verbose("")
+	print_verbose("GameProgressManager.settings: %s" % str(GameProgressManager.settings))
+	print_verbose("")
+	print_verbose("SceneDataManager.scene_data (pre-story): %s" % str(SceneDataManager.scene_data))
+	# Retry loop: handles invalid JSON / request failures infinitely until success or return to menu
+	while true:
+		_pending_retry_action = "new_story"
+		var success: bool = await _handle_new_story()
+		if success:
+			_pending_retry_action = ""
+			break
+		# Failure: dialog shown with Retry – wait for retry signal; Return will change scene and abort loop
+		await retry_requested
+		# Allow dialog to hide before next attempt
+		await get_tree().create_timer(0.1).timeout
+		if not is_instance_valid(self) or not is_inside_tree():
+			return
+	# --- After new_story: populate dynamic choice buttons above CustomInput ---
+	_populate_dynamic_choice_buttons()
+	# --- After new_story: update dialogue tracking and trigger image generation ---
+	GameProgressManager.settings["game_status"] = "generate_image"
+	GameProgressManager.save_settings()
+	_update_total_dialogue()
+	_show_current_dialogue()
+	# Enable Next Dialogue and Dialogue buttons
+	%NextDialogButton.disabled = false
+	%DialogButton.disabled = false
+	# Check prev dialogue eligibility
+	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+	await _generate_comfyui_image()
+	GameProgressManager.settings["game_status"] = "running"
+	GameProgressManager.save_settings()
+	_enable_all_side_buttons_by_eligibility()
+	_pending_retry_action = ""
+
+
+func _execute_new_scene_flow() -> void:
+	var uuid_new_scene: String = str(GameProgressManager.settings.get("current_uuid", ""))
+	var ok_new_scene: bool = SceneDataManager.load_data(uuid_new_scene)
+	if ok_new_scene:
+		_scene_data = SceneDataManager.scene_data
+	print_verbose("")
+	print_verbose("GameProgressManager.settings: %s" % str(GameProgressManager.settings))
+	print_verbose("")
+	print_verbose("SceneDataManager.scene_data (pre-scene): %s" % str(SceneDataManager.scene_data))
+	# Retry loop: same pattern as new_story – infinite retries until success
+	while true:
+		_pending_retry_action = "new_scene"
+		var success: bool = await _handle_new_scene()
+		if success:
+			_pending_retry_action = ""
+			break
+		await retry_requested
+		await get_tree().create_timer(0.1).timeout
+		if not is_instance_valid(self) or not is_inside_tree():
+			return
+	# --- After new_scene: populate dynamic choice buttons above CustomInput ---
+	_populate_dynamic_choice_buttons()
+	# --- After new_scene: update dialogue tracking and trigger image generation ---
+	GameProgressManager.settings["game_status"] = "generate_image"
+	GameProgressManager.save_settings()
+	_update_total_dialogue()
+	_show_current_dialogue()
+	# Enable Next Dialogue and Dialogue buttons
+	%NextDialogButton.disabled = false
+	%DialogButton.disabled = false
+	# Check prev dialogue eligibility
+	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+	await _generate_comfyui_image()
+	GameProgressManager.settings["game_status"] = "running"
+	GameProgressManager.save_settings()
+	_enable_all_side_buttons_by_eligibility()
+	_pending_retry_action = ""
+
 # ------------------------------------------------------------------
 # Choice overlay (array of scene.next)
 # ------------------------------------------------------------------
@@ -763,13 +815,64 @@ func _advance_with_choice(choice_text: String) -> void:
 # ------------------------------------------------------------------
 # Error handling — common error return dialog for returning to main menu
 # ------------------------------------------------------------------
-func show_error(message: String) -> void:
+func _setup_error_dialog_retry() -> void:
+	# Add Retry button once (AcceptDialog.add_button stores custom action "retry")
+	if _error_retry_button != null:
+		return
+	# ok_button_text is "Return to Menu" – add Retry as custom action on the right
+	_error_retry_button = %ErrorReturnDialog.add_button(I18n.translate("btn_retry"), false, "retry")
+	if _error_retry_button:
+		_error_retry_button.pressed.connect(_on_error_retry_pressed)
+		_error_retry_button.visible = false
+	# Also listen for custom_action (some Godot versions emit this instead of Button.pressed)
+	if not %ErrorReturnDialog.custom_action.is_connected(_on_error_custom_action):
+		%ErrorReturnDialog.custom_action.connect(_on_error_custom_action)
+
+
+func _update_error_dialog_retry_visibility(allow_retry: bool) -> void:
+	if _error_retry_button == null:
+		return
+	_error_retry_button.visible = allow_retry
+	_error_retry_button.disabled = not allow_retry or _retry_in_progress
+	var retry_text: String = I18n.translate("btn_retry")
+	if retry_text == "btn_retry":
+		retry_text = "Retry"
+	_error_retry_button.text = retry_text
+
+
+func show_error(message: String, allow_retry: bool = false, retry_action: String = "") -> void:
+	if not retry_action.is_empty():
+		_pending_retry_action = retry_action
+	# If retry is allowed but no pending action has been set, do not show retry
+	if allow_retry and _pending_retry_action.is_empty():
+		allow_retry = false
+	_update_error_dialog_retry_visibility(allow_retry and not _pending_retry_action.is_empty())
 	%ErrorReturnDialog.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
 	%ErrorReturnDialog.title = I18n.translate("error_dialog_title")
 	%ErrorReturnDialog.popup_centered()
 
 
+func _on_error_custom_action(action: String) -> void:
+	if action == "retry":
+		_on_error_retry_pressed()
+
+
+func _on_error_retry_pressed() -> void:
+	if _pending_retry_action.is_empty() or _retry_in_progress:
+		return
+	_retry_in_progress = true
+	_update_error_dialog_retry_visibility(false)
+	%ErrorReturnDialog.hide()
+	# Emit signal for the retry loop in _execute_*_flow; loop will clear pending on next iteration
+	await get_tree().create_timer(0.05).timeout
+	_retry_in_progress = false
+	retry_requested.emit()
+
+
 func _on_error_return() -> void:
+	_pending_retry_action = ""
+	_retry_in_progress = false
+	_update_error_dialog_retry_visibility(false)
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
@@ -787,3 +890,8 @@ func _update_labels() -> void:
 	%ChoiceCancel.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	%ChoiceConfirm.text = I18n.translate("btn_confirm") if I18n.translate("btn_confirm") != "btn_confirm" else "Confirm"
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
+	# Error dialog buttons
+	%ErrorReturnDialog.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnDialog") else ""
+	if _error_retry_button != null:
+		var retry_text: String = I18n.translate("btn_retry")
+		_error_retry_button.text = retry_text if retry_text != "btn_retry" else "Retry"
