@@ -407,7 +407,20 @@ func _request_completion(prompt: String) -> Dictionary:
 	var content: String = message.get("content", "")
 	if content.strip_edges().is_empty():
 		return {"success": false, "error": "Empty content"}
-	return {"success": true, "text": content}
+	# Extract title field from content for TitleLabel (best-effort, no repair)
+	var title: String = ""
+	var t_for_title: String = content.strip_edges()
+	if t_for_title.begins_with("```"):
+		var s_idx: int = t_for_title.find("\n")
+		var e_idx: int = t_for_title.rfind("```")
+		if s_idx != -1 and e_idx != -1 and e_idx > s_idx:
+			t_for_title = t_for_title.substr(s_idx + 1, e_idx - s_idx - 1).strip_edges()
+		else:
+			t_for_title = t_for_title.replace("```json", "").replace("```", "").strip_edges()
+	var tmp_json := JSON.new()
+	if tmp_json.parse(t_for_title) == OK and tmp_json.data is Dictionary:
+		title = str((tmp_json.data as Dictionary).get("title", ""))
+	return {"success": true, "text": content, "title": title}
 
 
 func requestScene() -> void:

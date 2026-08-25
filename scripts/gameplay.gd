@@ -118,16 +118,13 @@ func _ready() -> void:
 			# Enable side buttons by eligibility and update labels
 			_enable_all_side_buttons_by_eligibility()
 			_update_labels()
-			# Update TopBar progress and prompt if available
-			if has_node("%SceneProgressLabel"):
-				var cur_round_running: int = int(GameProgressManager.settings.get("current_round", SceneDataManager.scene_data.get("current_round", 1)))
-				var exp_round_running: int = int(GameProgressManager.settings.get("expected_rounds", 20))
-				%SceneProgressLabel.text = "Scene %d / %d" % [cur_round_running, exp_round_running]
-			if has_node("%ScenePromptLabel"):
-				var summary_text: String = str(SceneDataManager.scene_data.get("summary", ""))
-				if summary_text.strip_edges().is_empty():
-					summary_text = str(SceneDataManager.scene_data.get("scene_prompt", SceneDataManager.scene_data.get("prompt", "")))
-				%ScenePromptLabel.text = summary_text
+			# Update TopBar title if available
+			if has_node("%TitleLabel"):
+				var title_text: String = str(SceneDataManager.scene_data.get("title", ""))
+				if title_text.strip_edges().is_empty():
+					title_text = str(SceneDataManager.scene_data.get("scene_prompt", SceneDataManager.scene_data.get("prompt", "")))
+				if not title_text.strip_edges().is_empty():
+					%TitleLabel.text = _format_title_with_round(title_text)
 			%ChoiceOverlay.visible = false	
 		_:
 			pass
@@ -489,9 +486,30 @@ func _repair_llm_json_text(text: String) -> String:
 	return before + sanitized + after
 
 
+func _format_title_with_round(title: String) -> String:
+	var t := title.strip_edges()
+	if t.is_empty():
+		return ""
+	var cur_round: int = int(GameProgressManager.settings.get("current_round", 1))
+	return "%d. %s" % [cur_round, t]
+
+
+func _apply_title_from_result(result_title: String, fallback_data: Dictionary = {}) -> void:
+	if not has_node("%TitleLabel"):
+		return
+	var t: String = result_title.strip_edges()
+	if t.is_empty() and not fallback_data.is_empty():
+		t = str(fallback_data.get("title", "")).strip_edges()
+	if t.is_empty():
+		return
+	%TitleLabel.text = _format_title_with_round(t)
+
+
 func _handle_new_story() -> bool:
 	var result: Dictionary = await LLMManager.request_new_story()
 	print_verbose("LLM request_new_story result: %s" % str(result))
+	# Apply title field from _request_completion immediately when request finishes
+	_apply_title_from_result(str(result.get("title", "")))
 	if not result.get("success", false):
 		_pending_retry_action = "new_story"
 		show_error(str(result.get("error", "Failed to generate story")), true)
@@ -537,6 +555,8 @@ func _handle_new_story() -> bool:
 		SceneDataManager.scene_data["version"] = "1.0"
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
+	# Apply title field to TitleLabel when request finishes
+	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
 	# Mark progress as running so next load doesn't re-request
 	GameProgressManager.settings["game_status"] = "running"
 	GameProgressManager.save_settings()
@@ -548,6 +568,7 @@ func _handle_new_story() -> bool:
 func _handle_new_scene() -> bool:
 	var result: Dictionary = await LLMManager.request_new_scene()
 	print_verbose("LLM request_new_scene result: %s" % str(result))
+	_apply_title_from_result(str(result.get("title", "")))
 	if not result.get("success", false):
 		_pending_retry_action = "new_scene"
 		show_error(str(result.get("error", "Failed to generate scene")), true)
@@ -592,6 +613,7 @@ func _handle_new_scene() -> bool:
 		SceneDataManager.scene_data["id"] = preserved_uuid
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
+	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
 	GameProgressManager.settings["game_status"] = "running"
 	GameProgressManager.save_settings()
 	print_verbose("Final scene data (scene): " + str(SceneDataManager.scene_data))
