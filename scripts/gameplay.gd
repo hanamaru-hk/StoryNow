@@ -536,11 +536,13 @@ func _on_choice_confirm() -> void:
 		choice_index = choices.size()
 		choices.append({"plot": stripped_text})
 		SceneDataManager.scene_data["choices"] = choices
+		SceneDataManager.save()
 
 	# Ensure entry is a Dictionary for id handling
 	if not choices[choice_index] is Dictionary:
 		choices[choice_index] = {"plot": str(choices[choice_index])}
 		SceneDataManager.scene_data["choices"] = choices
+		SceneDataManager.save()
 
 	var entry: Dictionary = choices[choice_index] as Dictionary
 	var existing_id: String = str(entry.get("uuid", "")).strip_edges()
@@ -549,10 +551,22 @@ func _on_choice_confirm() -> void:
 		GameProgressManager.settings["game_status"] = "running"
 	else:
 		var uuid := _generate_uuid()
+		var prev_uuid := str(SceneDataManager.scene_data.get("id", ""))
 		entry["uuid"] = uuid
 		choices[choice_index] = entry
 		SceneDataManager.scene_data["choices"] = choices
+		SceneDataManager.save()
+
 		GameProgressManager.settings["game_status"] = "new_scene"
+		GameProgressManager.settings["current_uuid"] = uuid
+
+		# create new scene data using the new uuid
+		SceneDataManager.scene_data["id"] = uuid
+		SceneDataManager.scene_data["prev"] = prev_uuid
+		SceneDataManager.save()
+
+	
+	
 
 	var cur_round: int = int(GameProgressManager.settings.get("current_round", 1))
 	# Keep GameProgressManager in sync if it tracks current_round
@@ -562,7 +576,6 @@ func _on_choice_confirm() -> void:
 		# Ensure game progress also reflects current round for new saves
 		GameProgressManager.settings["current_round"] = cur_round + 1
 
-	SceneDataManager.save()
 	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
