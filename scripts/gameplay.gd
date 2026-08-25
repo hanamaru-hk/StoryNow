@@ -41,6 +41,8 @@ func _ready() -> void:
 
 	_update_labels()
 	_load_default_background()
+	# Disable all SidePanel buttons except Setting and BackButton at start
+	_set_all_side_buttons_disabled_except_settings_back()
 
 	match GameProgressManager.settings.get("game_status", ""):
 		"new_story":
@@ -50,9 +52,19 @@ func _ready() -> void:
 				_scene_data = SceneDataManager.scene_data
 			await _handle_new_story()
 			# --- After new_story: update dialogue tracking and trigger image generation ---
+			GameProgressManager.settings["game_status"] = "generate_image"
+			GameProgressManager.save_settings()
 			_update_total_dialogue()
 			_show_current_dialogue()
+			# Enable Next Dialogue and Dialogue buttons
+			%NextDialogButton.disabled = false
+			%DialogButton.disabled = false
+			# Check prev dialogue eligibility
+			%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
 			await _generate_comfyui_image()
+			GameProgressManager.settings["game_status"] = "running"
+			GameProgressManager.save_settings()
+			_enable_all_side_buttons_by_eligibility()
 		"new_scene":
 			pass
 		"running":
@@ -130,6 +142,65 @@ func _show_current_dialogue() -> void:
 	# sync legacy
 	_current_dialog_idx = current_dialogue_index
 	_scene_data = SceneDataManager.scene_data
+
+# ------------------------------------------------------------------
+# Button eligibility helpers
+# ------------------------------------------------------------------
+func _is_prev_scene_exist() -> bool:
+	# Check if SceneDataManager.scene_data has a non-null prev
+	if not SceneDataManager.scene_data.has("prev"):
+		return false
+	var prev = SceneDataManager.scene_data.get("prev")
+	if prev == null:
+		return false
+	if prev is String:
+		return not str(prev).strip_edges().is_empty()
+	if prev is Dictionary:
+		return not (prev as Dictionary).is_empty()
+	if prev is Array:
+		return not (prev as Array).is_empty()
+	return true
+
+
+func _is_prev_dialogue_exist() -> bool:
+	return current_dialogue_index != 0
+
+
+func is_prev_scene_exist() -> bool:
+	return _is_prev_scene_exist()
+
+
+func is_prev_dialogue_exist() -> bool:
+	return _is_prev_dialogue_exist()
+
+
+func _set_all_side_buttons_disabled_except_settings_back() -> void:
+	%DialogButton.disabled = true
+	%ImageButton.disabled = true
+	%PlotButton.disabled = true
+	%PlayAudioButton.disabled = true
+	%PrevDialogButton.disabled = true
+	%NextDialogButton.disabled = true
+	%PrevSceneButton.disabled = true
+	%NextSceneButton.disabled = true
+	%SettingButton.disabled = false
+	%BackButton.disabled = false
+
+
+func _update_button_eligibility() -> void:
+	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+	%PrevSceneButton.disabled = not _is_prev_scene_exist()
+
+
+func _enable_all_side_buttons_by_eligibility() -> void:
+	%DialogButton.disabled = false
+	%ImageButton.disabled = false
+	%PlotButton.disabled = false
+	%PlayAudioButton.disabled = false
+	%NextDialogButton.disabled = false
+	%NextSceneButton.disabled = false
+	# Prev buttons depend on eligibility
+	_update_button_eligibility()
 
 # ------------------------------------------------------------------
 # ComfyUI image generation — delegated to ImageServerManager
@@ -214,21 +285,31 @@ func _on_prev_dialog_pressed() -> void:
 	if current_dialogue_index > 0:
 		current_dialogue_index -= 1
 		_show_current_dialogue()
+		_update_button_eligibility()
 
 
 func _on_next_dialog_pressed() -> void:
+	# Spec: if (current_dialogue_index > total_dialogue) show choice overlay
+	if current_dialogue_index > total_dialogue:
+		_show_choice_overlay()
+		return
+	# Also handle end-of-dialogue -> choice overlay (index at last dialogue)
+	if current_dialogue_index >= total_dialogue - 1:
+		_show_choice_overlay()
+		return
 	if total_dialogue <= 1:
 		return
 	if current_dialogue_index < total_dialogue - 1:
 		current_dialogue_index += 1
 		_show_current_dialogue()
+		_update_button_eligibility()
 
 
 func _on_prev_scene_pressed() -> void:
 	pass
 
 func _on_next_scene_pressed() -> void:
-	pass
+	_show_choice_overlay()
 
 
 func _on_dialog_btn_pressed() -> void:
