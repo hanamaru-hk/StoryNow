@@ -12,6 +12,7 @@ const PROMPT_DIR := "res://data/llm"
 const RANDOM := "random"
 const ENHANCE := "enhance"
 const STORY := "story"
+const SCENE := "scene"
 const STORY_BACKGROUND_REQUIREMENT := "common/story_background_requirement"
 const OUTPUT_JSON_REQUIREMENT := "common/output_json_requirement"
 const OUTPUT_JSON_TEMPLATE := "common/output_template.json"
@@ -303,6 +304,56 @@ func request_new_story() -> Dictionary:
 	print_verbose("")
 	print_verbose("prompt_story:"+ prompt_story)
 	return await _request_completion(prompt_story)
+
+
+func request_new_scene() -> Dictionary:
+	var lang := I18n.current_lang
+	var prompt_scene := _load_prompt(SCENE)
+	if prompt_scene.is_empty():
+		return {"success": false, "error": "Failed to load prompt_scene for lang %s" % lang}
+	var prompt_output_json_requirement := _load_prompt(OUTPUT_JSON_REQUIREMENT)
+	if prompt_output_json_requirement.is_empty():
+		return {"success": false, "error": "Failed to load prompt_json_requirement"}
+	prompt_output_json_requirement = _replace_requirement_placeholders(prompt_output_json_requirement)
+	var template_str := _load_template(lang)
+	if template_str.is_empty():
+		return {"success": false, "error": "Failed to load template.json"}
+	if GameSettingsManager.is_free_mode():
+		var guardrail := _load_prompt(FREE_GUARDRAIL)
+		prompt_scene = prompt_scene.replace("__GUARDRAIL__", guardrail)
+	else:
+		var guardrail := _load_prompt(SAFE_GUARDRAIL)
+		prompt_scene = prompt_scene.replace("__GUARDRAIL__", guardrail)
+	# Load previous scene JSON from prev_uuid's file
+	var prev_uuid: String = str(SceneDataManager.scene_data.get("prev_uuid", ""))
+	if prev_uuid.strip_edges().is_empty():
+		# fallback: try id-based lookup or GameProgressManager
+		prev_uuid = str(SceneDataManager.scene_data.get("prev", ""))
+	if prev_uuid.strip_edges().is_empty():
+		prev_uuid = str(GameProgressManager.settings.get("prev_uuid", ""))
+	var previous_json_str: String = ""
+	if not prev_uuid.strip_edges().is_empty():
+		var prev_path := "user://saves/%s/scene_data.json" % prev_uuid
+		if FileAccess.file_exists(prev_path):
+			var f := FileAccess.open(prev_path, FileAccess.READ)
+			if f != null:
+				previous_json_str = f.get_as_text()
+				f.close()
+		if previous_json_str.strip_edges().is_empty():
+			# Fallback: stringify current scene_data as best effort
+			previous_json_str = JSON.stringify(SceneDataManager.scene_data)
+	else:
+		previous_json_str = JSON.stringify(SceneDataManager.scene_data)
+	if previous_json_str.strip_edges().is_empty():
+		previous_json_str = "{}"
+	var player_input: String = str(GameProgressManager.settings.get("player_input", ""))
+	prompt_scene = prompt_scene.replace("__PREVIOUS_SCENE_JSON__", previous_json_str)
+	prompt_scene = prompt_scene.replace("__PLAYER_INPUT__", player_input)
+	prompt_scene = prompt_scene.replace("__OUTPUT_JSON_REQUIREMENT__", prompt_output_json_requirement)
+	prompt_scene = prompt_scene.replace("__OUTPUT_JSON_TEMPLATE__", template_str)
+	print_verbose("")
+	print_verbose("prompt_scene:"+ prompt_scene)
+	return await _request_completion(prompt_scene)
 
 
 func _request_completion(prompt: String) -> Dictionary:

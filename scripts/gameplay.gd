@@ -69,13 +69,34 @@ func _ready() -> void:
 			GameProgressManager.save_settings()
 			_enable_all_side_buttons_by_eligibility()
 		"new_scene":
+			var uuid_new_scene: String = str(GameProgressManager.settings.get("current_uuid", ""))
+			var ok_new_scene: bool = SceneDataManager.load_data(uuid_new_scene)
+			if ok_new_scene:
+				_scene_data = SceneDataManager.scene_data
 			print_verbose("")
 			print_verbose("GameProgressManager.settings: %s" % str(GameProgressManager.settings))
 			print_verbose("")
-			print_verbose("SceneDataManager.scene_data: %s" % str(SceneDataManager.scene_data))
-			pass
+			print_verbose("SceneDataManager.scene_data (pre-scene): %s" % str(SceneDataManager.scene_data))
+			await _handle_new_scene()
+			# --- After new_scene: populate dynamic choice buttons above CustomInput ---
+			_populate_dynamic_choice_buttons()
+			# --- After new_scene: update dialogue tracking and trigger image generation ---
+			GameProgressManager.settings["game_status"] = "generate_image"
+			GameProgressManager.save_settings()
+			_update_total_dialogue()
+			_show_current_dialogue()
+			# Enable Next Dialogue and Dialogue buttons
+			%NextDialogButton.disabled = false
+			%DialogButton.disabled = false
+			# Check prev dialogue eligibility
+			%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+			await _generate_comfyui_image()
+			GameProgressManager.settings["game_status"] = "running"
+			GameProgressManager.save_settings()
+			_enable_all_side_buttons_by_eligibility()
 		"running":
-			pass
+			
+			pass	
 		_:
 			pass
 
@@ -246,11 +267,11 @@ func _on_dynamic_choice_pressed(choice_text: String) -> void:
 		%CustomInput.text = choice_text
 		%CustomInput.grab_focus()
 
+
+
 func _generate_comfyui_image() -> void:
-	
 	var image_prompt: String = str(SceneDataManager.scene_data.get("image_prompt", ""))
 	print_verbose("Generating ComfyUI image for scene_data: %s" % image_prompt)
-
 	var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))
 	var result: Dictionary = await ImageServerManager.generate_scene_image(image_prompt, uuid)
 	if not result.get("success", false):
@@ -476,6 +497,57 @@ func _handle_new_story() -> void:
 	GameProgressManager.save_settings()
 	print_verbose("Final scene data: " + str(SceneDataManager.scene_data))
 	print_verbose("Final game progress settings: " + str(GameProgressManager.settings))
+
+
+func _handle_new_scene() -> void:
+	var result: Dictionary = await LLMManager.request_new_scene()
+	print_verbose("LLM request_new_scene result: %s" % str(result))
+	if not result.get("success", false):
+		show_error(str(result.get("error", "Failed to generate scene")))
+		return
+	var raw_text: String = str(result.get("text", ""))
+	var json_str: String = _extract_json(raw_text)
+	var json := JSON.new()
+	var err := json.parse(json_str)
+	if err != OK or not json.data is Dictionary:
+		var repaired := _repair_llm_json_text(json_str)
+		if repaired != json_str:
+			print_verbose("Attempting repaired JSON parse for image_prompt bare quotes (scene)")
+			json = JSON.new()
+			err = json.parse(repaired)
+			if err == OK and json.data is Dictionary:
+				json_str = repaired
+			else:
+				print_verbose("Repaired JSON still invalid: %s" % error_string(err))
+		if err != OK or not json.data is Dictionary:
+			print_verbose("Failed to parse JSON (scene): %s" % error_string(err))
+			print_verbose("Failed to parse JSON (scene): %s" % raw_text.substr(0, 300))
+			show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300))
+			return
+	var llm_data: Dictionary = json.data as Dictionary
+	print_verbose("Parsed scene llm_data image_prompt: '%s'" % str(llm_data.get("image_prompt", "<missing>")))
+	# Merge into SceneDataManager.scene_data — preserve current uuid/prev_uuid/version/current_round
+	var current_uuid := str(GameProgressManager.settings.get("current_uuid", ""))
+	var preserved_uuid := str(SceneDataManager.scene_data.get("uuid", current_uuid))
+	var preserved_prev := str(SceneDataManager.scene_data.get("prev_uuid", ""))
+	var preserved_version := str(SceneDataManager.scene_data.get("version", CURRENT_VERSION))
+	var preserved_current_round: Variant = SceneDataManager.scene_data.get("current_round", GameProgressManager.settings.get("current_round", 1))
+	for key in llm_data.keys():
+		SceneDataManager.scene_data[key] = llm_data[key]
+	# Restore preserved meta
+	SceneDataManager.scene_data["uuid"] = preserved_uuid
+	if not preserved_prev.is_empty():
+		SceneDataManager.scene_data["prev_uuid"] = preserved_prev
+	SceneDataManager.scene_data["version"] = preserved_version
+	SceneDataManager.scene_data["current_round"] = preserved_current_round
+	if not SceneDataManager.scene_data.has("id"):
+		SceneDataManager.scene_data["id"] = preserved_uuid
+	SceneDataManager.save()
+	_scene_data = SceneDataManager.scene_data
+	GameProgressManager.settings["game_status"] = "running"
+	GameProgressManager.save_settings()
+	print_verbose("Final scene data (scene): " + str(SceneDataManager.scene_data))
+	print_verbose("Final game progress settings (scene): " + str(GameProgressManager.settings))
 # ------------------------------------------------------------------
 # Choice overlay (array of scene.next)
 # ------------------------------------------------------------------
