@@ -1,5 +1,6 @@
 extends Control
 
+const CURRENT_VERSION := "1.0"
 
 var _scene_data: Dictionary = {}
 var _current_dialog_idx: int = 0
@@ -68,6 +69,10 @@ func _ready() -> void:
 			GameProgressManager.save_settings()
 			_enable_all_side_buttons_by_eligibility()
 		"new_scene":
+			print_verbose("")
+			print_verbose("GameProgressManager.settings: %s" % str(GameProgressManager.settings))
+			print_verbose("")
+			print_verbose("SceneDataManager.scene_data: %s" % str(SceneDataManager.scene_data))
 			pass
 		"running":
 			pass
@@ -78,7 +83,7 @@ func _ready() -> void:
 func _load_default_background() -> void:
 	# Runtime load to avoid requiring .import (handles missing Texture2D loader error).
 	# Uses Image.load_from_file via globalized path, then ImageTexture.
-	var res_path := "res://assets/images/loading.jpg"
+	var res_path := "res://assets/images/loading.png"
 	var global_path := ProjectSettings.globalize_path(res_path)
 	var img := Image.new()
 	var err: Error = img.load(global_path)
@@ -150,9 +155,9 @@ func _show_current_dialogue() -> void:
 # ------------------------------------------------------------------
 func _is_prev_scene_exist() -> bool:
 	# Check if SceneDataManager.scene_data has a non-null prev
-	if not SceneDataManager.scene_data.has("prev"):
+	if not SceneDataManager.scene_data.has("prev_uuid"):
 		return false
-	var prev = SceneDataManager.scene_data.get("prev")
+	var prev = SceneDataManager.scene_data.get("prev_uuid")
 	if prev == null:
 		return false
 	if prev is String:
@@ -241,26 +246,12 @@ func _on_dynamic_choice_pressed(choice_text: String) -> void:
 		%CustomInput.text = choice_text
 		%CustomInput.grab_focus()
 
-# ------------------------------------------------------------------
-# ComfyUI image generation — delegated to ImageServerManager
-# ------------------------------------------------------------------
-func _sanitize_image_prompt(prompt: String) -> String:
-	# Thin wrapper — single source of truth lives in ImageServerManager
-	return ImageServerManager.sanitize_image_prompt(prompt)
-
-
 func _generate_comfyui_image() -> void:
-	var raw_prompt: String = str(SceneDataManager.scene_data.get("image_prompt", ""))
-	var image_prompt: String = _sanitize_image_prompt(raw_prompt)
-	if image_prompt != raw_prompt:
-		print_verbose("Sanitized stored image_prompt for ComfyUI: '%s'" % image_prompt.substr(0, 100))
-		SceneDataManager.scene_data["image_prompt"] = image_prompt
-		SceneDataManager.save()
-		_scene_data = SceneDataManager.scene_data
-	if image_prompt.strip_edges().is_empty():
-		push_warning("SceneDataManager image_prompt is empty after sanitize, skipping ComfyUI generation (raw was: '%s')" % raw_prompt.substr(0, 100))
-		return
-	var uuid: String = str(SceneDataManager.scene_data.get("id", GameProgressManager.settings.get("current_uuid", "")))
+	
+	var image_prompt: String = str(SceneDataManager.scene_data.get("image_prompt", ""))
+	print_verbose("Generating ComfyUI image for scene_data: %s" % image_prompt)
+
+	var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))
 	var result: Dictionary = await ImageServerManager.generate_scene_image(image_prompt, uuid)
 	if not result.get("success", false):
 		show_error(str(result.get("error", "Failed to generate image")))
@@ -458,28 +449,24 @@ func _handle_new_story() -> void:
 				# then attempt to recover other fields via manual parse
 				print_verbose("Repaired JSON still invalid: %s" % error_string(err))
 		if err != OK or not json.data is Dictionary:
+			print_verbose("Failed to parse JSON: %s" % error_string(err))
+			print_verbose("Failed to parse JSON: %s" % raw_text.substr(0, 300))
 			show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300))
 			return
 	var llm_data: Dictionary = json.data as Dictionary
-	# Sanitize image_prompt immediately after parse — remove stray quotes that would break workflow JSON
-	if llm_data.has("image_prompt"):
-		var raw_prompt: String = str(llm_data.get("image_prompt", ""))
-		var clean_prompt: String = _sanitize_image_prompt(raw_prompt)
-		if clean_prompt != raw_prompt:
-			print_verbose("Sanitized image_prompt from '%s' to '%s'" % [raw_prompt.substr(0, 80), clean_prompt.substr(0, 80)])
-		llm_data["image_prompt"] = clean_prompt
+
 	print_verbose("Parsed llm_data image_prompt: '%s'" % str(llm_data.get("image_prompt", "<missing>")))
 	# Don't modify the format of the LLM JSON – just extract and merge into SceneDataManager.scene_data
 	if SceneDataManager.scene_data.is_empty():
 		SceneDataManager.scene_data = llm_data.duplicate(true)
-		if not SceneDataManager.scene_data.has("id"):
-			SceneDataManager.scene_data["id"] = str(GameProgressManager.settings.get("current_uuid", ""))
+		if not SceneDataManager.scene_data.has("uuid"):
+			SceneDataManager.scene_data["uuid"] = str(GameProgressManager.settings.get("current_uuid", ""))
 	else:
 		for key in llm_data.keys():
 			SceneDataManager.scene_data[key] = llm_data[key]
 	# Ensure essential meta fields remain if LLM omitted them
-	if not SceneDataManager.scene_data.has("id"):
-		SceneDataManager.scene_data["id"] = str(GameProgressManager.settings.get("current_uuid", ""))
+	if not SceneDataManager.scene_data.has("uuid"):
+		SceneDataManager.scene_data["uuid"] = str(GameProgressManager.settings.get("current_uuid", ""))
 	if not SceneDataManager.scene_data.has("version"):
 		SceneDataManager.scene_data["version"] = "1.0"
 	SceneDataManager.save()
@@ -544,6 +531,16 @@ func _on_choice_confirm() -> void:
 		SceneDataManager.scene_data["choices"] = choices
 		SceneDataManager.save()
 
+	var cur_round: int = int(GameProgressManager.settings.get("current_round", 1))
+
+	print_verbose("Choice confirmed: '%s', index: %d, current_round: %d" % [stripped_text, choice_index, cur_round])
+	# Keep GameProgressManager in sync if it tracks current_round
+	if GameProgressManager.settings.has("current_round"):
+		GameProgressManager.settings["current_round"] = cur_round + 1
+	else:
+		# Ensure game progress also reflects current round for new saves
+		GameProgressManager.settings["current_round"] = 1
+
 	var entry: Dictionary = choices[choice_index] as Dictionary
 	var existing_id: String = str(entry.get("uuid", "")).strip_edges()
 	if not existing_id.is_empty():
@@ -551,7 +548,7 @@ func _on_choice_confirm() -> void:
 		GameProgressManager.settings["game_status"] = "running"
 	else:
 		var uuid := _generate_uuid()
-		var prev_uuid := str(SceneDataManager.scene_data.get("id", ""))
+		var prev_uuid := str(SceneDataManager.scene_data.get("uuid", ""))
 		entry["uuid"] = uuid
 		choices[choice_index] = entry
 		SceneDataManager.scene_data["choices"] = choices
@@ -562,20 +559,25 @@ func _on_choice_confirm() -> void:
 		GameProgressManager.settings["current_uuid"] = uuid
 
 		# create new scene data using the new uuid
-		SceneDataManager.scene_data["id"] = uuid
-		SceneDataManager.scene_data["prev"] = prev_uuid
+		SceneDataManager.scene_data["uuid"] = uuid
+		SceneDataManager.scene_data["prev_uuid"] = prev_uuid
+		SceneDataManager.scene_data["image_filenames"] = []
+		SceneDataManager.scene_data["image_prompt"] = ""
+		SceneDataManager.scene_data["image_instruction"] = ""
+		SceneDataManager.scene_data["instruction"] = []
+		SceneDataManager.scene_data["interactions"] = []
+		SceneDataManager.scene_data["language"] = I18n.current_lang
+		SceneDataManager.scene_data["summary"] = ""
+		SceneDataManager.scene_data["version"] = CURRENT_VERSION
+		SceneDataManager.scene_data["current_round"] = cur_round + 1
+
+		SceneDataManager.scene_data["choices"] = []
 		SceneDataManager.save()
 
 	
 	
 
-	var cur_round: int = int(GameProgressManager.settings.get("current_round", 1))
-	# Keep GameProgressManager in sync if it tracks current_round
-	if GameProgressManager.settings.has("current_round"):
-		GameProgressManager.settings["current_round"] = int(GameProgressManager.settings.get("current_round", cur_round)) + 1
-	else:
-		# Ensure game progress also reflects current round for new saves
-		GameProgressManager.settings["current_round"] = cur_round + 1
+
 
 	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")

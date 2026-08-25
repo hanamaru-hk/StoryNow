@@ -154,27 +154,6 @@ func load_status() -> void:
 		if error == OK and json.data is Dictionary:
 			status = json.data
 
-# ------------------------------------------------------------------
-# ComfyUI generation API — moved from gameplay.gd
-# ------------------------------------------------------------------
-func sanitize_image_prompt(prompt: String) -> String:
-	# Remove any characters that would break workflow JSON insertion.
-	var s := prompt.strip_edges()
-	s = s.replace("\\\"", "").replace("\\", "").replace("\"", "").replace("'", "")
-	s = s.replace("\n", " ").replace("\r", " ").replace("\t", " ")
-	s = s.replace("player_input_for_the_next_step", "")
-	while s.find("  ") != -1:
-		s = s.replace("  ", " ")
-	while s.find(",,") != -1:
-		s = s.replace(",,", ",")
-	s = s.strip_edges()
-	while s.begins_with(","):
-		s = s.substr(1).strip_edges()
-	while s.ends_with(","):
-		s = s.substr(0, s.length() - 1).strip_edges()
-	return s
-
-
 func _load_workflow_template_text() -> String:
 	if not FileAccess.file_exists(WORKFLOW_TEMPLATE_PATH):
 		push_error("workflow_template.json not found: %s" % WORKFLOW_TEMPLATE_PATH)
@@ -394,14 +373,9 @@ func _download_comfy_image(filename: String, subfolder: String, img_type: String
 
 
 func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
-	# High-level helper: builds workflow from template, queues ComfyUI, polls and downloads.
-	# Returns { "success": bool, "save_path": String, "filename": String, "error": String, "prompt": String }
-	var sanitized: String = sanitize_image_prompt(image_prompt)
-	if sanitized.strip_edges().is_empty():
-		return {"success": false, "error": "image_prompt empty after sanitize (raw was: '%s')" % image_prompt.substr(0, 100), "prompt": sanitized}
 	var workflow_text := _load_workflow_template_text()
 	if workflow_text.is_empty():
-		return {"success": false, "error": "Failed to load ComfyUI workflow_template.json", "prompt": sanitized}
+		return {"success": false, "error": "Failed to load ComfyUI workflow_template.json", "prompt": image_prompt}
 	var model_filename: String = str(ImageServerSettingsManager.settings.get("model_filename", ""))
 	if model_filename.is_empty():
 		model_filename = DEFAULT_MODEL
@@ -413,32 +387,32 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	var seed_val: int = rng.randi_range(0, 2147483647)
 	workflow_text = workflow_text.replace("__MODEL_FILENAME__", model_filename)
 	workflow_text = workflow_text.replace("__MODEL_NAME__", model_filename)
-	workflow_text = workflow_text.replace("__POSITIVE_PROMPT__", sanitized)
+	workflow_text = workflow_text.replace("__POSITIVE_PROMPT__", image_prompt)
 	workflow_text = workflow_text.replace("__NEGATIVE_PROMPT__", negative_prompt)
 	workflow_text = workflow_text.replace("__FILENAME_PREFIX__", FILENAME_PREFIX)
 	workflow_text = workflow_text.replace("__IMAGE_WIDTH__", image_width)
 	workflow_text = workflow_text.replace("__IMAGE_HEIGHT__", image_height)
 	workflow_text = workflow_text.replace("__SEED__", str(seed_val))
-	print_verbose("image prompt" + sanitized)
+	print_verbose("image prompt" + image_prompt)
 	print_verbose("ComfyUI workflow: " + workflow_text)
 	var json := JSON.new()
 	var err := json.parse(workflow_text)
 	if err != OK or not json.data is Dictionary:
-		return {"success": false, "error": "Invalid ComfyUI workflow template after replacement: %s" % error_string(err), "prompt": sanitized}
+		return {"success": false, "error": "Invalid ComfyUI workflow template after replacement: %s" % error_string(err), "prompt": image_prompt}
 	var workflow_dict: Dictionary = json.data as Dictionary
 	_fix_comfy_workflow_dict(workflow_dict, seed_val)
 	var prompt_id := await _queue_comfy_prompt(workflow_dict)
 	if prompt_id.is_empty():
-		return {"success": false, "error": "Failed to queue ComfyUI prompt", "prompt": sanitized}
+		return {"success": false, "error": "Failed to queue ComfyUI prompt", "prompt": image_prompt}
 	var image_info := await _poll_comfy_history(prompt_id)
 	if image_info.is_empty():
-		return {"success": false, "error": "ComfyUI did not return image (timeout or error)", "prompt": sanitized}
+		return {"success": false, "error": "ComfyUI did not return image (timeout or error)", "prompt": image_prompt}
 	var filename: String = str(image_info.get("filename", ""))
 	var subfolder: String = str(image_info.get("subfolder", ""))
 	var img_type: String = str(image_info.get("type", "output"))
 	if filename.is_empty():
-		return {"success": false, "error": "ComfyUI history missing filename", "prompt": sanitized}
+		return {"success": false, "error": "ComfyUI history missing filename", "prompt": image_prompt}
 	var save_path := await _download_comfy_image(filename, subfolder, img_type, uuid)
 	if save_path.is_empty():
-		return {"success": false, "error": "Failed to download ComfyUI image", "prompt": sanitized}
-	return {"success": true, "save_path": save_path, "filename": filename, "prompt": sanitized, "seed": seed_val}
+		return {"success": false, "error": "Failed to download ComfyUI image", "prompt": image_prompt}
+	return {"success": true, "save_path": save_path, "filename": filename, "prompt": image_prompt, "seed": seed_val}

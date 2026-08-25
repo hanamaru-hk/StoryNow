@@ -50,7 +50,7 @@ func _show_error_dialog(message: String) -> void:
 func _on_start_pressed() -> void:
 	var uuid := _generate_uuid()
 	SceneDataManager.scene_data = {
-		"id": uuid,
+		"uuid": uuid,
 		"image_filenames": [],
 		"version": "1.0",
 		"interactions": [],
@@ -66,6 +66,7 @@ func _on_start_pressed() -> void:
 	SceneDataManager.save()
 	GameProgressManager.settings["current_uuid"] = uuid
 	GameProgressManager.settings["game_status"] = "new_story"
+	GameProgressManager.settings["current_round"] = 1
 	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 

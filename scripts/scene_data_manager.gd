@@ -6,7 +6,7 @@ const SAVE_DIR := "user://saves"
 
 
 func save() -> bool:
-	var uuid := str(scene_data.get("id", ""))
+	var uuid := str(scene_data.get("uuid", ""))
 	if uuid.is_empty():
 		push_error("SceneDataManager.save: scene_data missing id")
 		return false
