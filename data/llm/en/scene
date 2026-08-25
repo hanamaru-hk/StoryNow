@@ -4,13 +4,13 @@ Focus primarily on player_input, using previous_scene_json as a secondary refere
 
 __GUARDRAIL__
 
-<previous_scene_json>
-__PREVIOUS_SCENE_JSON__
-</previous_scene_json>
-
 <player_input>
 __PLAYER_INPUT__
 </player_input>
+
+<previous_scene_json>
+__PREVIOUS_SCENE_JSON__
+</previous_scene_json>
 
 <output_json_requirement>
 __OUTPUT_JSON_REQUIREMENT__
