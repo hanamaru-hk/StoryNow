@@ -558,6 +558,7 @@ func _on_choice_confirm() -> void:
 		SceneDataManager.save()
 
 		GameProgressManager.settings["game_status"] = "new_scene"
+		GameProgressManager.settings["player_input"] = stripped_text
 		GameProgressManager.settings["current_uuid"] = uuid
 
 		# create new scene data using the new uuid
