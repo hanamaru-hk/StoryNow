@@ -95,8 +95,76 @@ func _ready() -> void:
 			GameProgressManager.save_settings()
 			_enable_all_side_buttons_by_eligibility()
 		"running":
-			
-			pass	
+			var uuid_running: String = str(GameProgressManager.settings.get("current_uuid", ""))
+			var ok_running: bool = SceneDataManager.load_data(uuid_running)
+			if ok_running:
+				_scene_data = SceneDataManager.scene_data
+			else:
+				push_warning("Gameplay running: failed to load scene_data for uuid %s" % uuid_running)
+				_scene_data = SceneDataManager.scene_data
+				if _scene_data.is_empty():
+					show_error("Failed to load scene data: %s" % uuid_running)
+			# Restore dialogue index from GameProgressManager
+			current_dialogue_index = int(GameProgressManager.settings.get("current_dialogue", 0))
+			_current_dialog_idx = current_dialogue_index
+			# Refresh dialogues and button panel
+			_populate_dynamic_choice_buttons()
+			_update_total_dialogue()
+			# _update_total_dialogue may clamp index; sync back to local/manager
+			_current_dialog_idx = current_dialogue_index
+			_show_current_dialogue()
+			# Refresh image from save folder of uuid (no LLM / no ComfyUI generation)
+			var image_filenames: Array = SceneDataManager.scene_data.get("image_filenames", []) if SceneDataManager.scene_data.get("image_filenames", []) is Array else []
+			var bg_loaded: bool = false
+			if not image_filenames.is_empty():
+				var last_filename: String = str(image_filenames[image_filenames.size() - 1])
+				if not last_filename.strip_edges().is_empty():
+					var img_path: String = "user://saves/%s/images/%s" % [uuid_running, last_filename]
+					# Only try to load if file exists
+					if FileAccess.file_exists(img_path):
+						_set_background_from_file(img_path)
+						bg_loaded = true
+					else:
+						# Fallback: try direct save_path stored variations
+						# Try with the filename as full user path
+						_set_background_from_file(img_path)
+						bg_loaded = true
+			if not bg_loaded:
+				# Fallback: scan images directory for any image file
+				var images_dir: String = "user://saves/%s/images" % uuid_running
+				if DirAccess.dir_exists_absolute(images_dir):
+					var dir := DirAccess.open(images_dir)
+					if dir != null:
+						dir.list_dir_begin()
+						var file_name := dir.get_next()
+						var latest_file: String = ""
+						while file_name != "":
+							if not dir.current_is_dir() and (file_name.ends_with(".png") or file_name.ends_with(".jpg") or file_name.ends_with(".jpeg") or file_name.ends_with(".webp")):
+								latest_file = file_name
+							file_name = dir.get_next()
+						dir.list_dir_end()
+						if not latest_file.is_empty():
+							_set_background_from_file("%s/%s" % [images_dir, latest_file])
+						else:
+							print_verbose("Gameplay running: no images found in %s, keeping default background" % images_dir)
+					else:
+						print_verbose("Gameplay running: cannot open images dir %s" % images_dir)
+				else:
+					print_verbose("Gameplay running: images dir does not exist %s" % images_dir)
+			# Enable side buttons by eligibility and update labels
+			_enable_all_side_buttons_by_eligibility()
+			_update_labels()
+			# Update TopBar progress and prompt if available
+			if has_node("%SceneProgressLabel"):
+				var cur_round_running: int = int(GameProgressManager.settings.get("current_round", SceneDataManager.scene_data.get("current_round", 1)))
+				var exp_round_running: int = int(GameProgressManager.settings.get("expected_round", 20))
+				%SceneProgressLabel.text = "Scene %d / %d" % [cur_round_running, exp_round_running]
+			if has_node("%ScenePromptLabel"):
+				var summary_text: String = str(SceneDataManager.scene_data.get("summary", ""))
+				if summary_text.strip_edges().is_empty():
+					summary_text = str(SceneDataManager.scene_data.get("scene_prompt", SceneDataManager.scene_data.get("prompt", "")))
+				%ScenePromptLabel.text = summary_text
+			%ChoiceOverlay.visible = false	
 		_:
 			pass
 
@@ -357,7 +425,18 @@ func _on_next_dialog_pressed() -> void:
 
 
 func _on_prev_scene_pressed() -> void:
-	pass
+	if not _is_prev_scene_exist():
+		return
+	var prev_uuid: String = str(SceneDataManager.scene_data.get("prev_uuid", "")).strip_edges()
+	if prev_uuid.is_empty():
+		return
+	GameProgressManager.settings["current_uuid"] = prev_uuid
+	GameProgressManager.settings["game_status"] = "running"
+	var cur_round: int = int(GameProgressManager.settings.get("current_round", 1))
+	GameProgressManager.settings["current_round"] = cur_round - 1
+	GameProgressManager.settings["current_dialogue"] = 0
+	GameProgressManager.save_settings()
+	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 func _on_next_scene_pressed() -> void:
 	_show_choice_overlay()
