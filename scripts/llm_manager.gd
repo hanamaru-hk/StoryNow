@@ -285,6 +285,12 @@ func request_new_story() -> Dictionary:
 	var template_str := _load_template(lang)
 	if template_str.is_empty():
 		return {"success": false, "error": "Failed to load template.json"}
+	if GameSettingsManager.is_free_mode():
+		var guardrail := _load_prompt(FREE_GUARDRAIL)
+		prompt_story = prompt_story.replace("__GUARDRAIL__", guardrail)
+	else:
+		var guardrail := _load_prompt(SAFE_GUARDRAIL)
+		prompt_story = prompt_story.replace("__GUARDRAIL__", guardrail)
 	var background: String = str(SceneDataManager.scene_data.get("summary", ""))
 	# Fallback: if summary empty, try GameProgress or empty
 	if background.strip_edges().is_empty():
