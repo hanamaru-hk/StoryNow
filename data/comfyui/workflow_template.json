@@ -47,7 +47,7 @@
       "class_type": "CLIPTextEncode",
       "inputs": {
         "clip": ["1", 1],
-        "text": "__NEGATIVE_PROMPT__"
+        "text": "(monster:1.5),__NEGATIVE_PROMPT__"
       }
     },
     "7": {
