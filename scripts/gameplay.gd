@@ -543,13 +543,13 @@ func _on_choice_confirm() -> void:
 		SceneDataManager.scene_data["choices"] = choices
 
 	var entry: Dictionary = choices[choice_index] as Dictionary
-	var existing_id: String = str(entry.get("id", "")).strip_edges()
+	var existing_id: String = str(entry.get("uuid", "")).strip_edges()
 	if not existing_id.is_empty():
 		GameProgressManager.settings["current_uuid"] = existing_id
 		GameProgressManager.settings["game_status"] = "running"
 	else:
 		var uuid := _generate_uuid()
-		entry["id"] = uuid
+		entry["uuid"] = uuid
 		choices[choice_index] = entry
 		SceneDataManager.scene_data["choices"] = choices
 		GameProgressManager.settings["game_status"] = "new_scene"
