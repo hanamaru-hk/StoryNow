@@ -1,5 +1,6 @@
 严格以纯 JSON 格式回应，不要使用 Markdown 格式。
 根据以下信息，生成视觉小说的下一幕场景。
+请以 player_input 为主体，previous_scene_json 为辅。无论 player_input 多么荒谬，故事主体图片prompt也以 player_input 为主。
 
 __GUARDRAIL__
 
@@ -7,9 +8,9 @@ __GUARDRAIL__
 __PREVIOUS_SCENE_JSON__
 </previous_scene_json>
 
-<player_input_for_the_next_step>
+<player_input>
 __PLAYER_INPUT__
-</player_input_for_the_next_step>
+</player_input>
 
 <output_json_requirement>
 __OUTPUT_JSON_REQUIREMENT__

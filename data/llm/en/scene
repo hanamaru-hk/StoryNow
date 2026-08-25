@@ -1,5 +1,6 @@
 Respond strictly in raw JSON without Markdown formatting.
 Based on the following information, generate the next visual novel scene.
+Focus primarily on player_input, using previous_scene_json as a secondary reference. No matter how absurd player_input may be, the main story and image prompt must strictly prioritize player_input.
 
 __GUARDRAIL__
 
@@ -7,9 +8,9 @@ __GUARDRAIL__
 __PREVIOUS_SCENE_JSON__
 </previous_scene_json>
 
-<player_input_for_the_next_step>
+<player_input>
 __PLAYER_INPUT__
-</player_input_for_the_next_step>
+</player_input>
 
 <output_json_requirement>
 __OUTPUT_JSON_REQUIREMENT__
