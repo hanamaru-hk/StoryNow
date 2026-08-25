@@ -51,6 +51,8 @@ func _ready() -> void:
 			if ok:
 				_scene_data = SceneDataManager.scene_data
 			await _handle_new_story()
+			# --- After new_story: populate dynamic choice buttons above CustomInput ---
+			_populate_dynamic_choice_buttons()
 			# --- After new_story: update dialogue tracking and trigger image generation ---
 			GameProgressManager.settings["game_status"] = "generate_image"
 			GameProgressManager.save_settings()
@@ -201,6 +203,43 @@ func _enable_all_side_buttons_by_eligibility() -> void:
 	%NextSceneButton.disabled = false
 	# Prev buttons depend on eligibility
 	_update_button_eligibility()
+
+# ------------------------------------------------------------------
+# Dynamic choice buttons above CustomInput
+# ------------------------------------------------------------------
+func _populate_dynamic_choice_buttons() -> void:
+	if not has_node("%DynamicChoiceButtons"):
+		return
+	var container: VBoxContainer = %DynamicChoiceButtons
+	for child in container.get_children():
+		child.queue_free()
+	var choices = SceneDataManager.scene_data.get("choices", [])
+	if not choices is Array:
+		return
+	for choice in choices:
+		var text: String = ""
+		if choice is Dictionary:
+			# template uses "plot", fallback to common keys
+			text = str(choice.get("plot", choice.get("text", choice.get("choice", ""))))
+		else:
+			text = str(choice)
+		text = text.strip_edges()
+		if text.is_empty():
+			continue
+		var btn := Button.new()
+		btn.text = text
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		btn.custom_minimum_size = Vector2(0, 40)
+		btn.pressed.connect(_on_dynamic_choice_pressed.bind(text))
+		container.add_child(btn)
+
+
+func _on_dynamic_choice_pressed(choice_text: String) -> void:
+	# Fill CustomInput with the chosen plot so user can edit or confirm
+	if has_node("%CustomInput"):
+		%CustomInput.text = choice_text
+		%CustomInput.grab_focus()
 
 # ------------------------------------------------------------------
 # ComfyUI image generation — delegated to ImageServerManager
@@ -456,6 +495,7 @@ func _handle_new_story() -> void:
 func _show_choice_overlay() -> void:
 	%CustomInput.text = ""
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
+	_populate_dynamic_choice_buttons()
 	%ChoiceOverlay.visible = true
 
 
