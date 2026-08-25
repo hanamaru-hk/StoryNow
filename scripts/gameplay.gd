@@ -509,13 +509,76 @@ func _on_choice_button_pressed(choice_text: String) -> void:
 
 
 func _on_choice_confirm() -> void:
-	pass
-	# _hide_choice_overlay()
-	# await _advance_with_choice(chosen)
+	var raw_text: String = %CustomInput.text if has_node("%CustomInput") else ""
+	var stripped_text: String = raw_text.strip_edges()
+	if stripped_text.is_empty():
+		return
+	var normalized_input: String = stripped_text.to_lower()
+
+	var choices: Array = SceneDataManager.scene_data.get("choices", [])
+	if not choices is Array:
+		choices = []
+		SceneDataManager.scene_data["choices"] = choices
+
+	var choice_index: int = -1
+	for i in choices.size():
+		var c = choices[i]
+		var plot_raw: String = ""
+		if c is Dictionary:
+			plot_raw = str(c.get("plot", c.get("text", c.get("choice", ""))))
+		else:
+			plot_raw = str(c)
+		if plot_raw.strip_edges().to_lower() == normalized_input:
+			choice_index = i
+			break
+
+	if choice_index == -1:
+		choice_index = choices.size()
+		choices.append({"plot": stripped_text})
+		SceneDataManager.scene_data["choices"] = choices
+
+	# Ensure entry is a Dictionary for id handling
+	if not choices[choice_index] is Dictionary:
+		choices[choice_index] = {"plot": str(choices[choice_index])}
+		SceneDataManager.scene_data["choices"] = choices
+
+	var entry: Dictionary = choices[choice_index] as Dictionary
+	var existing_id: String = str(entry.get("id", "")).strip_edges()
+	if not existing_id.is_empty():
+		GameProgressManager.settings["current_uuid"] = existing_id
+		GameProgressManager.settings["game_status"] = "running"
+	else:
+		var uuid := _generate_uuid()
+		entry["id"] = uuid
+		choices[choice_index] = entry
+		SceneDataManager.scene_data["choices"] = choices
+		GameProgressManager.settings["game_status"] = "new_scene"
+
+	SceneDataManager.save()
+	GameProgressManager.save_settings()
+	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 
 func _on_choice_cancel() -> void:
 	_hide_choice_overlay()
+
+
+func _generate_uuid() -> String:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var bytes: Array = []
+	for i in 16:
+		bytes.append(rng.randi_range(0, 255))
+	# UUID v4: set version and variant bits
+	bytes[6] = (bytes[6] & 0x0F) | 0x40
+	bytes[8] = (bytes[8] & 0x3F) | 0x80
+	return "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x" % [
+		bytes[0], bytes[1], bytes[2], bytes[3],
+		bytes[4], bytes[5],
+		bytes[6], bytes[7],
+		bytes[8], bytes[9],
+		bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]
+	]
 
 
 func _advance_with_choice(choice_text: String) -> void:

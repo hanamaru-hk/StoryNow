@@ -1,6 +1,7 @@
 {
 	"current_dialogue": 0,
 	"current_uuid": "",
+	"current_round": 1,
 	"expected_round": 20,
 	"minimum_dialogues_per_scene": 10,
 	"minimum_sentences_per_dialogue": 3,
