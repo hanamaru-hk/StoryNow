@@ -6,7 +6,7 @@ const DEFAULT_SETTINGS_PATH := "res://data/default_game_progress.json"
 var settings := {
 	"current_dialogue": 0,
 	"current_uuid": "",
-	"expected_round": 1,
+	"expected_rounds": 1,
 	"minimum_dialogues_per_scene": 10,
 	"minimum_sentences_per_dialogue": 10,
 	"minimum_plot_directions": 10,
@@ -49,8 +49,8 @@ func reset_to_defaults() -> void:
 		if error == OK and json.data is Dictionary:
 			# Preserve current_dialogue/current_uuid if existing settings had them? Reset should restore defaults.
 			settings = json.data.duplicate()
-			# Ensure expected_round default is 1 per overlay spec if default file still has 20
-			if settings.has("expected_round") and settings["expected_round"] == 20:
+			# Ensure expected_rounds default is 1 per overlay spec if default file still has 20
+			if settings.has("expected_rounds") and settings["expected_rounds"] == 20:
 				# Keep file value as-is unless we want to enforce 1; don't override file.
 				pass
 			save_settings()

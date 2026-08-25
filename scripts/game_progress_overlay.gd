@@ -48,7 +48,7 @@ func _apply_pending_from_ui() -> void:
 	var v: String
 	v = %ExpectedRoundInput.text.strip_edges()
 	if v.is_valid_int():
-		_pending["expected_round"] = v.to_int()
+		_pending["expected_rounds"] = v.to_int()
 	v = %MinDialogueRoundsInput.text.strip_edges()
 	if v.is_valid_int():
 		_pending["minimum_dialogues_per_scene"] = v.to_int()
@@ -69,7 +69,7 @@ func _apply_pending_from_ui() -> void:
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
-	%ExpectedRoundInput.text = str(_pending.get("expected_round", 1))
+	%ExpectedRoundInput.text = str(_pending.get("expected_rounds", 1))
 	%MinDialogueRoundsInput.text = str(_pending.get("minimum_dialogues_per_scene", 10))
 	%MinSentencesInput.text = str(_pending.get("minimum_sentences_per_dialogue", 10))
 	# Support both minimum_plot_directions and maximum_plot_directions keys

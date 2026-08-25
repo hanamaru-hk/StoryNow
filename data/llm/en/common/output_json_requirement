@@ -1,7 +1,6 @@
-- Follow the structure of the template below.
 - Write `image_prompt` in English as comma-separated Danbooru tags describing the visual scene (e.g., "1girl, solo, classroom, sunlight, detailed background"). It MUST NOT be empty. __DANBOORU_GUARDRAIL__
 - Write natural dialogue and/or narration for the scene in at least __MINIMUM_DIALOGUES_PER_SCENE__ rounds with at least __MINIMUM_SENTENCES_PER_DIALOGUE__ in each dialogue.
 - Include __MAXIMUM_PLOT_DIRECTIONS__ meaningful choices, with each choice leading the story in a distinct plot direction.
 - Set `language` to `en`.
-- Set `summary` to the supplied `summary` plus the `interactions` that will be generated with at least __MINIMUM_SENTENCES_IN_SUMMARY__ sentences.
-- If current_round == expected round, please decide to set end to true based on the development of the story.
+- `summary` will be generated with at least __MINIMUM_SENTENCES_IN_SUMMARY__ sentences.
+- If current_round == expected_rounds , please decide to set end to true based on the development of the story.

@@ -121,7 +121,7 @@ func _ready() -> void:
 			# Update TopBar progress and prompt if available
 			if has_node("%SceneProgressLabel"):
 				var cur_round_running: int = int(GameProgressManager.settings.get("current_round", SceneDataManager.scene_data.get("current_round", 1)))
-				var exp_round_running: int = int(GameProgressManager.settings.get("expected_round", 20))
+				var exp_round_running: int = int(GameProgressManager.settings.get("expected_rounds", 20))
 				%SceneProgressLabel.text = "Scene %d / %d" % [cur_round_running, exp_round_running]
 			if has_node("%ScenePromptLabel"):
 				var summary_text: String = str(SceneDataManager.scene_data.get("summary", ""))

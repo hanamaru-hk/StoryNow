@@ -8,9 +8,12 @@ __GUARDRAIL__
 __PLAYER_INPUT__
 </player_input>
 
-<previous_scene_json>
-__PREVIOUS_SCENE_JSON__
-</previous_scene_json>
+<story_background>
+__STORY_BACKGROUND__
+</story_background>
+
+current_round : __CURRENT_ROUND__
+expected_rounds : __EXPECTED_ROUNDS__
 
 <output_json_requirement>
 __OUTPUT_JSON_REQUIREMENT__

@@ -332,6 +332,7 @@ func request_new_scene() -> Dictionary:
 	if prev_uuid.strip_edges().is_empty():
 		prev_uuid = str(GameProgressManager.settings.get("prev_uuid", ""))
 	var previous_json_str: String = ""
+
 	if not prev_uuid.strip_edges().is_empty():
 		var prev_path := "user://saves/%s/scene_data.json" % prev_uuid
 		if FileAccess.file_exists(prev_path):
@@ -344,10 +345,19 @@ func request_new_scene() -> Dictionary:
 			previous_json_str = JSON.stringify(SceneDataManager.scene_data)
 	else:
 		previous_json_str = JSON.stringify(SceneDataManager.scene_data)
-	if previous_json_str.strip_edges().is_empty():
-		previous_json_str = "{}"
+	
+	var json = JSON.new()
+	var summary: String = ""
+
+	if json.parse(previous_json_str) == OK and json.data is Dictionary:
+		summary = json.data.get("summary", "")
+
 	var player_input: String = str(GameProgressManager.settings.get("player_input", ""))
-	prompt_scene = prompt_scene.replace("__PREVIOUS_SCENE_JSON__", previous_json_str)
+	var expected_rounds: int = int(GameProgressManager.settings.get("expected_rounds", 0))
+	var current_round: int = int(GameProgressManager.settings.get("current_round", 0))
+	prompt_scene = prompt_scene.replace("__STORY_BACKGROUND__", summary)
+	prompt_scene = prompt_scene.replace("__CURRENT_ROUND__", str(current_round))
+	prompt_scene = prompt_scene.replace("__EXPECTED_ROUNDS__", str(expected_rounds))
 	prompt_scene = prompt_scene.replace("__PLAYER_INPUT__", player_input)
 	prompt_scene = prompt_scene.replace("__OUTPUT_JSON_REQUIREMENT__", prompt_output_json_requirement)
 	prompt_scene = prompt_scene.replace("__OUTPUT_JSON_TEMPLATE__", template_str)
