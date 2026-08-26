@@ -244,7 +244,7 @@ func _queue_comfy_prompt(workflow_dict: Dictionary) -> String:
 	var headers := PackedStringArray(["Content-Type: application/json"])
 	var http := HTTPRequest.new()
 	add_child(http)
-	http.timeout = 30.0
+	http.timeout = 60.0
 	var req_err := http.request(url, headers, HTTPClient.METHOD_POST, body)
 	if req_err != OK:
 		push_error("Failed to send ComfyUI prompt request: %s" % error_string(req_err))
@@ -278,7 +278,7 @@ func _poll_comfy_history(prompt_id: String) -> Dictionary:
 	for _attempt in max_attempts:
 		var http := HTTPRequest.new()
 		add_child(http)
-		http.timeout = 10.0
+		http.timeout = 60.0
 		var req_err := http.request(url, PackedStringArray(), HTTPClient.METHOD_GET, "")
 		if req_err != OK:
 			http.queue_free()
@@ -329,7 +329,7 @@ func _download_comfy_image(filename: String, subfolder: String, img_type: String
 	var url := "http://127.0.0.1:%d/view?filename=%s&subfolder=%s&type=%s" % [port, filename.uri_encode(), subfolder.uri_encode(), img_type.uri_encode()]
 	var http := HTTPRequest.new()
 	add_child(http)
-	http.timeout = 30.0
+	http.timeout = 60.0
 	var req_err := http.request(url, PackedStringArray(), HTTPClient.METHOD_GET, "")
 	if req_err != OK:
 		push_error("Failed to request ComfyUI image view: %s" % error_string(req_err))

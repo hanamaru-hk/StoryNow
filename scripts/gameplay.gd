@@ -37,6 +37,11 @@ func _ready() -> void:
 	if has_node("%GameSettingsOverlay"):
 		%GameSettingsOverlay.closed.connect(_on_settings_closed)
 
+	# --- ImageOverlay (extracted) ---
+	if has_node("%ImageOverlay"):
+		%ImageOverlay.closed.connect(_on_image_overlay_closed)
+		%ImageOverlay.image_generated.connect(_on_image_generated)
+
 	# --- ErrorReturnDialog ---
 	%ErrorReturnDialog.confirmed.connect(_on_error_return)
 	%ErrorReturnDialog.canceled.connect(_on_error_return)
@@ -408,7 +413,37 @@ func _on_dialog_btn_pressed() -> void:
 
 
 func _on_image_btn_pressed() -> void:
-	pass
+	if has_node("%ImageOverlay"):
+		%ImageOverlay.open()
+	else:
+		# Fallback inline behavior if overlay not instanced
+		var prompt: String = str(SceneDataManager.scene_data.get("image_prompt", ""))
+		if prompt.strip_edges().is_empty():
+			show_error("Image prompt is empty")
+			return
+		var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))
+		var result: Dictionary = await ImageServerManager.generate_scene_image(prompt, uuid)
+		if not result.get("success", false):
+			show_error(str(result.get("error", "Failed to generate image")))
+			return
+		var save_path: String = str(result.get("save_path", ""))
+		var filename: String = str(result.get("filename", ""))
+		if not SceneDataManager.scene_data.has("image_filenames") or not SceneDataManager.scene_data["image_filenames"] is Array:
+			SceneDataManager.scene_data["image_filenames"] = []
+		var arr: Array = SceneDataManager.scene_data["image_filenames"]
+		arr.append(filename)
+		SceneDataManager.scene_data["image_filenames"] = arr
+		SceneDataManager.save()
+		_set_background_from_file(save_path)
+
+
+func _on_image_overlay_closed() -> void:
+	_update_labels()
+
+
+func _on_image_generated(_save_path: String, _filename: String) -> void:
+	# Overlay already appended and refreshed background; keep hook for future
+	_update_labels()
 
 
 func _on_plot_pressed() -> void:
@@ -912,6 +947,8 @@ func _update_labels() -> void:
 	%ChoiceCancel.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	%ChoiceConfirm.text = I18n.translate("btn_confirm") if I18n.translate("btn_confirm") != "btn_confirm" else "Confirm"
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
+	if has_node("%ImageOverlay") and %ImageOverlay.has_method("_update_labels"):
+		%ImageOverlay._update_labels()
 	# Error dialog buttons
 	%ErrorReturnDialog.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnDialog") else ""
 	if _error_retry_button != null:
