@@ -2,6 +2,7 @@ extends Control
 
 const CURRENT_VERSION := "1.0"
 const CANTONESE_MALE_PITCH_SCALE := 0.7
+const TTS_VOICE_BUS := "TTSVoice"
 
 var _scene_data: Dictionary = {}
 var _current_dialog_idx: int = 0
@@ -544,7 +545,10 @@ func _play_wav(global_path: String) -> void:
 		return
 	if player.playing:
 		player.stop()
-	player.pitch_scale = _tts_pitch_scale_for_current_dialogue()
+	player.pitch_scale = 1.0
+	var pitch_effect := _get_tts_pitch_effect(player)
+	if pitch_effect != null:
+		pitch_effect.pitch_scale = _tts_pitch_scale_for_current_dialogue()
 	# AudioStreamWAV.load_from_file is Godot 4.2+ static helper
 	var stream: AudioStreamWAV = null
 	if FileAccess.file_exists(global_path) or FileAccess.file_exists(ProjectSettings.localize_path(global_path)):
@@ -565,6 +569,23 @@ func _play_wav(global_path: String) -> void:
 	stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
 	player.stream = stream
 	player.play()
+
+
+func _get_tts_pitch_effect(player: AudioStreamPlayer) -> AudioEffectPitchShift:
+	var bus_index := AudioServer.get_bus_index(TTS_VOICE_BUS)
+	if bus_index == -1:
+		AudioServer.add_bus()
+		bus_index = AudioServer.get_bus_count() - 1
+		AudioServer.set_bus_name(bus_index, TTS_VOICE_BUS)
+		AudioServer.set_bus_send(bus_index, "Master")
+	player.bus = TTS_VOICE_BUS
+	for effect_index in range(AudioServer.get_bus_effect_count(bus_index)):
+		var effect := AudioServer.get_bus_effect(bus_index, effect_index)
+		if effect is AudioEffectPitchShift:
+			return effect as AudioEffectPitchShift
+	var pitch_effect := AudioEffectPitchShift.new()
+	AudioServer.add_bus_effect(bus_index, pitch_effect)
+	return pitch_effect
 
 
 func _tts_pitch_scale_for_current_dialogue() -> float:
