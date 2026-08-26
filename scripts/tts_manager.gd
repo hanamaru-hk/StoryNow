@@ -324,30 +324,34 @@ exit $LASTEXITCODE
 		return -1
 	f.store_string(ps1_content)
 	f.close()
-	# 3. Execute PS1
-	var out: Array = []
+	# 3. Run PS1 off the main thread. OS.execute blocks the whole game (hover/input
+	# stall ~1s+) while Python loads the ONNX model and synthesizes. Poll instead.
 	var args := PackedStringArray(["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ps1_global])
-	var exit_code := OS.execute("powershell", args, out, true, false)
-	if exit_code == -1:
-		exit_code = OS.execute("pwsh", args, out, true, false)
-	if out.size() > 0:
-		var stdout_str: String = str(out[0]) if out[0] is String else str(out)
-		if not stdout_str.is_empty():
-			print_verbose("TTS ps1 stdout: %s" % stdout_str)
+	var pid: int = OS.create_process("powershell", args, false)
+	if pid < 0:
+		pid = OS.create_process("pwsh", args, false)
+	if pid < 0:
+		push_error("TTSManager: failed to start powershell for TTS")
+		_cleanup_tts_temp_files([ps1_user, txt_user])
+		return -1
+	while OS.is_process_running(pid):
+		await get_tree().process_frame
+	var exit_code := 0 if FileAccess.file_exists(output_global_path) else -1
 	# 4. Delete both temp files
-	for user_path in [ps1_user, txt_user]:
-		if FileAccess.file_exists(user_path):
-			var g := ProjectSettings.globalize_path(user_path)
-			var dir := g.get_base_dir()
-			var fname := g.get_file()
-			var d := DirAccess.open(dir)
-			if d != null:
-				var err := d.remove(fname)
-				if err != OK:
-					OS.execute("cmd", ["/c", "del", "/f", "/q", "\"%s\"" % g], [], false, false)
-			else:
-				OS.execute("cmd", ["/c", "del", "/f", "/q", "\"%s\"" % g], [], false, false)
+	_cleanup_tts_temp_files([ps1_user, txt_user])
 	return exit_code
+
+
+func _cleanup_tts_temp_files(user_paths: Array) -> void:
+	for user_path in user_paths:
+		if not FileAccess.file_exists(user_path):
+			continue
+		var g := ProjectSettings.globalize_path(str(user_path))
+		var dir := g.get_base_dir()
+		var fname := g.get_file()
+		var d := DirAccess.open(dir)
+		if d != null:
+			d.remove(fname)
 
 
 func _generate_uuid() -> String:
