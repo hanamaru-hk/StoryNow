@@ -15,6 +15,8 @@ func _ready() -> void:
 	%ImageServerSettingsOverlay.closed.connect(_on_settings_closed)
 	%LLMSettingsOverlay.closed.connect(_on_settings_closed)
 	%FirstTimeLanguageOverlay.language_selected.connect(_on_first_time_language_selected)
+	if has_node("%LoadGameOverlay"):
+		%LoadGameOverlay.closed.connect(_on_settings_closed)
 	_update_labels()
 	_check_first_time_overlay()
 
@@ -24,7 +26,8 @@ func _on_start_pressed() -> void:
 
 
 func _on_load_pressed() -> void:
-	pass
+	if has_node("%LoadGameOverlay"):
+		%LoadGameOverlay.open()
 
 
 func _on_gallery_pressed() -> void:

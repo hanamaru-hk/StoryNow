@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/image_server_settings_overlay.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/llm_settings_overlay.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/first_time_language_overlay.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/load_game_overlay.tscn" id="6"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -105,4 +106,7 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 
 [node name="FirstTimeLanguageOverlay" parent="." instance=ExtResource("5")]
+unique_name_in_owner = true
+
+[node name="LoadGameOverlay" parent="." instance=ExtResource("6")]
 unique_name_in_owner = true
