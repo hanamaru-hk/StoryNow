@@ -308,21 +308,23 @@ func _load_texture_from_user_path(user_path: String) -> Texture2D:
 func _add_save_item(entry: Dictionary) -> void:
 	var container: VBoxContainer = %LoadList
 	var uuid: String = str(entry.get("uuid", ""))
-	var title: String = str(entry.get("title", uuid))
-	var timestamp: String = str(entry.get("timestamp", "")).strip_edges()
 	var data: Dictionary = entry.get("data", {}) as Dictionary if entry.get("data", {}) is Dictionary else {}
+	var title: String = str(data.get("title", "")).strip_edges()
+	if title.is_empty():
+		title = uuid
+	var timestamp: String = str(entry.get("timestamp", "")).strip_edges()
 
 	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 12)
-	row.custom_minimum_size = Vector2(0, 64)
+	row.alignment = BoxContainer.ALIGNMENT_BEGIN
+	row.add_theme_constant_override("separation", 18)
+	row.custom_minimum_size = Vector2(0, 120)
 
 	# Thumbnail
 	var thumb_path: String = _get_largest_image_path(uuid, data)
 	var tex: Texture2D = _load_texture_from_user_path(thumb_path)
 	var thumb := TextureRect.new()
-	thumb.custom_minimum_size = Vector2(96, 64)
+	thumb.custom_minimum_size = Vector2(180, 112)
 	thumb.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -334,42 +336,40 @@ func _add_save_item(entry: Dictionary) -> void:
 		thumb.modulate = Color(1, 1, 1, 1)
 	row.add_child(thumb)
 
-	# Title + timestamp vertical stack
+	# Timestamp + title vertical stack
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	vbox.add_theme_constant_override("separation", 4)
+	vbox.add_theme_constant_override("separation", 8)
 
-	var title_label := Label.new()
-	title_label.text = title
-	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title_label.clip_text = true
-	vbox.add_child(title_label)
-
-	var time_label := Label.new()
-	time_label.text = timestamp if not timestamp.is_empty() else "-"
-	time_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	time_label.modulate = Color(0.75, 0.75, 0.75, 1)
-	time_label.add_theme_font_size_override("font_size", 12)
-	time_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	time_label.clip_text = true
-	vbox.add_child(time_label)
+	var title_text := RichTextLabel.new()
+	title_text.bbcode_enabled = true
+	title_text.fit_content = true
+	title_text.scroll_active = false
+	title_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_text.custom_minimum_size = Vector2(0, 72)
+	title_text.text = "[font_size=20][color=#d2d2d2]%s[/color][/font_size]\n[font_size=24][color=#ffffff]%s[/color][/font_size]" % [
+		timestamp if not timestamp.is_empty() else "-",
+		title,
+	]
+	vbox.add_child(title_text)
 
 	row.add_child(vbox)
 
 	var btn_text: String = I18n.translate("btn_load") if I18n.translate("btn_load") != "btn_load" else "Load"
 	var btn := Button.new()
 	btn.text = btn_text
-	btn.custom_minimum_size = Vector2(100, 36)
+	btn.custom_minimum_size = Vector2(120, 44)
 	btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	btn.pressed.connect(_on_save_pressed.bind(uuid, entry))
 	row.add_child(btn)
 
 	container.add_child(row)
 
-	var sep := HSeparator.new()
-	sep.custom_minimum_size = Vector2(0, 2)
+	var sep := ColorRect.new()
+	sep.color = Color(0.48, 0.48, 0.48, 1)
+	sep.custom_minimum_size = Vector2(0, 4)
+	sep.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container.add_child(sep)
 
 
