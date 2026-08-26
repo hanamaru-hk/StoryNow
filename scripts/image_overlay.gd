@@ -68,6 +68,7 @@ func _on_produce_pressed() -> void:
 	var arr: Array = SceneDataManager.scene_data["image_filenames"]
 	arr.append(filename)
 	SceneDataManager.scene_data["image_filenames"] = arr
+	SceneDataManager.scene_data["current_image_index"] = arr.size() - 1
 	SceneDataManager.save()
 
 	# Refresh background image via parent gameplay if it exposes _set_background_from_file

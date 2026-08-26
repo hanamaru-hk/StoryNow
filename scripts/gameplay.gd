@@ -34,6 +34,15 @@ func _ready() -> void:
 	%ChoiceConfirm.pressed.connect(_on_choice_confirm)
 	%ChoiceCancel.pressed.connect(_on_choice_cancel)
 	%ChoiceOverlay.visible = false
+	%ImageActionNew.pressed.connect(_on_image_action_new_pressed)
+	%ImageActionChange.pressed.connect(_on_image_action_change_pressed)
+	%ImageActionBack.pressed.connect(_hide_image_action_overlay)
+	%ImageChangePrev.pressed.connect(_on_image_change_prev_pressed)
+	%ImageChangeNext.pressed.connect(_on_image_change_next_pressed)
+	%ImageChangeSave.pressed.connect(_on_image_change_save_pressed)
+	%ImageChangeBack.pressed.connect(_on_image_change_back_pressed)
+	%ImageActionOverlay.visible = false
+	%ImageChangeOverlay.visible = false
 
 	# --- GameSettingsOverlay (in-game settings) ---
 	if has_node("%GameSettingsOverlay"):
@@ -97,44 +106,7 @@ func _ready() -> void:
 			# _update_total_dialogue may clamp index; sync back to local/manager
 			_current_dialog_idx = current_dialogue_index
 			_show_current_dialogue()
-			# Refresh image from save folder of uuid (no LLM / no ComfyUI generation)
-			var image_filenames: Array = SceneDataManager.scene_data.get("image_filenames", []) if SceneDataManager.scene_data.get("image_filenames", []) is Array else []
-			var bg_loaded: bool = false
-			if not image_filenames.is_empty():
-				var last_filename: String = str(image_filenames[image_filenames.size() - 1])
-				if not last_filename.strip_edges().is_empty():
-					var img_path: String = "user://saves/%s/images/%s" % [uuid_running, last_filename]
-					# Only try to load if file exists
-					if FileAccess.file_exists(img_path):
-						_set_background_from_file(img_path)
-						bg_loaded = true
-					else:
-						# Fallback: try direct save_path stored variations
-						# Try with the filename as full user path
-						_set_background_from_file(img_path)
-						bg_loaded = true
-			if not bg_loaded:
-				# Fallback: scan images directory for any image file
-				var images_dir: String = "user://saves/%s/images" % uuid_running
-				if DirAccess.dir_exists_absolute(images_dir):
-					var dir := DirAccess.open(images_dir)
-					if dir != null:
-						dir.list_dir_begin()
-						var file_name := dir.get_next()
-						var latest_file: String = ""
-						while file_name != "":
-							if not dir.current_is_dir() and (file_name.ends_with(".png") or file_name.ends_with(".jpg") or file_name.ends_with(".jpeg") or file_name.ends_with(".webp")):
-								latest_file = file_name
-							file_name = dir.get_next()
-						dir.list_dir_end()
-						if not latest_file.is_empty():
-							_set_background_from_file("%s/%s" % [images_dir, latest_file])
-						else:
-							print_verbose("Gameplay running: no images found in %s, keeping default background" % images_dir)
-					else:
-						print_verbose("Gameplay running: cannot open images dir %s" % images_dir)
-				else:
-					print_verbose("Gameplay running: images dir does not exist %s" % images_dir)
+			_load_current_scene_image(uuid_running)
 			# Enable side buttons by eligibility and update labels
 			_enable_all_side_buttons_by_eligibility()
 			_update_labels()
@@ -338,6 +310,7 @@ func _generate_comfyui_image() -> void:
 	var arr: Array = SceneDataManager.scene_data["image_filenames"]
 	arr.append(filename)
 	SceneDataManager.scene_data["image_filenames"] = arr
+	SceneDataManager.scene_data["current_image_index"] = arr.size() - 1
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
 	print_verbose("Saved ComfyUI image to %s, image_filenames: %s" % [save_path, str(arr)])
@@ -357,6 +330,46 @@ func _set_background_from_file(user_path: String) -> void:
 	var tex := ImageTexture.create_from_image(img)
 	%BackgroundImage.texture = tex
 	%BackgroundImage.modulate = Color(1, 1, 1, 1)
+
+
+func _is_image_filename(file_name: String) -> bool:
+	var lower_name := file_name.to_lower()
+	return lower_name.ends_with(".png") or lower_name.ends_with(".jpg") or lower_name.ends_with(".jpeg") or lower_name.ends_with(".webp")
+
+
+func _get_scene_image_filenames(uuid: String = "") -> Array:
+	var resolved_uuid := uuid.strip_edges()
+	if resolved_uuid.is_empty():
+		resolved_uuid = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
+	var images_dir := "user://saves/%s/images" % resolved_uuid
+	var image_files: Array = []
+	if DirAccess.dir_exists_absolute(images_dir):
+		var dir := DirAccess.open(images_dir)
+		if dir != null:
+			dir.list_dir_begin()
+			var file_name := dir.get_next()
+			while file_name != "":
+				if not dir.current_is_dir() and _is_image_filename(file_name):
+					image_files.append(file_name)
+				file_name = dir.get_next()
+			dir.list_dir_end()
+	image_files.sort()
+	return image_files
+
+
+func _load_current_scene_image(uuid: String = "") -> bool:
+	var resolved_uuid := uuid.strip_edges()
+	if resolved_uuid.is_empty():
+		resolved_uuid = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
+	var image_files := _get_scene_image_filenames(resolved_uuid)
+	if image_files.is_empty():
+		print_verbose("Gameplay running: no images found for %s, keeping default background" % resolved_uuid)
+		return false
+	var current_index := int(SceneDataManager.scene_data.get("current_image_index", 0))
+	current_index = clampi(current_index, 0, image_files.size() - 1)
+	SceneDataManager.scene_data["current_image_index"] = current_index
+	_set_background_from_file("user://saves/%s/images/%s" % [resolved_uuid, str(image_files[current_index])])
+	return true
 
 # ------------------------------------------------------------------
 # Input handlers
@@ -451,6 +464,19 @@ func _on_dialogue_updated() -> void:
 
 
 func _on_image_btn_pressed() -> void:
+	_show_image_action_overlay()
+
+
+func _show_image_action_overlay() -> void:
+	%ImageActionOverlay.visible = true
+
+
+func _hide_image_action_overlay() -> void:
+	%ImageActionOverlay.visible = false
+
+
+func _on_image_action_new_pressed() -> void:
+	_hide_image_action_overlay()
 	if has_node("%ImageOverlay"):
 		%ImageOverlay.open()
 	else:
@@ -471,8 +497,83 @@ func _on_image_btn_pressed() -> void:
 		var arr: Array = SceneDataManager.scene_data["image_filenames"]
 		arr.append(filename)
 		SceneDataManager.scene_data["image_filenames"] = arr
+		SceneDataManager.scene_data["current_image_index"] = arr.size() - 1
 		SceneDataManager.save()
 		_set_background_from_file(save_path)
+
+
+func _on_image_action_change_pressed() -> void:
+	_hide_image_action_overlay()
+	_open_image_change_overlay()
+
+
+func _open_image_change_overlay() -> void:
+	var image_files := _get_scene_image_filenames()
+	if image_files.is_empty():
+		show_error("No saved images found for this scene")
+		return
+	var current_index := int(SceneDataManager.scene_data.get("current_image_index", 0))
+	SceneDataManager.scene_data["current_image_index"] = clampi(current_index, 0, image_files.size() - 1)
+	%ImageChangeOverlay.visible = true
+	_refresh_image_change_overlay()
+
+
+func _refresh_image_change_overlay() -> void:
+	var image_files := _get_scene_image_filenames()
+	if image_files.is_empty():
+		%ImagePreview.texture = null
+		%ImageChangeLabel.text = "Image"
+		%ImageChangePrev.disabled = true
+		%ImageChangeNext.disabled = true
+		%ImageChangeSave.disabled = true
+		return
+	var current_index := int(SceneDataManager.scene_data.get("current_image_index", 0))
+	current_index = clampi(current_index, 0, image_files.size() - 1)
+	SceneDataManager.scene_data["current_image_index"] = current_index
+	var uuid := str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
+	var image_path := "user://saves/%s/images/%s" % [uuid, str(image_files[current_index])]
+	var img := Image.new()
+	var err := img.load(ProjectSettings.globalize_path(image_path))
+	if err != OK:
+		err = img.load(image_path)
+	if err == OK:
+		%ImagePreview.texture = ImageTexture.create_from_image(img)
+	else:
+		%ImagePreview.texture = null
+	%ImageChangeLabel.text = "Image %d / %d" % [current_index + 1, image_files.size()]
+	%ImageChangePrev.disabled = image_files.size() <= 1
+	%ImageChangeNext.disabled = image_files.size() <= 1
+	%ImageChangeSave.disabled = false
+
+
+func _on_image_change_prev_pressed() -> void:
+	var image_files := _get_scene_image_filenames()
+	if image_files.is_empty():
+		return
+	var current_index := int(SceneDataManager.scene_data.get("current_image_index", 0))
+	SceneDataManager.scene_data["current_image_index"] = (current_index - 1 + image_files.size()) % image_files.size()
+	_refresh_image_change_overlay()
+
+
+func _on_image_change_next_pressed() -> void:
+	var image_files := _get_scene_image_filenames()
+	if image_files.is_empty():
+		return
+	var current_index := int(SceneDataManager.scene_data.get("current_image_index", 0))
+	SceneDataManager.scene_data["current_image_index"] = (current_index + 1) % image_files.size()
+	_refresh_image_change_overlay()
+
+
+func _on_image_change_save_pressed() -> void:
+	if _load_current_scene_image():
+		SceneDataManager.save()
+	%ImageChangeOverlay.visible = false
+	_update_labels()
+
+
+func _on_image_change_back_pressed() -> void:
+	%ImageChangeOverlay.visible = false
+	_show_image_action_overlay()
 
 
 func _on_image_overlay_closed() -> void:
@@ -481,6 +582,7 @@ func _on_image_overlay_closed() -> void:
 
 func _on_image_generated(_save_path: String, _filename: String) -> void:
 	# Overlay already appended and refreshed background; keep hook for future
+	_load_current_scene_image()
 	_update_labels()
 
 
@@ -813,6 +915,8 @@ func _handle_new_story() -> bool:
 		SceneDataManager.scene_data["uuid"] = str(GameProgressManager.settings.get("current_uuid", ""))
 	if not SceneDataManager.scene_data.has("version"):
 		SceneDataManager.scene_data["version"] = "1.0"
+	if not SceneDataManager.scene_data.has("current_image_index"):
+		SceneDataManager.scene_data["current_image_index"] = 0
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
 	# Apply title field to TitleLabel when request finishes
@@ -873,6 +977,8 @@ func _handle_new_scene() -> bool:
 		SceneDataManager.scene_data["prev_uuid"] = preserved_prev
 	SceneDataManager.scene_data["version"] = preserved_version
 	SceneDataManager.scene_data["current_round"] = preserved_current_round
+	if not SceneDataManager.scene_data.has("current_image_index"):
+		SceneDataManager.scene_data["current_image_index"] = 0
 	if not SceneDataManager.scene_data.has("id"):
 		SceneDataManager.scene_data["id"] = preserved_uuid
 	SceneDataManager.save()
@@ -1055,6 +1161,7 @@ func _on_choice_confirm() -> void:
 		SceneDataManager.scene_data["uuid"] = uuid
 		SceneDataManager.scene_data["prev_uuid"] = prev_uuid
 		SceneDataManager.scene_data["image_filenames"] = []
+		SceneDataManager.scene_data["current_image_index"] = 0
 		SceneDataManager.scene_data["image_prompt"] = ""
 		SceneDataManager.scene_data["image_instruction"] = ""
 		SceneDataManager.scene_data["instruction"] = []

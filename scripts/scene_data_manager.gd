@@ -62,6 +62,8 @@ func load_data(uuid: String) -> bool:
 		push_error("SceneDataManager.load: failed to parse JSON: %s" % file_path)
 		return false
 	scene_data = json.data.duplicate(true)
+	if not scene_data.has("current_image_index"):
+		scene_data["current_image_index"] = 0
 	return true
 
 
