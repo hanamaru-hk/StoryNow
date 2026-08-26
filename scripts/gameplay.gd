@@ -1,6 +1,7 @@
 extends Control
 
 const CURRENT_VERSION := "1.0"
+const CANTONESE_MALE_PITCH_SCALE := 0.7
 
 var _scene_data: Dictionary = {}
 var _current_dialog_idx: int = 0
@@ -543,6 +544,7 @@ func _play_wav(global_path: String) -> void:
 		return
 	if player.playing:
 		player.stop()
+	player.pitch_scale = _tts_pitch_scale_for_current_dialogue()
 	# AudioStreamWAV.load_from_file is Godot 4.2+ static helper
 	var stream: AudioStreamWAV = null
 	if FileAccess.file_exists(global_path) or FileAccess.file_exists(ProjectSettings.localize_path(global_path)):
@@ -563,6 +565,22 @@ func _play_wav(global_path: String) -> void:
 	stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
 	player.stream = stream
 	player.play()
+
+
+func _tts_pitch_scale_for_current_dialogue() -> float:
+	var language := str(SceneDataManager.scene_data.get("language", I18n.current_lang)).strip_edges().to_lower()
+	if language != "yue" and language != "zh_hk" and not language.contains("cantonese"):
+		return 1.0
+	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
+	if current_dialogue_index < 0 or current_dialogue_index >= interactions.size():
+		return 1.0
+	var entry = interactions[current_dialogue_index]
+	if not entry is Dictionary:
+		return 1.0
+	var sex := str((entry as Dictionary).get("sex", "male")).strip_edges().to_lower()
+	if sex == "male" or sex == "man" or sex == "boy":
+		return CANTONESE_MALE_PITCH_SCALE
+	return 1.0
 
 
 func _load_wav_from_file(global_path: String) -> AudioStreamWAV:
