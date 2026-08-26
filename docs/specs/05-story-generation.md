@@ -37,7 +37,7 @@ The LLM returns **structured JSON** matching the template schema defined in `dat
 |-------|------|-------------|
 | `scenePrompt` | String | Image generation prompt for ComfyUI |
 | `dialog` | Array | Ordered list of dialogue/narration lines. Each entry is an object with either a character name key (dialogue) or `"narration"` key (narrator text). |
-| `language` | String | Language code (`en`, `zh_CN`, `zh_TW`) |
+| `language` | String | Language code (`en`, `zh_CN`, `zh_TW`, `yue`) |
 | `choices` | Array | 2-4 choice strings presented to the player |
 | `storyBackground` | String | The story background/prompt context |
 
@@ -60,7 +60,7 @@ The LLM returns **structured JSON** matching the template schema defined in `dat
 | Component | Status |
 |-----------|--------|
 | Brainstorm scene UI | ✅ Implemented |
-| LLM prompt templates (en, zh_CN, zh_TW) | ✅ Implemented |
+| LLM prompt templates (en, zh_CN, zh_TW, yue) | ✅ Implemented |
 | Random prompt generation | ❌ Not yet implemented |
 | Prompt enhancement | ❌ Not yet implemented |
 | LLM API call for story generation | ❌ Not yet implemented |

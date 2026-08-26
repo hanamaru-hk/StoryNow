@@ -1,0 +1,9 @@
+用廣東話／粵語口語創作一個原創的視覺小說故事背景，書寫使用繁體中文。
+
+__GUARDRAIL__
+
+<story_background_requirement>
+__STORY_BACKGROUND_REQUIREMENT__
+</story_background_requirement>
+
+只回傳背景文字。

@@ -27,7 +27,7 @@ instant-visual-novel/
 ├── scripts/
 │   ├── main.gd                    # Main menu logic
 │   ├── brainstorm.gd              # Brainstorm / prompt entry scene logic
-│   ├── i18n.gd                    # Internationalization (en, zh_CN, zh_TW)
+│   ├── i18n.gd                    # Internationalization (en, zh_CN, zh_TW, yue)
 │   ├── game_settings_manager.gd   # Game settings persistence & apply
 │   ├── game_settings_overlay.gd   # Game settings UI overlay
 │   ├── llm_manager.gd             # llama.cpp process lifecycle
@@ -47,7 +47,8 @@ instant-visual-novel/
 │   ├── llm/
 │   │   ├── en/template.json           # English LLM prompt template
 │   │   ├── zh_CN/template.json        # Simplified Chinese template
-│   │   └── zh_TW/template.json        # Traditional Chinese template
+│   │   ├── zh_TW/template.json        # Traditional Chinese template
+│   │   └── yue/template.json          # Cantonese template
 │   └── translations/
 │       └── translations.csv           # Translation strings
 ├── server/                             # AI server binaries (gitignored)

@@ -20,6 +20,7 @@ const MODEL_EN_MALE := "vits-piper-en_US-lessac-medium/en_US-lessac-medium.onnx"
 const MODEL_ZH_FEMALE := "vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx"
 const MODEL_ZH_MALE := "vits-piper-zh_CN-chaowen-medium/zh_CN-chaowen-medium.onnx"
 const MODEL_ZH_FALLBACK := "vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx"
+const MODEL_YUE_FALLBACK := "vits-cantonese-hf-xiaomaiiwn/vits-cantonese-hf-xiaomaiiwn.onnx"
 
 var _queue: Array = [] # Array[Dictionary] {uuid, idx, dialogue, sex, language}
 var _generating: bool = false
@@ -38,7 +39,9 @@ func is_available() -> bool:
 func _model_for(sex: String, language: String) -> Dictionary:
 	var s := sex.strip_edges().to_lower()
 	var lang := language.strip_edges().to_lower()
-	if lang.begins_with("zh"):
+	if lang == "yue" or lang == "zh_hk" or lang.contains("cantonese"):
+		return _resolve_model(MODEL_YUE_FALLBACK)
+	elif lang.begins_with("zh"):
 		if s == "female" or s == "woman" or s == "girl":
 			return _resolve_model(MODEL_ZH_FEMALE)
 		elif s == "male" or s == "man" or s == "boy":
@@ -59,7 +62,7 @@ func _resolve_model(onnx_rel: String) -> Dictionary:
 	var tokens := base_dir + "/tokens.txt"
 	var data_dir := base_dir + "/espeak-ng-data"
 	var lexicon := base_dir + "/lexicon.txt"
-	var rule_fsts := base_dir + "/date.fst," + base_dir + "/number.fst," + base_dir + "/phone.fst"
+	var rule_fsts := base_dir + "/date.fst," + base_dir + "/number.fst," + base_dir + "/phone.fst," + base_dir + "/rule.fst"
 	var onnx := MODELS_ROOT + "/" + onnx_rel
 	return {"onnx": onnx, "tokens": tokens, "data_dir": data_dir, "lexicon": lexicon, "rule_fsts": rule_fsts, "base_dir": base_dir}
 
@@ -286,7 +289,8 @@ func _synthesize(text: String, output_global_path: String, model: Dictionary) ->
 		var glob_parts: Array = []
 		for p in parts:
 			var gp := ProjectSettings.globalize_path("res://" + str(p).strip_edges())
-			glob_parts.append(gp)
+			if FileAccess.file_exists(gp):
+				glob_parts.append(gp)
 		rule_fsts_arg = ",".join(glob_parts)
 	var extra_args := ""
 	var gp_data_check := ProjectSettings.globalize_path("res://" + str(model.get("data_dir", "")))
@@ -308,12 +312,19 @@ func _synthesize(text: String, output_global_path: String, model: Dictionary) ->
 		return -1
 	tf.store_string(text)
 	tf.close()
-	# 2. Write PS1 that calls Python helper with --text-file (no Chinese in PS1)
+# 2. Write PS1 that calls Python helper with --text-file (no Chinese in PS1)
 	# PS1 itself is ASCII-only, so no BOM / encoding issues
 	var ps1_content := """$ErrorActionPreference='Stop'
-python "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
+if (Get-Command py -ErrorAction SilentlyContinue) {
+  py "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
+} else {
+  python "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
+}
 exit $LASTEXITCODE
-""" % [helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS]
+""" % [
+	helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS,
+	helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS,
+]
 	var f := FileAccess.open(ps1_user, FileAccess.WRITE)
 	if f == null:
 		push_error("TTSManager: failed to create ps1 %s" % ps1_user)

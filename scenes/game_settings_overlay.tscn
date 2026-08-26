@@ -58,10 +58,11 @@ text = "Language"
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(200, 40)
-item_count = 3
+item_count = 4
 popup/item_0 = "English"
 popup/item_1 = "简体中文"
 popup/item_2 = "繁體中文"
+popup/item_3 = "廣東話"
 
 [node name="ScreenSizeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2

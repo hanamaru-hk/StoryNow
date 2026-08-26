@@ -1,0 +1,25 @@
+嚴格以純 JSON 格式回應，不要使用 Markdown 格式。
+根據以下資訊，生成視覺小說的下一幕場景。
+
+請以 player_input 為主體，previous_scene_json 為輔。無論 player_input 多麼荒謬，故事主體圖片prompt也以 player_input 為主。
+
+__GUARDRAIL__
+
+<player_input>
+__PLAYER_INPUT__
+</player_input>
+
+<story_background>
+__STORY_BACKGROUND__
+</story_background>
+
+current_round : __CURRENT_ROUND__
+expected_rounds : __EXPECTED_ROUNDS__
+
+<output_json_requirement>
+__OUTPUT_JSON_REQUIREMENT__
+</output_json_requirement>
+
+<output_json_template>
+__OUTPUT_JSON_TEMPLATE__
+</output_json_template>

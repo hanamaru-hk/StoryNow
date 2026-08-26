@@ -1,0 +1,15 @@
+你正在為視覺小說編寫設定。
+
+根據下方玩家輸入，用廣東話／粵語口語編寫故事背景，書寫使用繁體中文。
+
+__GUARDRAIL__
+
+<player_input>
+__PLAYER_INPUT__
+</player_input>
+
+<story_background_requirement>
+__STORY_BACKGROUND_REQUIREMENT__
+</story_background_requirement>
+
+只回傳背景文字。

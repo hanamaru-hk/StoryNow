@@ -1,0 +1,25 @@
+{
+  "interactions": [
+    {
+      "character": "阿 John",
+      "dialogue": "我想食雪糕。",
+      "sex": "male"
+    }
+  ],
+  "choices": [
+    {
+      "plot": "去雪糕店"
+    },
+    {
+      "plot": "留喺舖頭繼續做嘢"
+    },
+    {
+      "plot": "問下路過嘅客人有咩建議"
+    }
+  ],
+  "image_prompt": "man, mechanic",
+  "summary": "阿 John 係一名機械師，喺舖頭做咗成日之後成日都想食雪糕。",
+  "end": false,
+  "language": "yue",
+  "title": "阿 John 嘅雪糕難題"
+}

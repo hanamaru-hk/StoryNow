@@ -40,7 +40,7 @@ The brainstorm scene (`brainstorm.tscn`) is where the player creates a story pro
 Settings are split into three separate overlay menus, each accessible from the main menu:
 
 ### Game Settings Overlay
-- Language selector (English, 简体中文, 繁體中文)
+- Language selector (English, 简体中文, 繁體中文, 廣東話)
 - Screen size selector (Full, 1344x768)
 - Buttons: Save, Reset, Back
 
@@ -64,7 +64,7 @@ All overlays follow an **open/save/reset/back** pattern with pending state manag
 
 ## 7.7 Internationalization
 
-- Three languages supported: English, Simplified Chinese, Traditional Chinese.
+- Four languages supported: English, Simplified Chinese, Traditional Chinese, Cantonese.
 - All UI labels are translated via the `I18n` singleton.
 - Language can be changed in Game Settings.
 

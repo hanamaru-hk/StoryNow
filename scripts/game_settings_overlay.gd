@@ -88,8 +88,8 @@ func _update_labels() -> void:
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")
-	%LanguageOption.set_item_text(0, I18n.translate("lang_en"))
-	%LanguageOption.set_item_text(1, I18n.translate("lang_zh_cn"))
-	%LanguageOption.set_item_text(2, I18n.translate("lang_zh_tw"))
+	for i in I18n.LANGUAGES.size():
+		var lang_code := I18n.LANGUAGES[i]
+		%LanguageOption.set_item_text(i, I18n.translate("lang_%s" % lang_code.to_lower()))
 	%ScreenSizeOption.set_item_text(0, I18n.translate("settings_screen_full"))
 	%ScreenSizeOption.set_item_text(1, I18n.translate("settings_screen_1344"))

@@ -3,7 +3,7 @@
 ## Resolved
 
 - [x] ComfyUI workflow design → txt2img SDXL-compatible pipeline (`data/comfyui/workflow-template.json`)
-- [x] Whether to support multiple languages → Yes, 3 languages (en, zh_CN, zh_TW) via `I18n` singleton
+- [x] Whether to support multiple languages → Yes, 4 languages (en, zh_CN, zh_TW, yue) via `I18n` singleton
 
 ## Open
 
