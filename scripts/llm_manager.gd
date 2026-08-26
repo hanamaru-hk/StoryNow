@@ -47,7 +47,7 @@ func start_server() -> void:
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
 		return
-	var args := PackedStringArray(["-ngl","99","-m", model_path, "--port", port_number])
+	var args := PackedStringArray(["-c","0","-ngl","99","-m", model_path, "--port", port_number])
 	var pid: int = OS.create_process(exe_path, args, OS.is_stdout_verbose())
 	if pid < 0:
 		push_error("Failed to start Ollama process")
@@ -377,6 +377,7 @@ func _request_completion(prompt: String) -> Dictionary:
 		"messages": [{"role": "user", "content": prompt}],
 		"stream": false,
 		"thinking": false,
+		"cache_prompt": false,
 		"chat_template_kwargs": {
 		    "enable_thinking": false
   		},

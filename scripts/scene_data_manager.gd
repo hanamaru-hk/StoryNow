@@ -6,6 +6,8 @@ const SAVE_DIR := "user://saves"
 
 
 func save() -> bool:
+	var dt := Time.get_datetime_dict_from_system(false)
+	scene_data["timestamp"] = "%04d/%02d/%02d %02d:%02d:%02d" % [dt["year"], dt["month"], dt["day"], dt["hour"], dt["minute"], dt["second"]]
 	var uuid := str(scene_data.get("uuid", ""))
 	if uuid.is_empty():
 		push_error("SceneDataManager.save: scene_data missing id")
