@@ -11,7 +11,6 @@ var settings := {
 	"minimum_sentences_per_dialogue": 10,
 	"minimum_plot_directions": 10,
 	"minimum_summary_sentences": 10,
-	"image_instruction": "",
 	"game_status": ""
 }
 

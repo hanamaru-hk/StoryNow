@@ -63,7 +63,6 @@ func _apply_pending_from_ui() -> void:
 	v = %MinSummaryInput.text.strip_edges()
 	if v.is_valid_int():
 		_pending["minimum_summary_sentences"] = v.to_int()
-	_pending["image_instruction"] = %ImageInstructionInput.text
 
 
 func _sync_ui_to_settings() -> void:
@@ -76,7 +75,6 @@ func _sync_ui_to_settings() -> void:
 	var plot_val: Variant = _pending.get("minimum_plot_directions", _pending.get("maximum_plot_directions", 10))
 	%MaxPlotDirectionsInput.text = str(plot_val)
 	%MinSummaryInput.text = str(_pending.get("minimum_summary_sentences", 10))
-	%ImageInstructionInput.text = str(_pending.get("image_instruction", ""))
 
 
 func _update_labels() -> void:
@@ -86,7 +84,6 @@ func _update_labels() -> void:
 	%MinSentencesLabel.text = "Minimum Sentences per Dialogue"
 	%MaxPlotDirectionsLabel.text = "Maximum Plot Directions"
 	%MinSummaryLabel.text = "Minimum Summary Sentences"
-	%ImageInstructionLabel.text = "Image Instruction (optional)"
 	%Back.text = "Back"
 	%Reset.text = "Reset"
 	%Save.text = "Save"

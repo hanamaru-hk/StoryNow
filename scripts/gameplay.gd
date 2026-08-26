@@ -44,9 +44,9 @@ func _ready() -> void:
 	%ImageActionOverlay.visible = false
 	%ImageChangeOverlay.visible = false
 
-	# --- GameSettingsOverlay (in-game settings) ---
-	if has_node("%GameSettingsOverlay"):
-		%GameSettingsOverlay.closed.connect(_on_settings_closed)
+	# --- GameProgressOverlay (in-game advanced settings) ---
+	if has_node("%GameProgressOverlay"):
+		%GameProgressOverlay.closed.connect(_on_settings_closed)
 
 	# --- ImageOverlay (extracted) ---
 	if has_node("%ImageOverlay"):
@@ -596,8 +596,8 @@ func _on_plot_overlay_closed() -> void:
 
 
 func _on_setting_pressed() -> void:
-	if has_node("%GameSettingsOverlay"):
-		%GameSettingsOverlay.open()
+	if has_node("%GameProgressOverlay"):
+		%GameProgressOverlay.open()
 
 
 func _on_back_pressed() -> void:
@@ -1163,7 +1163,6 @@ func _on_choice_confirm() -> void:
 		SceneDataManager.scene_data["image_filenames"] = []
 		SceneDataManager.scene_data["current_image_index"] = 0
 		SceneDataManager.scene_data["image_prompt"] = ""
-		SceneDataManager.scene_data["image_instruction"] = ""
 		SceneDataManager.scene_data["instruction"] = []
 		SceneDataManager.scene_data["interactions"] = []
 		SceneDataManager.scene_data["language"] = I18n.current_lang

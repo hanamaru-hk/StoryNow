@@ -55,7 +55,6 @@ func _on_start_pressed() -> void:
 		"version": "1.0",
 		"interactions": [],
 		"choices": [],
-		"image_instruction": GameProgressManager.settings.get("image_instruction", ""),
 		"image_prompt": "",
 		"summary": %BackgroundInput.text,
 		"end": false,
