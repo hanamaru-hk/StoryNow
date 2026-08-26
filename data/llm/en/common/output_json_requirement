@@ -2,5 +2,5 @@
 - Write natural dialogue and/or narration for the scene in at least __MINIMUM_DIALOGUES_PER_SCENE__ rounds with at least __MINIMUM_SENTENCES_PER_DIALOGUE__ in each dialogue.
 - Include __MAXIMUM_PLOT_DIRECTIONS__ meaningful choices, with each choice leading the story in a distinct plot direction.
 - Set `language` to `en`.
-- `summary` will contain at least __MINIMUM_SENTENCES_IN_SUMMARY__ sentences, use simple clauses, and have no more than two clauses per sentence.
+- `summary` will contain no more than __MINIMUM_SENTENCES_IN_SUMMARY__ sentences, use simple clauses, and have no more than two clauses per sentence.
 - If current_round == expected_rounds , please decide to set end to true based on the development of the story.
