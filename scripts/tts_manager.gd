@@ -12,7 +12,7 @@ const SHERPA_EXE := "server/sherpa-onnx/bin/sherpa-onnx-offline-tts.exe"
 const MODELS_ROOT := "server/sherpa-onnx/models"
 const SPEED := 1.0
 const SID := 0
-const NUM_THREADS := 1
+const NUM_THREADS := 4
 
 # model resolution
 const MODEL_EN_FEMALE := "vits-piper-en_US-amy-low/en_US-amy-low.onnx"
