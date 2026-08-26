@@ -46,6 +46,11 @@ func _ready() -> void:
 	if has_node("%PlotOverlay"):
 		%PlotOverlay.closed.connect(_on_plot_overlay_closed)
 
+	# --- DialogueOverlay ---
+	if has_node("%DialogueOverlay"):
+		%DialogueOverlay.closed.connect(_on_dialogue_overlay_closed)
+		%DialogueOverlay.dialogue_updated.connect(_on_dialogue_updated)
+
 	# --- ErrorReturnDialog ---
 	%ErrorReturnDialog.confirmed.connect(_on_error_return)
 	%ErrorReturnDialog.canceled.connect(_on_error_return)
@@ -413,7 +418,19 @@ func _on_next_scene_pressed() -> void:
 
 
 func _on_dialog_btn_pressed() -> void:
-	pass
+	if has_node("%DialogueOverlay"):
+		%DialogueOverlay.open()
+
+
+func _on_dialogue_overlay_closed() -> void:
+	_update_labels()
+
+
+func _on_dialogue_updated() -> void:
+	_update_total_dialogue()
+	_show_current_dialogue()
+	_update_button_eligibility()
+	_update_labels()
 
 
 func _on_image_btn_pressed() -> void:
@@ -960,6 +977,8 @@ func _update_labels() -> void:
 		%ImageOverlay._update_labels()
 	if has_node("%PlotOverlay") and %PlotOverlay.has_method("_update_labels"):
 		%PlotOverlay._update_labels()
+	if has_node("%DialogueOverlay") and %DialogueOverlay.has_method("_update_labels"):
+		%DialogueOverlay._update_labels()
 	# Error dialog buttons
 	%ErrorReturnDialog.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnDialog") else ""
 	if _error_retry_button != null:

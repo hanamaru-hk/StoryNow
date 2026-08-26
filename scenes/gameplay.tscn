@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://game_scene"]
+[gd_scene load_steps=6 format=3 uid="uid://game_scene"]
 
 [ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
 [ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2_m7w2a"]
 [ext_resource type="PackedScene" path="res://scenes/image_overlay.tscn" id="3_image"]
 [ext_resource type="PackedScene" path="res://scenes/plot_overlay.tscn" id="4_plot"]
+[ext_resource type="PackedScene" path="res://scenes/dialogue_overlay.tscn" id="5_dialogue"]
 
 [node name="Gameplay" type="Control"]
 layout_mode = 3
@@ -323,4 +324,7 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 
 [node name="PlotOverlay" parent="." instance=ExtResource("4_plot")]
+unique_name_in_owner = true
+
+[node name="DialogueOverlay" parent="." instance=ExtResource("5_dialogue")]
 unique_name_in_owner = true
