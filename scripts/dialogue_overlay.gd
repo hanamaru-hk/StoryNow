@@ -369,6 +369,8 @@ func _execute_regenerate_all() -> void:
 			new_interactions[i] = d
 		SceneDataManager.scene_data["interactions"] = new_interactions
 		SceneDataManager.save()
+		# Non-blocking TTS for regenerated dialogues
+		TTSManager.generate_all_for_scene(SceneDataManager.scene_data)
 		# Reset dialogue progress to 0 as requested
 		GameProgressManager.settings["current_dialogue"] = 0
 		GameProgressManager.save_settings()
@@ -449,9 +451,16 @@ func _on_edit_save_pressed() -> void:
 	dict["dialogue"] = dialogue_text
 	if not dict.has("sex"):
 		dict["sex"] = "male"
+	# Clear old sound_filename to force regeneration
+	dict.erase("sound_filename")
 	interactions[_editing_index] = dict
+	var saved_idx := _editing_index
 	SceneDataManager.scene_data["interactions"] = interactions
 	SceneDataManager.save()
+	# Non-blocking TTS for edited dialogue
+	var uuid_edit := str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
+	if not uuid_edit.is_empty() and not str(dialogue_text).strip_edges().is_empty():
+		TTSManager.generate_single_interaction(uuid_edit, saved_idx)
 	if has_node("%EditDialog"):
 		%EditDialog.visible = false
 	_editing_index = -1
@@ -497,6 +506,10 @@ func _on_confirm_pressed() -> void:
 	interactions.insert(insert_at, new_entry)
 	SceneDataManager.scene_data["interactions"] = interactions
 	SceneDataManager.save()
+	# Non-blocking TTS for newly added dialogue
+	var uuid_add := str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
+	if not uuid_add.is_empty():
+		TTSManager.generate_single_interaction(uuid_add, insert_at)
 	_refresh_list()
 	_refresh_dropdown()
 	if has_node("%DialogueDropdown"):

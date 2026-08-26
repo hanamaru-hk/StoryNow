@@ -6,6 +6,7 @@ const DEFAULT_SETTINGS_PATH := "res://data/default_game_settings.json"
 var settings := {
 	"language": "en",
 	"screen_size": "full",
+	"autoplay_tts": true,
 }
 
 

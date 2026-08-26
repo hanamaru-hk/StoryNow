@@ -62,6 +62,10 @@ func _ready() -> void:
 	if has_node("%DialogArea"):
 		%DialogArea.gui_input.connect(_on_dialog_area_input)
 
+	# --- TTS auto-play ---
+	if TTSManager.has_signal("tts_generated") and not TTSManager.tts_generated.is_connected(_on_tts_generated):
+		TTSManager.tts_generated.connect(_on_tts_generated)
+
 	_update_labels()
 	_load_default_background()
 	# Disable all SidePanel buttons except Setting and BackButton at start
@@ -139,7 +143,9 @@ func _ready() -> void:
 					title_text = str(SceneDataManager.scene_data.get("scene_prompt", SceneDataManager.scene_data.get("prompt", "")))
 				if not title_text.strip_edges().is_empty():
 					%TitleLabel.text = _format_title_with_round(title_text)
-			%ChoiceOverlay.visible = false	
+			%ChoiceOverlay.visible = false
+			# Auto-play current dialogue wav if exists (prev_scene rule)
+			_try_autoplay_current()	
 		_:
 			pass
 
@@ -377,9 +383,13 @@ func _on_prev_dialog_pressed() -> void:
 	if total_dialogue <= 1:
 		return
 	if current_dialogue_index > 0:
+		_stop_tts_if_playing()
 		current_dialogue_index -= 1
+		GameProgressManager.settings["current_dialogue"] = current_dialogue_index
+		GameProgressManager.save_settings()
 		_show_current_dialogue()
 		_update_button_eligibility()
+		_try_autoplay_current()
 
 
 func _on_next_dialog_pressed() -> void:
@@ -394,9 +404,13 @@ func _on_next_dialog_pressed() -> void:
 	if total_dialogue <= 1:
 		return
 	if current_dialogue_index < total_dialogue - 1:
+		_stop_tts_if_playing()
 		current_dialogue_index += 1
+		GameProgressManager.settings["current_dialogue"] = current_dialogue_index
+		GameProgressManager.save_settings()
 		_show_current_dialogue()
 		_update_button_eligibility()
+		_try_autoplay_current()
 
 
 func _on_prev_scene_pressed() -> void:
@@ -431,6 +445,7 @@ func _on_dialogue_updated() -> void:
 	_show_current_dialogue()
 	_update_button_eligibility()
 	_update_labels()
+	_try_autoplay_current()
 
 
 func _on_image_btn_pressed() -> void:
@@ -486,7 +501,152 @@ func _on_back_pressed() -> void:
 
 
 func _on_play_audio_pressed() -> void:
-	pass
+	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
+	if interactions.is_empty():
+		return
+	if current_dialogue_index < 0 or current_dialogue_index >= interactions.size():
+		return
+	var entry: Dictionary = interactions[current_dialogue_index] if interactions[current_dialogue_index] is Dictionary else {}
+	var fname: String = str(entry.get("sound_filename", "")).strip_edges()
+	var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
+	if fname.is_empty() or uuid.is_empty():
+		# On-demand generate
+		if not uuid.is_empty():
+			TTSManager.generate_single_interaction(uuid, current_dialogue_index)
+		return
+	var path_user: String = "user://saves/%s/sounds/%s" % [uuid, fname]
+	if FileAccess.file_exists(path_user):
+		_play_wav(ProjectSettings.globalize_path(path_user))
+	else:
+		# File missing -> regenerate
+		TTSManager.generate_single_interaction(uuid, current_dialogue_index)
+
+
+func _get_tts_player() -> AudioStreamPlayer:
+	if has_node("%TTSPlayer"):
+		return %TTSPlayer as AudioStreamPlayer
+	if has_node("TTSPlayer"):
+		return $TTSPlayer as AudioStreamPlayer
+	return null
+
+
+func _stop_tts_if_playing() -> void:
+	var p := _get_tts_player()
+	if p and p.playing:
+		p.stop()
+
+
+func _play_wav(global_path: String) -> void:
+	var player := _get_tts_player()
+	if player == null:
+		push_warning("TTSPlayer not found")
+		return
+	if player.playing:
+		player.stop()
+	# AudioStreamWAV.load_from_file is Godot 4.2+ static helper
+	var stream: AudioStreamWAV = null
+	if FileAccess.file_exists(global_path) or FileAccess.file_exists(ProjectSettings.localize_path(global_path)):
+		# Try static loader if available
+		if ClassDB.class_has_method("AudioStreamWAV", "load_from_file"):
+			stream = AudioStreamWAV.load_from_file(global_path)
+		if stream == null:
+			# Fallback: load via FileAccess and parse WAV header (16-bit PCM)
+			stream = _load_wav_from_file(global_path)
+	else:
+		# Try user:// path directly
+		var user_path := ProjectSettings.localize_path(global_path)
+		if FileAccess.file_exists(user_path) and ClassDB.class_has_method("AudioStreamWAV", "load_from_file"):
+			stream = AudioStreamWAV.load_from_file(global_path)
+	if stream == null:
+		push_warning("Failed to load wav: %s" % global_path)
+		return
+	stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
+	player.stream = stream
+	player.play()
+
+
+func _load_wav_from_file(global_path: String) -> AudioStreamWAV:
+	# Minimal WAV loader for 16-bit PCM (sherpa outputs 16kHz mono)
+	var file_path := global_path
+	# If global_path is like C:/..., try also user:// localize
+	if not FileAccess.file_exists(file_path):
+		file_path = ProjectSettings.localize_path(global_path)
+	var f := FileAccess.open(file_path, FileAccess.READ)
+	if f == null:
+		return null
+	var data: PackedByteArray = f.get_buffer(f.get_length())
+	f.close()
+	if data.size() < 44:
+		return null
+	# Basic validation: RIFF/WAVE
+	if data[0] != 0x52 or data[1] != 0x49 or data[2] != 0x46 or data[3] != 0x46:
+		return null
+	var wav := AudioStreamWAV.new()
+	# Parse fmt chunk to get sample rate / channels
+	var sample_rate: int = 16000
+	var channels: int = 1
+	var bits_per_sample: int = 16
+	# Search for "fmt " chunk
+	for i in range(0, min(data.size() - 8, 256)):
+		if data[i] == 0x66 and data[i+1] == 0x6D and data[i+2] == 0x74 and data[i+3] == 0x20:
+			if i + 24 < data.size():
+				channels = data[i+10] | (data[i+11] << 8)
+				sample_rate = data[i+12] | (data[i+13] << 8) | (data[i+14] << 16) | (data[i+15] << 24)
+				bits_per_sample = data[i+22] | (data[i+23] << 8)
+			break
+	# Find data chunk
+	var data_offset: int = 44
+	for i in range(12, min(data.size() - 8, 1024)):
+		if data[i] == 0x64 and data[i+1] == 0x61 and data[i+2] == 0x74 and data[i+3] == 0x61:
+			var chunk_size: int = data[i+4] | (data[i+5] << 8) | (data[i+6] << 16) | (data[i+7] << 24)
+			data_offset = i + 8
+			if chunk_size > 0 and data_offset + chunk_size <= data.size():
+				data = data.slice(data_offset, data_offset + chunk_size)
+			else:
+				data = data.slice(data_offset)
+			break
+	wav.data = data
+	wav.format = AudioStreamWAV.FORMAT_16_BITS if bits_per_sample == 16 else AudioStreamWAV.FORMAT_8_BITS
+	wav.stereo = channels == 2
+	wav.mix_rate = sample_rate
+	return wav
+
+
+func _try_autoplay_current() -> void:
+	if not bool(GameSettingsManager.settings.get("autoplay_tts", true)):
+		return
+	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
+	if interactions.is_empty():
+		return
+	if current_dialogue_index < 0 or current_dialogue_index >= interactions.size():
+		return
+	var entry: Dictionary = interactions[current_dialogue_index] if interactions[current_dialogue_index] is Dictionary else {}
+	var fname: String = str(entry.get("sound_filename", "")).strip_edges()
+	if fname.is_empty():
+		return
+	var uuid: String = str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
+	if uuid.is_empty():
+		uuid = str(GameProgressManager.settings.get("current_uuid", "")).strip_edges()
+	if uuid.is_empty():
+		return
+	var user_path: String = "user://saves/%s/sounds/%s" % [uuid, fname]
+	if not FileAccess.file_exists(user_path):
+		return
+	_play_wav(ProjectSettings.globalize_path(user_path))
+
+
+func _on_tts_generated(uuid: String, idx: int, sound_filename: String, save_path: String) -> void:
+	if not bool(GameSettingsManager.settings.get("autoplay_tts", true)):
+		return
+	var cur_uuid: String = str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
+	if cur_uuid != uuid:
+		return
+	if idx != current_dialogue_index:
+		return
+	# Ensure file exists before play
+	if not FileAccess.file_exists(save_path):
+		return
+	_play_wav(ProjectSettings.globalize_path(save_path))
 
 
 func _on_settings_closed() -> void:
@@ -621,6 +781,10 @@ func _handle_new_story() -> bool:
 	# Mark progress as running so next load doesn't re-request
 	GameProgressManager.settings["game_status"] = "running"
 	GameProgressManager.save_settings()
+	# Non-blocking TTS generation for all dialogues
+	var tts_uuid_story := str(SceneDataManager.scene_data.get("uuid", ""))
+	if not tts_uuid_story.is_empty():
+		TTSManager.generate_all_for_scene(SceneDataManager.scene_data)
 	print_verbose("Final scene data: " + str(SceneDataManager.scene_data))
 	print_verbose("Final game progress settings: " + str(GameProgressManager.settings))
 	return true
@@ -677,6 +841,10 @@ func _handle_new_scene() -> bool:
 	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
 	GameProgressManager.settings["game_status"] = "running"
 	GameProgressManager.save_settings()
+	# Non-blocking TTS generation for all dialogues (scene)
+	var tts_uuid_scene := str(SceneDataManager.scene_data.get("uuid", ""))
+	if not tts_uuid_scene.is_empty():
+		TTSManager.generate_all_for_scene(SceneDataManager.scene_data)
 	print_verbose("Final scene data (scene): " + str(SceneDataManager.scene_data))
 	print_verbose("Final game progress settings (scene): " + str(GameProgressManager.settings))
 	return true

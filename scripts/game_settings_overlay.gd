@@ -11,6 +11,8 @@ func _ready() -> void:
 	%Save.pressed.connect(_on_save_pressed)
 	%LanguageOption.item_selected.connect(_on_language_selected)
 	%ScreenSizeOption.item_selected.connect(_on_screen_size_selected)
+	if has_node("%AutoplayCheck"):
+		%AutoplayCheck.toggled.connect(_on_autoplay_toggled)
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -58,6 +60,10 @@ func _on_screen_size_selected(index: int) -> void:
 			_pending["screen_size"] = "1344x768"
 
 
+func _on_autoplay_toggled(pressed: bool) -> void:
+	_pending["autoplay_tts"] = pressed
+
+
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
@@ -66,12 +72,19 @@ func _sync_ui_to_settings() -> void:
 		%LanguageOption.selected = lang_index
 	var size_index: int = 0 if _pending["screen_size"] == "full" else 1
 	%ScreenSizeOption.selected = size_index
+	if has_node("%AutoplayCheck"):
+		%AutoplayCheck.button_pressed = bool(_pending.get("autoplay_tts", true))
+		%AutoplayCheck.text = "On" if bool(_pending.get("autoplay_tts", true)) else "Off"
 
 
 func _update_labels() -> void:
 	%Title.text = I18n.translate("settings_title")
 	%LanguageLabel.text = I18n.translate("settings_language")
 	%ScreenSizeLabel.text = I18n.translate("settings_screen_size")
+	if has_node("%AutoplayLabel"):
+		%AutoplayLabel.text = I18n.translate("settings_autoplay_tts") if I18n.translate("settings_autoplay_tts") != "settings_autoplay_tts" else "Auto-play TTS"
+	if has_node("%AutoplayCheck"):
+		%AutoplayCheck.text = "On" if %AutoplayCheck.button_pressed else "Off"
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")

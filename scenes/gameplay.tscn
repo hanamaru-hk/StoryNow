@@ -326,5 +326,9 @@ unique_name_in_owner = true
 [node name="PlotOverlay" parent="." instance=ExtResource("4_plot")]
 unique_name_in_owner = true
 
+[node name="TTSPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+bus = "Master"
+
 [node name="DialogueOverlay" parent="." instance=ExtResource("5_dialogue")]
 unique_name_in_owner = true
