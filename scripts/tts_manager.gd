@@ -12,6 +12,7 @@ const SHERPA_EXE := "server/sherpa-onnx/bin/sherpa-onnx-offline-tts.exe"
 const MODELS_ROOT := "server/sherpa-onnx/models"
 const SPEED := 1.0
 const SID := 0
+const NUM_THREADS := 1
 
 # model resolution
 const MODEL_EN_FEMALE := "vits-piper-en_US-amy-low/en_US-amy-low.onnx"
@@ -204,8 +205,7 @@ func _process_queue() -> void:
 		_attach_sound_filename(uuid, idx, fname)
 		var user_save_path := "user://saves/%s/sounds/%s" % [uuid, fname]
 		tts_generated.emit(uuid, idx, fname, user_save_path)
-		# brief yield to avoid blocking main thread tight loop
-		await get_tree().process_frame
+		await get_tree().create_timer(6).timeout
 	var batch_uuid := str(_current_task.get("uuid", ""))
 	_current_task = {}
 	_generating = false
@@ -311,9 +311,9 @@ func _synthesize(text: String, output_global_path: String, model: Dictionary) ->
 	# 2. Write PS1 that calls Python helper with --text-file (no Chinese in PS1)
 	# PS1 itself is ASCII-only, so no BOM / encoding issues
 	var ps1_content := """$ErrorActionPreference='Stop'
-python "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s"
+python "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
 exit $LASTEXITCODE
-""" % [helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global]
+""" % [helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS]
 	var f := FileAccess.open(ps1_user, FileAccess.WRITE)
 	if f == null:
 		push_error("TTSManager: failed to create ps1 %s" % ps1_user)

@@ -22,6 +22,7 @@ def parse_args():
     p.add_argument("--text", type=str, default="")
     p.add_argument("--sid", type=int, default=0)
     p.add_argument("--speed", type=float, default=1.0)
+    p.add_argument("--num-threads", type=int, default=4)
     return p.parse_args()
 
 
@@ -62,7 +63,7 @@ def main():
             ),
             provider="cpu",
             debug=False,
-            num_threads=1,
+            num_threads=args.num_threads,
         ),
         rule_fsts=args.tts_rule_fsts,
         max_num_sentences=1,
