@@ -42,6 +42,10 @@ func _ready() -> void:
 		%ImageOverlay.closed.connect(_on_image_overlay_closed)
 		%ImageOverlay.image_generated.connect(_on_image_generated)
 
+	# --- PlotOverlay ---
+	if has_node("%PlotOverlay"):
+		%PlotOverlay.closed.connect(_on_plot_overlay_closed)
+
 	# --- ErrorReturnDialog ---
 	%ErrorReturnDialog.confirmed.connect(_on_error_return)
 	%ErrorReturnDialog.canceled.connect(_on_error_return)
@@ -447,7 +451,12 @@ func _on_image_generated(_save_path: String, _filename: String) -> void:
 
 
 func _on_plot_pressed() -> void:
-	pass
+	if has_node("%PlotOverlay"):
+		%PlotOverlay.open()
+
+
+func _on_plot_overlay_closed() -> void:
+	_update_labels()
 
 
 func _on_setting_pressed() -> void:
@@ -949,6 +958,8 @@ func _update_labels() -> void:
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
 	if has_node("%ImageOverlay") and %ImageOverlay.has_method("_update_labels"):
 		%ImageOverlay._update_labels()
+	if has_node("%PlotOverlay") and %PlotOverlay.has_method("_update_labels"):
+		%PlotOverlay._update_labels()
 	# Error dialog buttons
 	%ErrorReturnDialog.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnDialog") else ""
 	if _error_retry_button != null:
