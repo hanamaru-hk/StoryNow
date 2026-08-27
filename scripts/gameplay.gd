@@ -414,28 +414,39 @@ func _on_dynamic_choice_delete_pressed(choice_index: int) -> void:
 
 
 
-func _generate_comfyui_image() -> void:
+func _generate_comfyui_image() -> bool:
 	var image_prompt: String = str(SceneDataManager.scene_data.get("image_prompt", ""))
 	print_verbose("Generating ComfyUI image for scene_data: %s" % image_prompt)
 	var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))
-	var result: Dictionary = await ImageServerManager.generate_scene_image(image_prompt, uuid)
-	if not result.get("success", false):
-		show_error(str(result.get("error", I18n.translate("error_failed_generate_image"))))
-		return
-	var save_path: String = str(result.get("save_path", ""))
-	var filename: String = str(result.get("filename", ""))
-	# update background
-	_set_background_from_file(save_path)
-	# append filename to SceneDataManager image_filenames array and persist
-	if not SceneDataManager.scene_data.has("image_filenames") or not SceneDataManager.scene_data["image_filenames"] is Array:
-		SceneDataManager.scene_data["image_filenames"] = []
-	var arr: Array = SceneDataManager.scene_data["image_filenames"]
-	arr.append(filename)
-	SceneDataManager.scene_data["image_filenames"] = arr
-	SceneDataManager.scene_data["current_image_index"] = arr.size() - 1
-	SceneDataManager.save()
-	_scene_data = SceneDataManager.scene_data
-	print_verbose("Saved ComfyUI image to %s, image_filenames: %s" % [save_path, str(arr)])
+	while true:
+		var result: Dictionary = await ImageServerManager.generate_scene_image(image_prompt, uuid)
+		if result.get("success", false):
+			var save_path: String = str(result.get("save_path", ""))
+			var filename: String = str(result.get("filename", ""))
+			# update background
+			_set_background_from_file(save_path)
+			# append filename to SceneDataManager image_filenames array and persist
+			if not SceneDataManager.scene_data.has("image_filenames") or not SceneDataManager.scene_data["image_filenames"] is Array:
+				SceneDataManager.scene_data["image_filenames"] = []
+			var arr: Array = SceneDataManager.scene_data["image_filenames"]
+			arr.append(filename)
+			SceneDataManager.scene_data["image_filenames"] = arr
+			SceneDataManager.scene_data["current_image_index"] = arr.size() - 1
+			SceneDataManager.save()
+			_scene_data = SceneDataManager.scene_data
+			print_verbose("Saved ComfyUI image to %s, image_filenames: %s" % [save_path, str(arr)])
+			_pending_retry_action = ""
+			return true
+		_pending_retry_action = "comfyui_image"
+		show_error(str(result.get("error", I18n.translate("error_failed_generate_image"))), true, "comfyui_image")
+		await retry_requested
+		await get_tree().create_timer(0.1).timeout
+		if not is_instance_valid(self) or not is_inside_tree():
+			return false
+		# Refresh prompt/uuid before retry (in case scene_data changed)
+		image_prompt = str(SceneDataManager.scene_data.get("image_prompt", image_prompt))
+		uuid = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", uuid)))
+	return false
 
 
 func _set_background_from_file(user_path: String) -> void:
@@ -678,26 +689,36 @@ func _on_image_action_new_pressed() -> void:
 	if has_node("%ImageOverlay"):
 		%ImageOverlay.open()
 	else:
-		# Fallback inline behavior if overlay not instanced
+		# Fallback inline behavior if overlay not instanced — with retry
 		var prompt: String = str(SceneDataManager.scene_data.get("image_prompt", ""))
 		if prompt.strip_edges().is_empty():
 			show_error(I18n.translate("image_prompt_empty"))
 			return
 		var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))
-		var result: Dictionary = await ImageServerManager.generate_scene_image(prompt, uuid)
-		if not result.get("success", false):
-			show_error(str(result.get("error", I18n.translate("error_failed_generate_image"))))
-			return
-		var save_path: String = str(result.get("save_path", ""))
-		var filename: String = str(result.get("filename", ""))
-		if not SceneDataManager.scene_data.has("image_filenames") or not SceneDataManager.scene_data["image_filenames"] is Array:
-			SceneDataManager.scene_data["image_filenames"] = []
-		var arr: Array = SceneDataManager.scene_data["image_filenames"]
-		arr.append(filename)
-		SceneDataManager.scene_data["image_filenames"] = arr
-		SceneDataManager.scene_data["current_image_index"] = arr.size() - 1
-		SceneDataManager.save()
-		_set_background_from_file(save_path)
+		while true:
+			var result: Dictionary = await ImageServerManager.generate_scene_image(prompt, uuid)
+			if result.get("success", false):
+				var save_path: String = str(result.get("save_path", ""))
+				var filename: String = str(result.get("filename", ""))
+				if not SceneDataManager.scene_data.has("image_filenames") or not SceneDataManager.scene_data["image_filenames"] is Array:
+					SceneDataManager.scene_data["image_filenames"] = []
+				var arr: Array = SceneDataManager.scene_data["image_filenames"]
+				arr.append(filename)
+				SceneDataManager.scene_data["image_filenames"] = arr
+				SceneDataManager.scene_data["current_image_index"] = arr.size() - 1
+				SceneDataManager.save()
+				_set_background_from_file(save_path)
+				_pending_retry_action = ""
+				break
+			_pending_retry_action = "comfyui_image"
+			show_error(str(result.get("error", I18n.translate("error_failed_generate_image"))), true, "comfyui_image")
+			await retry_requested
+			await get_tree().create_timer(0.1).timeout
+			if not is_instance_valid(self) or not is_inside_tree():
+				return
+			# Refresh prompt/uuid before retry
+			prompt = str(SceneDataManager.scene_data.get("image_prompt", prompt))
+			uuid = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", uuid)))
 
 
 func _on_image_action_change_pressed() -> void:
@@ -1267,7 +1288,9 @@ func _execute_new_story_flow() -> void:
 	%DialogButton.disabled = false
 	# Check prev dialogue eligibility
 	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
-	await _generate_comfyui_image()
+	var comfy_ok: bool = await _generate_comfyui_image()
+	if not comfy_ok:
+		return
 	GameProgressManager.settings["game_status"] = "running"
 	GameProgressManager.save_settings()
 	_enable_all_side_buttons_by_eligibility()
@@ -1306,7 +1329,9 @@ func _execute_new_scene_flow() -> void:
 	%DialogButton.disabled = false
 	# Check prev dialogue eligibility
 	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
-	await _generate_comfyui_image()
+	var comfy_ok2: bool = await _generate_comfyui_image()
+	if not comfy_ok2:
+		return
 	GameProgressManager.settings["game_status"] = "running"
 	GameProgressManager.save_settings()
 	_enable_all_side_buttons_by_eligibility()
@@ -1533,19 +1558,55 @@ func _on_error_return() -> void:
 
 
 func _update_labels() -> void:
-	%DialogButton.text = I18n.translate("btn_dialog") if I18n.translate("btn_dialog") != "btn_dialog" else "Dialog"
+	# Title / Dialog generating placeholders
+	if has_node("%TitleLabel"):
+		var cur_title: String = %TitleLabel.text.strip_edges()
+		if cur_title == "Generating Title..." or cur_title == I18n.translate("generating_title") or cur_title.is_empty():
+			var t_title: String = I18n.translate("generating_title")
+			%TitleLabel.text = t_title if t_title != "generating_title" else "Generating Title..."
+	if has_node("%DialogLabel"):
+		var cur_dialog: String = %DialogLabel.text.strip_edges()
+		if cur_dialog == "Generating the gameplay..." or cur_dialog == I18n.translate("generating_gameplay") or cur_dialog.is_empty():
+			var t_gen: String = I18n.translate("generating_gameplay")
+			%DialogLabel.text = t_gen if t_gen != "generating_gameplay" else "Generating the gameplay..."
+	%DialogButton.text = I18n.translate("btn_dialog") if I18n.translate("btn_dialog") != "btn_dialog" else "Dialogue"
 	%ImageButton.text = I18n.translate("btn_image") if I18n.translate("btn_image") != "btn_image" else "Image"
 	%PlotButton.text = I18n.translate("btn_plot") if I18n.translate("btn_plot") != "btn_plot" else "Plot"
 	%PlayAudioButton.text = I18n.translate("btn_play_audio") if I18n.translate("btn_play_audio") != "btn_play_audio" else "Play"
-	%PrevDialogButton.text = I18n.translate("btn_prev_dialog") if I18n.translate("btn_prev_dialog") != "btn_prev_dialog" else "< Prev"
-	# NextDialog text is dynamic in _show_dialog
-	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "< Scene"
-	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Next Scene >"
+	%PrevDialogButton.text = I18n.translate("btn_prev_dialog") if I18n.translate("btn_prev_dialog") != "btn_prev_dialog" else "< Dialogue"
+	%NextDialogButton.text = I18n.translate("btn_next_dialog") if I18n.translate("btn_next_dialog") != "btn_next_dialog" else "Dialogue >"
+	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "<< Scene"
+	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Scene >>"
 	%SettingButton.text = I18n.translate("btn_setting") if I18n.translate("btn_setting") != "btn_setting" else "Setting"
 	%GameplayMenuButton.text = I18n.translate("btn_gameplay_menu") if I18n.translate("btn_gameplay_menu") != "btn_gameplay_menu" else "Menu"
+	# Choice overlay
+	var choice_title: String = I18n.translate("choice_title")
+	if has_node("%ChoiceTitle"):
+		%ChoiceTitle.text = choice_title if choice_title != "choice_title" else "Choose Next Step"
+	else:
+		var ct_node := get_node_or_null("ChoiceOverlay/CenterContainer/Panel/Margin/VBox/Title")
+		if ct_node is Label:
+			(ct_node as Label).text = choice_title if choice_title != "choice_title" else "Choose Next Step"
 	%ChoiceCancel.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	%ChoiceConfirm.text = I18n.translate("btn_confirm") if I18n.translate("btn_confirm") != "btn_confirm" else "Confirm"
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
+	# Image action overlay
+	if has_node("%ImageActionNew"):
+		var t_new: String = I18n.translate("image_action_new")
+		%ImageActionNew.text = t_new if t_new != "image_action_new" else "New"
+	if has_node("%ImageActionChange"):
+		var t_change: String = I18n.translate("image_action_change")
+		%ImageActionChange.text = t_change if t_change != "image_action_change" else "Change"
+	if has_node("%ImageActionBack"):
+		var t_back: String = I18n.translate("btn_back")
+		%ImageActionBack.text = t_back if t_back != "btn_back" else "Back"
+	# Image change overlay
+	if has_node("%ImageChangeBack"):
+		var t_ic_back: String = I18n.translate("btn_back")
+		%ImageChangeBack.text = t_ic_back if t_ic_back != "btn_back" else "Back"
+	if has_node("%ImageChangeSave"):
+		var t_ic_save: String = I18n.translate("btn_save")
+		%ImageChangeSave.text = t_ic_save if t_ic_save != "btn_save" else "Save"
 	if has_node("%ImageOverlay") and %ImageOverlay.has_method("_update_labels"):
 		%ImageOverlay._update_labels()
 	if has_node("%PlotOverlay") and %PlotOverlay.has_method("_update_labels"):
@@ -1556,6 +1617,13 @@ func _update_labels() -> void:
 		%GameplayMenuOverlay._update_labels()
 	# Error dialog buttons
 	%ErrorReturnDialog.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnDialog") else ""
+	if has_node("%ErrorReturnDialog"):
+		var t_ok: String = I18n.translate("btn_back_to_main_menu")
+		%ErrorReturnDialog.ok_button_text = t_ok if t_ok != "btn_back_to_main_menu" else "Return to Menu"
+		var t_dlg: String = I18n.translate("error_dialog_text")
+		# Only override fallback text if it matches the old hard-coded fallback
+		if %ErrorReturnDialog.dialog_text == "Something went wrong. Returning to main menu." or %ErrorReturnDialog.dialog_text == t_dlg:
+			%ErrorReturnDialog.dialog_text = t_dlg if t_dlg != "error_dialog_text" else "Something went wrong. Returning to main menu."
 	if _error_retry_button != null:
 		var retry_text: String = I18n.translate("btn_retry")
 		_error_retry_button.text = retry_text if retry_text != "btn_retry" else "Retry"

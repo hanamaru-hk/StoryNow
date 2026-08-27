@@ -20,6 +20,7 @@ func _ready() -> void:
 	_apply_image(ServerRuntimeManager.image_state)
 	_on_chrome_visibility_changed(ServerRuntimeManager.chrome_visible)
 	_on_request_queue_changed(ServerRuntimeManager.request_queue)
+	_update_labels()
 
 
 func _on_llm_state_changed(state: ServerRuntimeManager.ServerState) -> void:
@@ -94,3 +95,12 @@ func _color_for(state: ServerRuntimeManager.ServerState) -> Color:
 			return COLOR_UNHEALTHY
 		_:
 			return COLOR_STARTING
+
+
+func _update_labels() -> void:
+	if has_node("%LLMLabel"):
+		var t_llm: String = I18n.translate("server_llm")
+		%LLMLabel.text = t_llm if t_llm != "server_llm" else "LLM"
+	if has_node("%ImageLabel"):
+		var t_img: String = I18n.translate("server_image")
+		%ImageLabel.text = t_img if t_img != "server_image" else "Image"

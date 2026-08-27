@@ -46,18 +46,45 @@ func _on_produce_pressed() -> void:
 	%Back.disabled = true
 	%ImagePromptInput.editable = false
 
-	var result: Dictionary = await ImageServerManager.generate_scene_image(prompt_text, uuid)
+	var result: Dictionary = {}
+	while true:
+		result = await ImageServerManager.generate_scene_image(prompt_text, uuid)
+		if result.get("success", false):
+			break
+		# Re-enable inputs so user can see overlay, but keep produce disabled until retry
+		%Produce.disabled = false
+		%Back.disabled = false
+		%ImagePromptInput.editable = GameSettingsManager.is_free_mode()
+		var err_msg: String = str(result.get("error", I18n.translate("error_failed_generate_image")))
+		var parent_ctrl2 := get_parent()
+		if parent_ctrl2 and parent_ctrl2.has_method("show_error"):
+			parent_ctrl2.show_error(err_msg, true, "comfyui_image")
+			# Wait for retry signal from parent (Gameplay)
+			if parent_ctrl2.has_signal("retry_requested"):
+				await parent_ctrl2.retry_requested
+				await get_tree().create_timer(0.1).timeout
+				if not is_instance_valid(self) or not is_inside_tree():
+					return
+				# Refresh prompt/uuid before retry and disable again
+				prompt_text = %ImagePromptInput.text.strip_edges() if %ImagePromptInput.text != null else prompt_text
+				if prompt_text.is_empty():
+					prompt_text = str(SceneDataManager.scene_data.get("image_prompt", "")).strip_edges()
+				SceneDataManager.scene_data["image_prompt"] = prompt_text
+				SceneDataManager.save()
+				uuid = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", uuid)))
+				%Produce.disabled = true
+				%Back.disabled = true
+				%ImagePromptInput.editable = false
+				continue
+		return
 
 	%Produce.disabled = false
 	%Back.disabled = false
 	%ImagePromptInput.editable = GameSettingsManager.is_free_mode()
-
-	if not result.get("success", false):
-		var err_msg: String = str(result.get("error", I18n.translate("error_failed_generate_image")))
-		var parent_ctrl2 := get_parent()
-		if parent_ctrl2 and parent_ctrl2.has_method("show_error"):
-			parent_ctrl2.show_error(err_msg)
-		return
+	# Clear pending retry on success (parent Gameplay tracks it)
+	var parent_clear := get_parent()
+	if parent_clear and parent_clear.get("_pending_retry_action") != null:
+		parent_clear.set("_pending_retry_action", "")
 
 	var save_path: String = str(result.get("save_path", ""))
 	var filename: String = str(result.get("filename", ""))

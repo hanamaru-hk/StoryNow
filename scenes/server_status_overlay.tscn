@@ -28,6 +28,7 @@ custom_minimum_size = Vector2(12, 12)
 color = Color(0.5, 0.5, 0.5, 1)
 
 [node name="LLMLabel" type="Label" parent="StatusPanel/LLMIndicator"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "LLM"
 
@@ -42,6 +43,7 @@ custom_minimum_size = Vector2(12, 12)
 color = Color(0.5, 0.5, 0.5, 1)
 
 [node name="ImageLabel" type="Label" parent="StatusPanel/ImageIndicator"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Image"
 
