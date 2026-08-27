@@ -99,6 +99,8 @@ func _ready() -> void:
 	if has_node("%DialogArea"):
 		%DialogArea.gui_input.connect(_on_dialog_area_input)
 
+	_resize_choice_overlay_panel()
+
 	# --- TTS auto-play ---
 	if TTSManager.has_signal("tts_generated") and not TTSManager.tts_generated.is_connected(_on_tts_generated):
 		TTSManager.tts_generated.connect(_on_tts_generated)
@@ -302,22 +304,33 @@ func _populate_dynamic_choice_buttons() -> void:
 		text = text.strip_edges()
 		if text.is_empty():
 			continue
+		var display_text := text
+		var was_previously_selected := choice is Dictionary and str(choice.get("plot", "")).strip_edges() != "" and str(choice.get("uuid", "")).strip_edges() != ""
+		if was_previously_selected:
+			var selected_prefix := I18n.translate("choice_previously_selected")
+			if selected_prefix == "choice_previously_selected":
+				selected_prefix = "Previously selected this choice"
+			display_text = "***** %s ***** %s" % [selected_prefix, display_text]
 		var row := HBoxContainer.new()
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_theme_constant_override("separation", 8)
 		container.add_child(row)
 
-		var btn := Button.new()
-		btn.text = text
-		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		btn.custom_minimum_size = Vector2(0, 40)
-		btn.pressed.connect(_on_dynamic_choice_pressed.bind(text))
-		row.add_child(btn)
+		var row_height := _choice_row_height(display_text)
+		if was_previously_selected:
+			row.add_child(_make_previously_selected_choice_button(text, row_height))
+		else:
+			var btn := Button.new()
+			btn.text = display_text
+			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			btn.custom_minimum_size = Vector2(0, row_height)
+			btn.pressed.connect(_on_dynamic_choice_pressed.bind(text))
+			row.add_child(btn)
 
 		var delete_btn := Button.new()
 		delete_btn.text = I18n.translate("btn_delete") if I18n.translate("btn_delete") != "btn_delete" else "Delete"
-		delete_btn.custom_minimum_size = Vector2(88, 40)
+		delete_btn.custom_minimum_size = Vector2(88, row_height)
 		delete_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
 		delete_btn.pressed.connect(_on_dynamic_choice_delete_pressed.bind(choice_index))
 		row.add_child(delete_btn)
@@ -327,6 +340,65 @@ func _on_dynamic_choice_pressed(choice_text: String) -> void:
 	if has_node("%CustomInput"):
 		%CustomInput.text = choice_text
 	_on_choice_confirm()
+
+
+func _make_previously_selected_choice_button(choice_text: String, row_height: float) -> Control:
+	var selected_prefix := I18n.translate("choice_previously_selected")
+	if selected_prefix == "choice_previously_selected":
+		selected_prefix = "Previously selected this choice"
+	var panel := PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.custom_minimum_size = Vector2(0, row_height)
+	panel.gui_input.connect(_on_dynamic_choice_panel_input.bind(choice_text))
+	panel.mouse_entered.connect(_on_dynamic_choice_panel_hover.bind(panel, true))
+	panel.mouse_exited.connect(_on_dynamic_choice_panel_hover.bind(panel, false))
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.13, 0.13, 0.13, 1.0)
+	style.content_margin_left = 12
+	style.content_margin_top = 8
+	style.content_margin_right = 12
+	style.content_margin_bottom = 8
+	panel.add_theme_stylebox_override("panel", style)
+
+	var rich_label := RichTextLabel.new()
+	rich_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rich_label.bbcode_enabled = true
+	rich_label.fit_content = true
+	rich_label.scroll_active = false
+	rich_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rich_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rich_label.text = "[color=yellow]***** %s *****[/color] %s" % [_escape_bbcode(selected_prefix), _escape_bbcode(choice_text)]
+	panel.add_child(rich_label)
+	return panel
+
+
+func _on_dynamic_choice_panel_input(event: InputEvent, choice_text: String) -> void:
+	if event is InputEventMouseButton:
+		var mouse_event := event as InputEventMouseButton
+		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
+			_on_dynamic_choice_pressed(choice_text)
+
+
+func _on_dynamic_choice_panel_hover(panel: PanelContainer, is_hovered: bool) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.22, 0.22, 0.22, 1.0) if is_hovered else Color(0.13, 0.13, 0.13, 1.0)
+	style.content_margin_left = 12
+	style.content_margin_top = 8
+	style.content_margin_right = 12
+	style.content_margin_bottom = 8
+	panel.add_theme_stylebox_override("panel", style)
+
+
+func _choice_row_height(display_text: String) -> float:
+	var estimated_chars_per_line := 30
+	var estimated_lines := ceili(float(display_text.length()) / float(estimated_chars_per_line))
+	return maxf(44.0, 24.0 + float(maxi(1, estimated_lines)) * 30.0)
+
+
+func _escape_bbcode(text: String) -> String:
+	return text.replace("[", "[lb]").replace("]", "[rb]")
 
 
 func _on_dynamic_choice_delete_pressed(choice_index: int) -> void:
@@ -451,6 +523,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	pass
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_resize_choice_overlay_panel()
+
+
 func _toggle_chrome() -> void:
 	_set_chrome_visible(not _chrome_visible)
 
@@ -502,6 +579,13 @@ func _is_point_inside_visible_control(control: Control, position: Vector2) -> bo
 
 func _is_point_inside_control(control: Control, position: Vector2) -> bool:
 	return control.get_global_rect().has_point(position)
+
+
+func _resize_choice_overlay_panel() -> void:
+	var panel := get_node_or_null("ChoiceOverlay/CenterContainer/Panel")
+	if panel is Control:
+		var viewport_size := get_viewport_rect().size
+		(panel as Control).custom_minimum_size = viewport_size * 0.7
 
 
 func _on_dialog_area_input(event: InputEvent) -> void:

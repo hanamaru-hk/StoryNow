@@ -66,6 +66,7 @@ var _translations := {
 		"btn_confirm": "Confirm",
 		"btn_retry": "Retry",
 		"choice_custom_placeholder": "Or write what you want to do...",
+		"choice_previously_selected": "Previously selected this choice",
 		"choice_title": "Choose Next Step",
 	},
 	"zh_CN": {
@@ -128,6 +129,7 @@ var _translations := {
 		"btn_confirm": "确认",
 		"btn_retry": "重试",
 		"choice_custom_placeholder": "或输入你想做的事...",
+		"choice_previously_selected": "曾经选择过这个选项",
 		"choice_title": "选择下一步",
 	},
 	"zh_TW": {
@@ -190,6 +192,7 @@ var _translations := {
 		"btn_confirm": "確認",
 		"btn_retry": "重試",
 		"choice_custom_placeholder": "或輸入你想做的事...",
+		"choice_previously_selected": "曾經選過這個選項",
 		"choice_title": "選擇下一步",
 	},
 	"yue": {
@@ -252,6 +255,7 @@ var _translations := {
 		"btn_confirm": "確認",
 		"btn_retry": "重試",
 		"choice_custom_placeholder": "或者輸入你想做嘅事...",
+		"choice_previously_selected": "曾經選過這個選項",
 		"choice_title": "選擇下一步",
 	},
 }
