@@ -61,7 +61,8 @@ func _refresh_grid() -> void:
 		_current_page = 1
 
 	if _all_entries.is_empty():
-		_add_empty_label("No saves found")
+		var t_empty: String = I18n.translate("gallery_empty")
+		_add_empty_label(t_empty if t_empty != "gallery_empty" else "No saves found")
 		_update_pagination_bar()
 		return
 
