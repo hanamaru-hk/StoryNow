@@ -277,7 +277,11 @@ func _synthesize(text: String, output_global_path: String, model: Dictionary) ->
 	var ps1_user := "user://tmp_tts_%s.ps1" % tmp_id
 	var txt_global := ProjectSettings.globalize_path(txt_user)
 	var ps1_global := ProjectSettings.globalize_path(ps1_user)
-	var helper_global := AppPaths.external_path("scripts/tts_helper.py")
+	var helper_user := "user://tmp_tts_helper_%s.py" % tmp_id
+	var helper_global := _tts_helper_path_for_process(helper_user)
+	if helper_global.is_empty():
+		_cleanup_tts_temp_files([ps1_user, txt_user, helper_user])
+		return -1
 	var onnx_global := AppPaths.external_path(str(model.get("onnx", "")))
 	var tokens_global := AppPaths.external_path(str(model.get("tokens", "")))
 	var data_dir_global := AppPaths.external_path(str(model.get("data_dir", "")))
@@ -350,14 +354,34 @@ exit $LASTEXITCODE
 		pid = OS.create_process("pwsh", args, false)
 	if pid < 0:
 		push_error("TTSManager: failed to start powershell for TTS")
-		_cleanup_tts_temp_files([ps1_user, txt_user])
+		_cleanup_tts_temp_files([ps1_user, txt_user, helper_user])
 		return -1
 	while OS.is_process_running(pid):
 		await get_tree().process_frame
 	var exit_code := 0 if FileAccess.file_exists(output_global_path) else -1
 	# 4. Delete both temp files
-	_cleanup_tts_temp_files([ps1_user, txt_user])
+	_cleanup_tts_temp_files([ps1_user, txt_user, helper_user])
 	return exit_code
+
+
+func _tts_helper_path_for_process(helper_user: String) -> String:
+	var external_helper := AppPaths.external_path("scripts/tts_helper.py")
+	if FileAccess.file_exists(external_helper):
+		return external_helper
+	var bundled_helper := "res://scripts/tts_helper.py"
+	var src := FileAccess.open(bundled_helper, FileAccess.READ)
+	if src == null:
+		push_error("TTSManager: tts_helper.py not found at %s or %s" % [external_helper, bundled_helper])
+		return ""
+	var helper_text := src.get_as_text()
+	src.close()
+	var out := FileAccess.open(helper_user, FileAccess.WRITE)
+	if out == null:
+		push_error("TTSManager: failed to create helper %s" % helper_user)
+		return ""
+	out.store_string(helper_text)
+	out.close()
+	return ProjectSettings.globalize_path(helper_user)
 
 
 func _normalize_tts_punctuation(text: String) -> String:
