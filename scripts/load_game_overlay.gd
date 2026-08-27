@@ -6,12 +6,14 @@ const PAGE_SIZE := 10
 var _all_entries: Array[Dictionary] = []
 var _current_page: int = 1
 var _total_pages: int = 1
+var _error_dialog: AcceptDialog
 
 func _ready() -> void:
 	if has_node("%LoadCloseButton"):
 		%LoadCloseButton.pressed.connect(_on_close_pressed)
 	if has_node("%LoadBackground"):
 		%LoadBackground.gui_input.connect(_on_background_input)
+	_create_error_dialog()
 	_update_labels()
 
 
@@ -43,6 +45,8 @@ func _update_labels() -> void:
 	if has_node("%LoadCloseButton"):
 		var b: String = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 		%LoadCloseButton.text = b
+	if _error_dialog != null:
+		_error_dialog.title = I18n.translate("error_dialog_title")
 
 
 func _refresh_list() -> void:
@@ -376,6 +380,9 @@ func _add_save_item(entry: Dictionary) -> void:
 func _on_save_pressed(uuid: String, entry: Dictionary) -> void:
 	if uuid.strip_edges().is_empty():
 		return
+	if not _are_story_servers_ready():
+		_show_error_dialog(I18n.translate("notice_wait_llm_and_image_ready"))
+		return
 	# Similar to prev scene handler: set game progress uuid and go to gameplay
 	GameProgressManager.settings["current_uuid"] = uuid
 	GameProgressManager.settings["game_status"] = "running"
@@ -400,3 +407,28 @@ func _on_save_pressed(uuid: String, entry: Dictionary) -> void:
 	GameProgressManager.settings["current_round"] = cur_round
 	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
+
+
+func _is_llm_ready() -> bool:
+	return ServerRuntimeManager.llm_state == ServerRuntimeManager.ServerState.HEALTHY
+
+
+func _is_image_server_ready() -> bool:
+	return ServerRuntimeManager.image_state == ServerRuntimeManager.ServerState.HEALTHY
+
+
+func _are_story_servers_ready() -> bool:
+	return _is_llm_ready() and _is_image_server_ready()
+
+
+func _create_error_dialog() -> void:
+	_error_dialog = AcceptDialog.new()
+	_error_dialog.name = "LoadErrorDialog"
+	add_child(_error_dialog)
+
+
+func _show_error_dialog(message: String) -> void:
+	if _error_dialog == null:
+		_create_error_dialog()
+	_error_dialog.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	_error_dialog.popup_centered()
