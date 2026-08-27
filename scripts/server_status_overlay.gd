@@ -54,7 +54,7 @@ func _apply_image(state: ServerRuntimeManager.ServerState) -> void:
 
 func _make_queue_row(item: Dictionary) -> Control:
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(260, 34)
+	panel.custom_minimum_size = Vector2(520, 34)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_END
 	var style := StyleBoxFlat.new()
 	style.bg_color = ROW_BG_IMAGE if str(item.get("kind", "")) == "image" else ROW_BG_LLM
