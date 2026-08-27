@@ -43,9 +43,10 @@ func start_server() -> void:
 	var context_size: int = int(LLMSettingsManager.settings.get("context_size", 0))
 	var port_number := str(port)
 	var exe_path := AppPaths.external_path(LLAMA_DIR + "/llama-server.exe")
-	# var model_path := AppPaths.external_path(LLAMA_MODELS_DIR + "/ab/DeepSeek-R1-Distill-Llama-8B-Uncensored.Q4_K_M.gguf")
-	var model_path := AppPaths.external_path(LLAMA_MODELS_DIR_AB + "/huihui-qwen3.5-9b-Q4_K_M.gguf")
-	# var model_path := AppPaths.external_path(LLAMA_MODELS_DIR + "/cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
+	var model_filename := str(LLMSettingsManager.settings.get("llm_model_filename", ""))
+	if model_filename.is_empty():
+		model_filename = "cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf"
+	var model_path := AppPaths.external_path("data/llama-models/" + model_filename)
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
 		return

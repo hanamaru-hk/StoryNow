@@ -44,6 +44,21 @@ vertical_alignment = 1
 layout_mode = 2
 custom_minimum_size = Vector2(0, 16)
 
+[node name="ModelRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ModelLabel" type="Label" parent="CenterContainer/VBoxContainer/ModelRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Model"
+
+[node name="ModelOption" type="OptionButton" parent="CenterContainer/VBoxContainer/ModelRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(520, 40)
+
 [node name="PortRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 16

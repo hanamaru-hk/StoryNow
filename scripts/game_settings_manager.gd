@@ -6,6 +6,8 @@ const DEFAULT_SETTINGS_PATH := "data/default_game_settings.json"
 var settings := {
 	"language": "en",
 	"screen_size": "full",
+	"safe_mode": false,
+	"tried_free_mode_yet": false,
 	"autoplay_tts": true,
 	"show_streaming": true,
 }
@@ -58,6 +60,15 @@ func set_language(lang: String) -> void:
 func set_screen_size(size: String) -> void:
 	settings["screen_size"] = size
 	_apply_screen_size()
+	save_settings()
+
+
+func has_tried_free_mode_yet() -> bool:
+	return bool(settings.get("tried_free_mode_yet", false))
+
+
+func mark_tried_free_mode_yet() -> void:
+	settings["tried_free_mode_yet"] = true
 	save_settings()
 
 

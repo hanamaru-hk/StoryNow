@@ -9,6 +9,7 @@ func _ready() -> void:
 	%Back.pressed.connect(_on_back_pressed)
 	%Reset.pressed.connect(_on_reset_pressed)
 	%Save.pressed.connect(_on_save_pressed)
+	%ModelOption.item_selected.connect(_on_model_selected)
 	%PortInput.text_submitted.connect(_on_port_submitted)
 	%TimeoutInput.text_submitted.connect(_on_timeout_submitted)
 	%ContextSizeInput.text_submitted.connect(_on_context_size_submitted)
@@ -18,6 +19,7 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	LLMSettingsManager.startup_refresh_model_filename_list()
 	_pending = LLMSettingsManager.settings.duplicate(true)
 	_sync_ui_to_settings()
 	_update_labels()
@@ -37,6 +39,7 @@ func _on_reset_pressed() -> void:
 
 
 func _on_save_pressed() -> void:
+	_apply_model_filename()
 	_apply_port()
 	_apply_timeout()
 	_apply_context_size()
@@ -49,6 +52,11 @@ func _on_save_pressed() -> void:
 
 func _on_port_submitted(_text: String) -> void:
 	_apply_port()
+
+
+func _on_model_selected(index: int) -> void:
+	if index >= 0 and index < %ModelOption.item_count:
+		_pending["llm_model_filename"] = str(%ModelOption.get_item_text(index))
 
 
 func _on_timeout_submitted(_text: String) -> void:
@@ -65,6 +73,12 @@ func _apply_port() -> void:
 		var port: int = port_text.to_int()
 		if port > 0 and port <= 65535:
 			_pending["port"] = port
+
+
+func _apply_model_filename() -> void:
+	var selected_index: int = %ModelOption.selected
+	if selected_index >= 0 and selected_index < %ModelOption.item_count:
+		_pending["llm_model_filename"] = str(%ModelOption.get_item_text(selected_index))
 
 
 func _apply_timeout() -> void:
@@ -86,6 +100,14 @@ func _apply_context_size() -> void:
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
+	var model_filenames := LLMSettingsManager.get_available_model_filenames()
+	%ModelOption.clear()
+	for model_filename in model_filenames:
+		%ModelOption.add_item(model_filename)
+	var selected_model := str(_pending.get("llm_model_filename", ""))
+	var model_index := model_filenames.find(selected_model)
+	if model_index >= 0:
+		%ModelOption.selected = model_index
 	%PortInput.text = str(_pending["port"])
 	%TimeoutInput.text = str(_pending["timeout"])
 	%ContextSizeInput.text = str(_pending["context_size"])
@@ -93,6 +115,7 @@ func _sync_ui_to_settings() -> void:
 
 func _update_labels() -> void:
 	%Title.text = I18n.translate("llm_settings_title")
+	%ModelLabel.text = I18n.translate("settings_llm_model")
 	%PortLabel.text = I18n.translate("settings_port")
 	%TimeoutLabel.text = I18n.translate("settings_timeout")
 	%ContextSizeLabel.text = I18n.translate("settings_context_size")
