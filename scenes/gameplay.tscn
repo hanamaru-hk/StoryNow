@@ -174,7 +174,7 @@ theme_override_constants/v_separation = 8
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Dialog"
+text = "Dialogue"
 
 [node name="ImageButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
@@ -198,25 +198,25 @@ text = "Play"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "< Prev"
+text = "< Dialogue"
 
 [node name="NextDialogButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Next >"
+text = "Dialogue >"
 
 [node name="PrevSceneButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "< Scene"
+text = "<< Scene"
 
 [node name="NextSceneButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Next Scene >"
+text = "Scene >>"
 
 [node name="SettingButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true

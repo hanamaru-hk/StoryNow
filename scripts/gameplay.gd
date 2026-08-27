@@ -1569,14 +1569,14 @@ func _update_labels() -> void:
 		if cur_dialog == "Generating the gameplay..." or cur_dialog == I18n.translate("generating_gameplay") or cur_dialog.is_empty():
 			var t_gen: String = I18n.translate("generating_gameplay")
 			%DialogLabel.text = t_gen if t_gen != "generating_gameplay" else "Generating the gameplay..."
-	%DialogButton.text = I18n.translate("btn_dialog") if I18n.translate("btn_dialog") != "btn_dialog" else "Dialog"
+	%DialogButton.text = I18n.translate("btn_dialog") if I18n.translate("btn_dialog") != "btn_dialog" else "Dialogue"
 	%ImageButton.text = I18n.translate("btn_image") if I18n.translate("btn_image") != "btn_image" else "Image"
 	%PlotButton.text = I18n.translate("btn_plot") if I18n.translate("btn_plot") != "btn_plot" else "Plot"
 	%PlayAudioButton.text = I18n.translate("btn_play_audio") if I18n.translate("btn_play_audio") != "btn_play_audio" else "Play"
-	%PrevDialogButton.text = I18n.translate("btn_prev_dialog") if I18n.translate("btn_prev_dialog") != "btn_prev_dialog" else "< Prev"
-	# NextDialog text is dynamic in _show_dialog
-	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "< Scene"
-	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Next Scene >"
+	%PrevDialogButton.text = I18n.translate("btn_prev_dialog") if I18n.translate("btn_prev_dialog") != "btn_prev_dialog" else "< Dialogue"
+	%NextDialogButton.text = I18n.translate("btn_next_dialog") if I18n.translate("btn_next_dialog") != "btn_next_dialog" else "Dialogue >"
+	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "<< Scene"
+	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Scene >>"
 	%SettingButton.text = I18n.translate("btn_setting") if I18n.translate("btn_setting") != "btn_setting" else "Setting"
 	%GameplayMenuButton.text = I18n.translate("btn_gameplay_menu") if I18n.translate("btn_gameplay_menu") != "btn_gameplay_menu" else "Menu"
 	# Choice overlay
