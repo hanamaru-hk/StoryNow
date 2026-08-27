@@ -310,7 +310,9 @@ func _synthesize(text: String, output_global_path: String, model: Dictionary) ->
 	if tf == null:
 		push_error("TTSManager: failed to create txt %s" % txt_user)
 		return -1
-	tf.store_string(text)
+	var tts_text := _normalize_tts_punctuation(text)
+	print_verbose("TTSManager: text after punctuation normalization: %s" % tts_text)
+	tf.store_string(tts_text)
 	tf.close()
 # 2. Write PS1 that calls Python helper with --text-file (no Chinese in PS1)
 	# PS1 itself is ASCII-only, so no BOM / encoding issues
@@ -351,6 +353,45 @@ exit $LASTEXITCODE
 	# 4. Delete both temp files
 	_cleanup_tts_temp_files([ps1_user, txt_user])
 	return exit_code
+
+
+func _normalize_tts_punctuation(text: String) -> String:
+	var output := ""
+	for i in text.length():
+		var c := text.substr(i, 1)
+		output += _ascii_punctuation_for_tts(c)
+	return output.strip_edges()
+
+
+func _ascii_punctuation_for_tts(c: String) -> String:
+	match c:
+		"。", "｡":
+			return "."
+		"，", "、", "､":
+			return ","
+		"！", "﹗":
+			return "!"
+		"？", "﹖":
+			return "?"
+		"；":
+			return ";"
+		"：":
+			return ":"
+		"「", "」", "『", "』", "“", "”", "〝", "〞":
+			return "\""
+		"‘", "’", "〟":
+			return "'"
+		"（", "〔", "［", "｛", "〈", "《", "【", "〖", "｢":
+			return "("
+		"）", "〕", "］", "｝", "〉", "》", "】", "〗", "｣":
+			return ")"
+		"…":
+			return "..."
+		"—", "–", "〜", "～":
+			return "-"
+		"・", "･", "·":
+			return " "
+	return c
 
 
 func _cleanup_tts_temp_files(user_paths: Array) -> void:
