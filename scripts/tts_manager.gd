@@ -26,6 +26,9 @@ var _current_task: Dictionary = {}
 var _native_extension: Resource = null
 var _native_thread: Thread = null
 var _shutting_down: bool = false
+var _sound_request_id := -1
+var _sound_request_total := 0
+var _sound_request_generated := 0
 
 
 func _ready() -> void:
@@ -123,7 +126,8 @@ func generate_all_for_scene(scene_data: Dictionary) -> void:
 			continue
 		var sex: String = str(d.get("sex", "male"))
 		# skip if already has sound_filename and file exists and dialogue unchanged? For now always enqueue but dedup later
-		_enqueue(uuid, i, dialogue, sex, language)
+		if _enqueue(uuid, i, dialogue, sex, language):
+			_add_sound_request_items(1)
 	_process_queue_deferred()
 
 
@@ -147,7 +151,8 @@ func generate_single_interaction(uuid: String, idx: int) -> void:
 		return
 	var sex: String = str(d.get("sex", "male"))
 	var language := str(SceneDataManager.scene_data.get("language", I18n.current_lang))
-	_enqueue(u, idx, dialogue, sex, language)
+	if _enqueue(u, idx, dialogue, sex, language):
+		_add_sound_request_items(1)
 	_process_queue_deferred()
 
 
@@ -158,26 +163,57 @@ func generate_for_interaction(uuid: String, idx: int, dialogue: String, sex: Str
 	if d2.is_empty():
 		return
 	var language := str(SceneDataManager.scene_data.get("language", I18n.current_lang))
-	_enqueue(uuid, idx, d2, sex, language)
+	if _enqueue(uuid, idx, d2, sex, language):
+		_add_sound_request_items(1)
 	_process_queue_deferred()
 
 
-func _enqueue(uuid: String, idx: int, dialogue: String, sex: String, language: String) -> void:
+func _enqueue(uuid: String, idx: int, dialogue: String, sex: String, language: String) -> bool:
 	if _shutting_down:
-		return
+		return false
 	# dedup: if same uuid+idx already queued, replace dialogue/sex
 	for q in _queue:
 		if str(q.get("uuid", "")) == uuid and int(q.get("idx", -1)) == idx:
 			q["dialogue"] = dialogue
 			q["sex"] = sex
 			q["language"] = language
-			return
+			return false
 	if _generating and _current_task.get("uuid", "") == uuid and int(_current_task.get("idx", -999)) == idx:
 		# currently generating same idx -> queue an update after
 		for q in _queue:
 			if str(q.get("uuid", "")) == uuid and int(q.get("idx", -1)) == idx:
-				return
+				return false
 	_queue.append({"uuid": uuid, "idx": idx, "dialogue": dialogue, "sex": sex, "language": language})
+	return true
+
+
+func _add_sound_request_items(count: int) -> void:
+	if count <= 0:
+		return
+	if _sound_request_id < 0:
+		_sound_request_total = 0
+		_sound_request_generated = 0
+		_sound_request_id = ServerRuntimeManager.push_request("sound", I18n.translate("request_generating_sound"), 30.0)
+	_sound_request_total += count
+	_update_sound_request()
+
+
+func _update_sound_request() -> void:
+	if _sound_request_id < 0:
+		return
+	ServerRuntimeManager.update_request(_sound_request_id, {
+		"status": "%d/%d" % [_sound_request_generated, _sound_request_total],
+		"timeout_seconds": maxf(5.0, float(_sound_request_total) * 3.0),
+	})
+
+
+func _finish_sound_request() -> void:
+	if _sound_request_id < 0:
+		return
+	ServerRuntimeManager.pop_request(_sound_request_id)
+	_sound_request_id = -1
+	_sound_request_total = 0
+	_sound_request_generated = 0
 
 
 func _process_queue_deferred() -> void:
@@ -225,12 +261,16 @@ func _process_queue() -> void:
 		_attach_sound_filename(uuid, idx, fname)
 		var user_save_path := "user://saves/%s/sounds/%s" % [uuid, fname]
 		tts_generated.emit(uuid, idx, fname, user_save_path)
+		_sound_request_generated += 1
+		_update_sound_request()
 		await get_tree().create_timer(1.5).timeout
 	var batch_uuid := str(_current_task.get("uuid", ""))
 	_current_task = {}
 	_generating = false
 	if not batch_uuid.is_empty():
 		batch_completed.emit(batch_uuid)
+	if _queue.is_empty():
+		_finish_sound_request()
 	# if new items arrived while generating, loop again
 	if not _queue.is_empty():
 		_process_queue_deferred()

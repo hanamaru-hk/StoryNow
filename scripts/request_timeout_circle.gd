@@ -3,6 +3,7 @@ extends Control
 const TRACK_COLOR := Color(1, 1, 1, 0.22)
 const LLM_COLOR := Color(0.45, 0.72, 1.0)
 const IMAGE_COLOR := Color(1.0, 0.64, 0.34)
+const SOUND_COLOR := Color(0.62, 0.9, 0.48)
 const EXPIRED_COLOR := Color(0.95, 0.25, 0.25)
 
 var request_item: Dictionary = {}
@@ -42,4 +43,6 @@ func _draw() -> void:
 func _kind_color(kind: String) -> Color:
 	if kind == "image":
 		return IMAGE_COLOR
+	if kind == "sound":
+		return SOUND_COLOR
 	return LLM_COLOR

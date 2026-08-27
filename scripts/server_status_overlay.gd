@@ -8,6 +8,7 @@ const COLOR_UNHEALTHY := Color(0.8, 0.2, 0.2)
 const COLOR_STARTING := Color(0.5, 0.5, 0.5)
 const ROW_BG_LLM := Color(0.12, 0.18, 0.24, 0.88)
 const ROW_BG_IMAGE := Color(0.24, 0.17, 0.1, 0.88)
+const ROW_BG_SOUND := Color(0.15, 0.21, 0.14, 0.88)
 const TimeoutCircle := preload("res://scripts/request_timeout_circle.gd")
 
 
@@ -58,7 +59,7 @@ func _make_queue_row(item: Dictionary) -> Control:
 	panel.custom_minimum_size = Vector2(520, 34)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_END
 	var style := StyleBoxFlat.new()
-	style.bg_color = ROW_BG_IMAGE if str(item.get("kind", "")) == "image" else ROW_BG_LLM
+	style.bg_color = _row_bg_for_kind(str(item.get("kind", "")))
 	style.corner_radius_top_left = 6
 	style.corner_radius_top_right = 6
 	style.corner_radius_bottom_left = 6
@@ -111,6 +112,16 @@ func _make_queue_row(item: Dictionary) -> Control:
 		stream.text = stream_text
 		stack.add_child(stream)
 	return panel
+
+
+func _row_bg_for_kind(kind: String) -> Color:
+	match kind:
+		"image":
+			return ROW_BG_IMAGE
+		"sound":
+			return ROW_BG_SOUND
+		_:
+			return ROW_BG_LLM
 
 
 func _color_for(state: ServerRuntimeManager.ServerState) -> Color:
