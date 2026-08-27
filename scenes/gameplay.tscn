@@ -299,6 +299,14 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
+[node name="StoryEndLabel" type="Label" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "故事已完，如想繼續，請打下你希望的劇情"
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="CustomInput" type="TextEdit" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2

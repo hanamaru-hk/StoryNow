@@ -1316,14 +1316,29 @@ func _execute_new_scene_flow() -> void:
 # Choice overlay (array of scene.next)
 # ------------------------------------------------------------------
 func _show_choice_overlay() -> void:
+	var story_has_ended := _is_story_end()
 	%CustomInput.text = ""
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
-	_populate_dynamic_choice_buttons()
+	if has_node("%StoryEndLabel"):
+		%StoryEndLabel.visible = story_has_ended
+		%StoryEndLabel.text = _story_end_message()
+	if has_node("%ChoiceScroll"):
+		%ChoiceScroll.visible = not story_has_ended
+	if story_has_ended:
+		if has_node("%DynamicChoiceButtons"):
+			for child in %DynamicChoiceButtons.get_children():
+				child.queue_free()
+	else:
+		_populate_dynamic_choice_buttons()
 	%ChoiceOverlay.visible = true
 
 
 func _hide_choice_overlay() -> void:
 	%ChoiceOverlay.visible = false
+	if has_node("%StoryEndLabel"):
+		%StoryEndLabel.visible = false
+	if has_node("%ChoiceScroll"):
+		%ChoiceScroll.visible = true
 
 
 func _on_choice_button_pressed(choice_text: String) -> void:
@@ -1421,6 +1436,14 @@ func _on_choice_confirm() -> void:
 
 func _on_choice_cancel() -> void:
 	_hide_choice_overlay()
+
+
+func _is_story_end() -> bool:
+	return bool(SceneDataManager.scene_data.get("end", false))
+
+
+func _story_end_message() -> String:
+	return "故事已完，如想繼續，請打下你希望的劇情"
 
 
 func _generate_uuid() -> String:
