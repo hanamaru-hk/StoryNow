@@ -4,7 +4,7 @@ extends Node
 const STATUS_PATH := "user://image_server_status.json"
 const COMFYUI_DIR := "server/ComfyUI/ComfyUI_windows_portable"
 const HEALTH_TIMEOUT := 5.0
-const WORKFLOW_TEMPLATE_PATH := "res://data/comfyui/workflow_template.json"
+const WORKFLOW_TEMPLATE_PATH := "data/comfyui/workflow_template.json"
 const DEFAULT_MODEL := "waiIllustriousSDXL_v170.safetensors"
 const FILENAME_PREFIX := "SN"
 
@@ -25,7 +25,7 @@ func start_server() -> void:
 	if status["running"]:
 		return
 	var port: int = ImageServerSettingsManager.settings["port"]
-	var base_path := ProjectSettings.globalize_path("res://" + COMFYUI_DIR)
+	var base_path := AppPaths.external_path(COMFYUI_DIR)
 	var exe_path := base_path + "/python_embeded/python.exe"
 	if not FileAccess.file_exists(exe_path):
 		push_error("ComfyUI Python not found: " + exe_path)
@@ -155,10 +155,11 @@ func load_status() -> void:
 			status = json.data
 
 func _load_workflow_template_text() -> String:
-	if not FileAccess.file_exists(WORKFLOW_TEMPLATE_PATH):
-		push_error("workflow_template.json not found: %s" % WORKFLOW_TEMPLATE_PATH)
+	var workflow_path := AppPaths.external_path(WORKFLOW_TEMPLATE_PATH)
+	if not FileAccess.file_exists(workflow_path):
+		push_error("workflow_template.json not found: %s" % workflow_path)
 		return ""
-	var file := FileAccess.open(WORKFLOW_TEMPLATE_PATH, FileAccess.READ)
+	var file := FileAccess.open(workflow_path, FileAccess.READ)
 	if file == null:
 		push_error("Failed to open workflow_template.json")
 		return ""
@@ -171,20 +172,22 @@ func _load_negative_prompt() -> String:
 	var is_free: bool = GameSettingsManager.is_free_mode()
 	var candidates: Array[String] = []
 	if is_free:
-		candidates = ["res://data/comfyui/free_negative_prompt", "res://data/comfyui/free_negatvie_prompt"]
+		candidates = ["data/comfyui/free_negative_prompt", "data/comfyui/free_negatvie_prompt"]
 	else:
-		candidates = ["res://data/comfyui/safe_negative_prompt", "res://data/comfyui/safe_negative_prompts"]
+		candidates = ["data/comfyui/safe_negative_prompt", "data/comfyui/safe_negative_prompts"]
 	for p in candidates:
-		if FileAccess.file_exists(p):
-			var f := FileAccess.open(p, FileAccess.READ)
+		var candidate_path := AppPaths.external_path(p)
+		if FileAccess.file_exists(candidate_path):
+			var f := FileAccess.open(candidate_path, FileAccess.READ)
 			if f != null:
 				var t := f.get_as_text().strip_edges()
 				f.close()
 				return t
-	var fallback_paths: Array[String] = ["res://data/comfyui/safe_negative_prompt", "res://data/comfyui/free_negatvie_prompt", "res://data/comfyui/free_negative_prompt"]
+	var fallback_paths: Array[String] = ["data/comfyui/safe_negative_prompt", "data/comfyui/free_negatvie_prompt", "data/comfyui/free_negative_prompt"]
 	for p in fallback_paths:
-		if FileAccess.file_exists(p):
-			var f2 := FileAccess.open(p, FileAccess.READ)
+		var fallback_path := AppPaths.external_path(p)
+		if FileAccess.file_exists(fallback_path):
+			var f2 := FileAccess.open(fallback_path, FileAccess.READ)
 			if f2 != null:
 				var t2 := f2.get_as_text().strip_edges()
 				f2.close()

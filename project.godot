@@ -10,6 +10,7 @@ config/features=PackedStringArray("4.3")
 
 [autoload]
 
+AppPaths="*res://scripts/app_paths.gd"
 I18n="*res://scripts/i18n.gd"
 GameSettingsManager="*res://scripts/game_settings_manager.gd"
 ImageServerSettingsManager="*res://scripts/image_server_settings_manager.gd"
@@ -29,7 +30,7 @@ window/stretch/mode="canvas_items"
 
 [gui]
 
-theme/custom="res://data/theme.tres"
+theme/custom="res://assets/theme.tres"
 
 [rendering]
 

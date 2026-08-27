@@ -32,8 +32,7 @@ func _ready() -> void:
 
 
 func is_available() -> bool:
-	var exe_path := ProjectSettings.globalize_path("res://" + SHERPA_EXE)
-	return FileAccess.file_exists(exe_path) or FileAccess.file_exists("res://" + SHERPA_EXE)
+	return FileAccess.file_exists(AppPaths.external_path(SHERPA_EXE))
 
 
 func _model_for(sex: String, language: String) -> Dictionary:
@@ -68,23 +67,23 @@ func _resolve_model(onnx_rel: String) -> Dictionary:
 
 
 func _is_sherpa_ready(model: Dictionary) -> bool:
-	var exe_global := ProjectSettings.globalize_path("res://" + SHERPA_EXE)
-	if not FileAccess.file_exists(exe_global) and not FileAccess.file_exists("res://" + SHERPA_EXE):
+	var exe_global := AppPaths.external_path(SHERPA_EXE)
+	if not FileAccess.file_exists(exe_global):
 		push_warning("TTSManager: sherpa exe not found: %s" % exe_global)
 		return false
 	for k in ["onnx", "tokens"]:
 		var p: String = str(model.get(k, ""))
-		var gp := ProjectSettings.globalize_path("res://" + p)
-		if not FileAccess.file_exists(gp) and not FileAccess.file_exists("res://" + p):
+		var gp := AppPaths.external_path(p)
+		if not FileAccess.file_exists(gp):
 			push_warning("TTSManager: missing model file: %s" % p)
 			return false
 	# data_dir or lexicon: at least one must exist
 	var data_dir: String = str(model.get("data_dir", ""))
-	var gp_data := ProjectSettings.globalize_path("res://" + data_dir)
-	var has_data_dir := DirAccess.dir_exists_absolute(gp_data) or DirAccess.dir_exists_absolute("res://" + data_dir)
+	var gp_data := AppPaths.external_path(data_dir)
+	var has_data_dir := DirAccess.dir_exists_absolute(gp_data)
 	var lex: String = str(model.get("lexicon", ""))
-	var gp_lex := ProjectSettings.globalize_path("res://" + lex)
-	var has_lex := FileAccess.file_exists(gp_lex) or FileAccess.file_exists("res://" + lex)
+	var gp_lex := AppPaths.external_path(lex)
+	var has_lex := FileAccess.file_exists(gp_lex)
 	if not has_data_dir and not has_lex:
 		push_warning("TTSManager: missing model data_dir and lexicon: %s / %s" % [data_dir, lex])
 		return false
@@ -277,23 +276,23 @@ func _synthesize(text: String, output_global_path: String, model: Dictionary) ->
 	var ps1_user := "user://tmp_tts_%s.ps1" % tmp_id
 	var txt_global := ProjectSettings.globalize_path(txt_user)
 	var ps1_global := ProjectSettings.globalize_path(ps1_user)
-	var helper_global := ProjectSettings.globalize_path("res://scripts/tts_helper.py")
-	var onnx_global := ProjectSettings.globalize_path("res://" + str(model.get("onnx", "")))
-	var tokens_global := ProjectSettings.globalize_path("res://" + str(model.get("tokens", "")))
-	var data_dir_global := ProjectSettings.globalize_path("res://" + str(model.get("data_dir", "")))
-	var lexicon_global := ProjectSettings.globalize_path("res://" + str(model.get("lexicon", "")))
+	var helper_global := AppPaths.external_path("scripts/tts_helper.py")
+	var onnx_global := AppPaths.external_path(str(model.get("onnx", "")))
+	var tokens_global := AppPaths.external_path(str(model.get("tokens", "")))
+	var data_dir_global := AppPaths.external_path(str(model.get("data_dir", "")))
+	var lexicon_global := AppPaths.external_path(str(model.get("lexicon", "")))
 	var rule_fsts_global := str(model.get("rule_fsts", ""))
 	var rule_fsts_arg := ""
 	if not rule_fsts_global.is_empty():
 		var parts := rule_fsts_global.split(",")
 		var glob_parts: Array = []
 		for p in parts:
-			var gp := ProjectSettings.globalize_path("res://" + str(p).strip_edges())
+			var gp := AppPaths.external_path(str(p).strip_edges())
 			if FileAccess.file_exists(gp):
 				glob_parts.append(gp)
 		rule_fsts_arg = ",".join(glob_parts)
 	var extra_args := ""
-	var gp_data_check := ProjectSettings.globalize_path("res://" + str(model.get("data_dir", "")))
+	var gp_data_check := AppPaths.external_path(str(model.get("data_dir", "")))
 	var has_data_dir := DirAccess.dir_exists_absolute(gp_data_check)
 	if has_data_dir:
 		extra_args = '--vits-data-dir "%s"' % data_dir_global

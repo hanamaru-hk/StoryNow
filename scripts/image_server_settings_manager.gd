@@ -1,7 +1,7 @@
 extends Node
 
 const SETTINGS_PATH := "user://image_server_settings.json"
-const DEFAULT_SETTINGS_PATH := "res://data/default_image_server_settings.json"
+const DEFAULT_SETTINGS_PATH := "data/default_image_server_settings.json"
 
 var settings := {
 	"port": 56321,
@@ -32,7 +32,7 @@ func load_settings() -> void:
 
 
 func reset_to_defaults() -> void:
-	var file := FileAccess.open(DEFAULT_SETTINGS_PATH, FileAccess.READ)
+	var file := FileAccess.open(AppPaths.external_path(DEFAULT_SETTINGS_PATH), FileAccess.READ)
 	if file:
 		var json := JSON.new()
 		var error := json.parse(file.get_as_text())

@@ -1,7 +1,7 @@
 extends Node
 
 const SETTINGS_PATH := "user://game_settings.json"
-const DEFAULT_SETTINGS_PATH := "res://data/default_game_settings.json"
+const DEFAULT_SETTINGS_PATH := "data/default_game_settings.json"
 
 var settings := {
 	"language": "en",
@@ -36,7 +36,7 @@ func load_settings() -> void:
 
 
 func reset_to_defaults() -> void:
-	var file := FileAccess.open(DEFAULT_SETTINGS_PATH, FileAccess.READ)
+	var file := FileAccess.open(AppPaths.external_path(DEFAULT_SETTINGS_PATH), FileAccess.READ)
 	if file:
 		var json := JSON.new()
 		var error := json.parse(file.get_as_text())
@@ -78,4 +78,4 @@ func _apply_screen_size() -> void:
 
 
 func is_free_mode() -> bool:
-	return not settings.get("safe_mode", false) and FileAccess.file_exists("res://data/free_mode")
+	return not settings.get("safe_mode", false) and FileAccess.file_exists(AppPaths.external_path("data/free_mode"))

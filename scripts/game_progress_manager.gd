@@ -1,7 +1,7 @@
 extends Node
 
 const SETTINGS_PATH := "user://game_progress.json"
-const DEFAULT_SETTINGS_PATH := "res://data/default_game_progress.json"
+const DEFAULT_SETTINGS_PATH := "data/default_game_progress.json"
 
 var settings := {
 	"current_dialogue": 0,
@@ -39,7 +39,7 @@ func load_settings() -> void:
 
 
 func reset_to_defaults() -> void:
-	var path := DEFAULT_SETTINGS_PATH
+	var path := AppPaths.external_path(DEFAULT_SETTINGS_PATH)
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file:
 		var json := JSON.new()

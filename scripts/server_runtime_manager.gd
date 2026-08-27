@@ -27,9 +27,9 @@ var _next_request_id := 1
 
 func _ready() -> void:
 	if not FileAccess.file_exists("user://game_progress.json"):
-		var src_progress := "res://data/default_game_progress.json"
+		var src_progress := AppPaths.external_path("data/default_game_progress.json")
 		if not FileAccess.file_exists(src_progress):
-			src_progress = "res://data/default_game_progess.json"
+			src_progress = AppPaths.external_path("data/default_game_progess.json")
 		if FileAccess.file_exists(src_progress):
 			var src_file := FileAccess.open(src_progress, FileAccess.READ)
 			if src_file:
@@ -40,7 +40,7 @@ func _ready() -> void:
 					dst_file.store_string(content)
 					dst_file.close()
 	if not FileAccess.file_exists("user://game_settings.json"):
-		var src_settings := "res://data/default_game_settings.json"
+		var src_settings := AppPaths.external_path("data/default_game_settings.json")
 		if FileAccess.file_exists(src_settings):
 			var src_file2 := FileAccess.open(src_settings, FileAccess.READ)
 			if src_file2:

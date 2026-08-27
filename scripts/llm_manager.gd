@@ -8,7 +8,7 @@ const HEALTH_TIMEOUT := 5.0
 const BRAINSTORM_TIMEOUT := 120.0
 const LLM_HOST := "127.0.0.1"
 const CHAT_ENDPOINT := "/v1/chat/completions"
-const PROMPT_DIR := "res://data/llm"
+const PROMPT_DIR := "data/llm"
 const RANDOM := "random"
 const ENHANCE := "enhance"
 const STORY := "story"
@@ -40,10 +40,10 @@ func start_server() -> void:
 		return
 	var port: int = LLMSettingsManager.settings["port"]
 	var port_number := str(port)
-	var exe_path := ProjectSettings.globalize_path("res://" + LLAMA_DIR + "/llama-server.exe")
-	# var model_path := ProjectSettings.globalize_path("res://" + LLAMA_MODELS_DIR + "/DeepSeek-R1-Distill-Llama-8B-Uncensored.Q4_K_M.gguf")
-	var model_path := ProjectSettings.globalize_path("res://" + LLAMA_MODELS_DIR + "/huihui-qwen3.5-9b-Q4_K_M.gguf")
-	# var model_path := ProjectSettings.globalize_path("res://" + LLAMA_DIR + "/models/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
+	var exe_path := AppPaths.external_path(LLAMA_DIR + "/llama-server.exe")
+	# var model_path := AppPaths.external_path(LLAMA_MODELS_DIR + "/DeepSeek-R1-Distill-Llama-8B-Uncensored.Q4_K_M.gguf")
+	var model_path := AppPaths.external_path(LLAMA_MODELS_DIR + "/huihui-qwen3.5-9b-Q4_K_M.gguf")
+	# var model_path := AppPaths.external_path(LLAMA_DIR + "/models/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
 		return
@@ -220,7 +220,7 @@ func request_enhance(input: String) -> Dictionary:
 
 
 func _load_prompt(file_name: String) -> String:
-	var path := "%s/%s/%s" % [PROMPT_DIR, I18n.current_lang, file_name]
+	var path := AppPaths.external_path("%s/%s/%s" % [PROMPT_DIR, I18n.current_lang, file_name])
 	if not FileAccess.file_exists(path):
 		print_verbose("Prompt file not found for lang %s, falling back to en: %s" % [I18n.current_lang, path])
 		return ""
@@ -233,10 +233,10 @@ func _load_prompt(file_name: String) -> String:
 
 
 func _load_template(lang: String) -> String:
-	var path := "%s/%s/%s" % [PROMPT_DIR, lang, OUTPUT_JSON_TEMPLATE]
+	var path := AppPaths.external_path("%s/%s/%s" % [PROMPT_DIR, lang, OUTPUT_JSON_TEMPLATE])
 	if not FileAccess.file_exists(path):
 		# Fallback to en
-		path = "%s/en/%s" % [PROMPT_DIR, OUTPUT_JSON_TEMPLATE]
+		path = AppPaths.external_path("%s/en/%s" % [PROMPT_DIR, OUTPUT_JSON_TEMPLATE])
 		if not FileAccess.file_exists(path):
 			return ""
 	var file := FileAccess.open(path, FileAccess.READ)
