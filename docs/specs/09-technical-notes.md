@@ -2,69 +2,89 @@
 
 ## 9.1 llama.cpp API
 
-- Health check endpoint: `GET http://127.0.0.1:<port>/health`
-- Chat endpoint: `POST http://127.0.0.1:<port>/v1/chat/completions`
-- Default port: **48763** (configurable via LLM Settings overlay)
-- Model: configurable, ≤9B parameter models.
-- System prompt forces JSON output with the scene schema.
-- Conversation history includes: system prompt + state object + last N scene exchanges.
+- Health: `GET http://127.0.0.1:<port>/health` (`HTTPClient`, 5s timeout, `scripts/llm_manager.gd:72`)
+- Chat: `POST http://127.0.0.1:<port>/v1/chat/completions` with `{"messages":[{"role":"user","content":prompt}], "stream":false, "thinking":false, "cache_prompt":false, "chat_template_kwargs":{"enable_thinking":false}}` (`HTTPRequest`, 120s timeout, `scripts/llm_manager.gd:370`)
+- Default port **48763** (configurable via LLM Settings → `user://llm_settings.json`).
+- Model ≤9B GGUF invoked as `llama-server.exe -c 0 -ngl 99 -m <gguf> --port <port>` (`scripts/llm_manager.gd:42`).
+- Request queue: `ServerRuntimeManager.push_request("llm","generate gameplay",120.0)` / `pop_request` for overlay display.
+- JSON repair: `Gameplay._repair_llm_json_text` sanitizes `image_prompt` bare quotes before `JSON.parse`; title extracted before repair (`scripts/gameplay.gd:1046`, `scripts/llm_manager.gd:418`).
 
 ## 9.2 ComfyUI API
 
-- Health check endpoint: `GET http://127.0.0.1:<port>/system_stats`
-- Submit workflow: `POST http://127.0.0.1:<port>/prompt`
-- Default port: **56321** (configurable via Image Server Settings overlay)
-- Poll for completion or use websocket for image output.
-- Workflow template: `data/comfyui/workflow-template.json`
-- Workflow is a txt2img SDXL-compatible pipeline with prompt injection.
-
-### 9.2.1 Workflow Placeholders
-
-The workflow template uses the following placeholders, to be replaced at runtime before submission:
-
-| Placeholder | Node | Field | Description |
-|---|---|---|---|
-| `__MODEL_NAME__` | `1` (`CheckpointLoaderSimple`) | `inputs.ckpt_name` | Checkpoint filename (e.g. `waiIllustriousSDXL_v170.safetensors`) |
-| `__POSITIVE_PROMPT__` | `3` (`CLIPTextEncode`) | `inputs.text` | Positive prompt text |
-| `__NEGATIVE_PROMPT__` | `6` (`CLIPTextEncode`) | `inputs.text` | Negative prompt text |
-| `__SEED__` | `2` (`KSampler`) | `inputs.seed` | Random seed for reproducibility |
-| `__FILENAME_PREFIX__` | `5` (`SaveImage`) | `inputs.filename_prefix` | Output filename prefix |
-
-### 9.2.2 Request Structure
+- Health: `GET http://127.0.0.1:<port>/system_stats` (`scripts/image_server_manager.gd:55`)
+- Submit: `POST http://127.0.0.1:<port>/prompt` with workflow dict
+- History: `GET http://127.0.0.1:<port>/history/<prompt_id>` (poll 0.5s, 120 attempts, `scripts/image_server_manager.gd:274`)
+- View: `GET http://127.0.0.1:<port>/view?filename=&subfolder=&type=` (binary download to `user://saves/<uuid>/images/`, `scripts/image_server_manager.gd:327`)
+- Default port **56321**.
+- Workflow template: `data/comfyui/workflow_template.json` (note underscore, not hyphen).
+- Workflow wrapper:
 
 ```json
 {
   "client_id": "instant-visual-novel",
-  "prompt": { ... },
+  "prompt": { "1": {...}, "2": {...}, ... },
   "extra_data": {}
 }
 ```
 
-- `client_id`: identifies this app; used to filter history.
-- `prompt`: the ComfyUI node graph (keyed by node ID).
-- `extra_data`: reserved for future use.
+### 9.2.1 Workflow Placeholders
+
+| Placeholder | Node | Field | Replaced By |
+|---|---|---|---|
+| `__MODEL_FILENAME__` / `__MODEL_NAME__` | `1` CheckpointLoaderSimple | `ckpt_name` | `ImageServerSettingsManager.settings.model_filename` or `waiIllustriousSDXL_v170.safetensors` |
+| `__POSITIVE_PROMPT__` | `3` CLIPTextEncode | `text` | `"score_9, score_8_up, score_7_up, masterpiece, ${image_prompt}"` |
+| `__NEGATIVE_PROMPT__` | `6` CLIPTextEncode | `text` | `"(white_skin:1.5), ${negative_prompt}"` (free vs safe file) |
+| `__SEED__` | `2` KSampler | `seed` | random int |
+| `__FILENAME_PREFIX__` | `5` SaveImage | `filename_prefix` | `"SN"` |
+| `__IMAGE_WIDTH__` / `__IMAGE_HEIGHT__` | `7` EmptyLatentImage | `width/height` | `GameSettingsManager.settings.image_width/height` |
+
+### 9.2.2 Negative Prompt Files
+
+`_load_negative_prompt()` (`scripts/image_server_manager.gd:170`) — free vs safe switch, with typo aliases `free_negatvie_prompt`:
+
+- Safe: `res://data/comfyui/safe_negative_prompt` (content: `(nude:1.5), (blood:1.5)`)
+- Free: `res://data/comfyui/free_negatvie_prompt` / `free_negative_prompt`
+
+### 9.2.3 Request Structure
+
+```gdscript
+var workflow_text = FileAccess.get_as_text(WORKFLOW_TEMPLATE_PATH)
+workflow_text = workflow_text.replace("__MODEL_FILENAME__", …) // etc.
+var workflow_dict = JSON.parse_string(workflow_text)
+_fix_comfy_workflow_dict(workflow_dict, seed_val)
+var prompt_id = await _queue_comfy_prompt(workflow_dict)
+var image_info = await _poll_comfy_history(prompt_id)
+var save_path = await _download_comfy_image(filename, subfolder, type, uuid)
+```
 
 ## 9.3 Server Lifecycle Management
 
-- **ServerRuntimeManager** coordinates both servers:
-  - Reconciles stale persisted state on startup (resets pid/running/healthy).
-  - Starts both servers on app launch.
-  - Runs 15-second heartbeat health checks.
-  - Adds `ServerStatusOverlay` to the scene tree.
-  - Shuts down owned processes on exit (`taskkill /T /F /PID` on Windows).
-- **LLMManager** / **ImageServerManager** manage individual processes:
-  - Status persisted to `user://llm_status.json` / `user://image_server_status.json`.
-  - llama.cpp started via `server/llama/llama-server.exe` with `--host` and `--port` flags.
-  - ComfyUI started via `server/ComfyUI/ComfyUI_windows_portable/python_embeded/python.exe -s ComfyUI/main.py --port <port> --windows-standalone-build --disable-auto-launch`.
+- **ServerRuntimeManager** (`scripts/server_runtime_manager.gd:1`):
+  - `_reconcile_stale_state()` on `_ready` resets `pid=-1, running=false, healthy=false` for both managers.
+  - Copies default `game_progress.json` / `game_settings.json` to `user://` if missing (handles typo `default_game_progess.json` fallback).
+  - `_start_servers()` launches both via managers; records `_llm_started_this_session` / `_image_started_this_session`.
+  - Heartbeat: `Timer` 8.0s interval (`HEARTBEAT_INTERVAL`) + 2.0s initial delay (`INITIAL_CHECK_DELAY`), calls `health_check()` on both.
+  - `ServerStatusOverlay` added deferred to `get_tree().root`.
+  - `set_chrome_visible` and `request_queue` signals drive overlay.
+  - On `_exit_tree` / `WM_CLOSE_REQUEST` kills owned processes via `taskkill /T /F /PID` (Windows).
+- **LLMManager / ImageServerManager**: status persisted to `user://*_status.json`; started via `OS.create_process` (llama: `llama-server.exe -c 0 -ngl 99 …`; ComfyUI: `python_embeded/python.exe -s ComfyUI/main.py --port <port> --windows-standalone-build --disable-auto-launch`).
+- Health uses `HTTPClient` raw polling with frame-await loop and timeout accounting (`get_process_delta_time()`).
 
 ## 9.4 Display
 
-- Viewport: 1920x1080, `canvas_items` stretch mode.
-- Two display modes: fullscreen, or windowed at 1344x768.
-- Rendering method: GL Compatibility.
-- UI elements use Godot anchors/containers for layout.
+- Viewport 1920×1080, `canvas_items` stretch, `gl_compatibility` renderer (`project.godot:25-36`).
+- Two display modes: fullscreen vs windowed 1344×768 centered (`GameSettingsManager._apply_screen_size`, `scripts/game_settings_manager.gd:67`).
+- Theme: `res://data/theme.tres`.
 
-## 9.5 Image Storage
+## 9.5 Image & Save Storage
 
-- Generated images saved to `user://generated_images/<scene_id>.png`
-- Referenced by path in save data and scene data.
+- `user://saves/<uuid>/images/<filename>` — ComfyUI outputs.
+- `user://saves/<uuid>/sounds/tts_<idx>_<hash>.wav` — Sherpa outputs.
+- `scene_data.json` references both by `image_filenames[]` + `current_image_index` and `interactions[].sound_filename`.
+- Loading uses `ProjectSettings.globalize_path` + `Image.load` → `ImageTexture.create_from_image`; failure falls back to placeholder.
+
+## 9.6 TTS Internals
+
+- `_synthesize` (`scripts/tts_manager.gd:272`) writes `user://tmp_tts_<id>.txt` (UTF-8 dialogue with CJK punctuation normalized via `_normalize_tts_punctuation`) and `user://tmp_tts_<id>.ps1`, then `OS.create_process("powershell", ["-NoProfile","-ExecutionPolicy","Bypass","-File",ps1])` polling `OS.is_process_running(pid)`. Cleanup deletes temp files. Rate-limited by 6s timer between queue items (`scripts/tts_manager.gd:211`).
+- Model resolution by `language`/`sex` (`scripts/tts_manager.gd:39`), with `espeak-ng-data` vs `lexicon + rule.fst` branching.
+- Queue dedup: same `uuid+idx` enqueued replaces previous entry (`scripts/tts_manager.gd:152`).

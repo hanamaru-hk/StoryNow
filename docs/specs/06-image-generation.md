@@ -2,52 +2,64 @@
 
 ## 6.1 ComfyUI Integration
 
-- **One image per scene** — a single illustration per beat, not panels or character sprites.
-- Godot sends an HTTP request to ComfyUI's API with the `scenePrompt` from the LLM output.
-- ComfyUI workflow: **txt2img pipeline** defined in `data/comfyui/workflow-template.json`.
-- Image is returned as a file/stream, saved locally, and displayed in the scene.
+- **One image per scene** (plus user can generate more and cycle via carousel).
+- `Gameplay._execute_new_story_flow` / `_execute_new_scene_flow` calls `_generate_comfyui_image` → `ImageServerManager.generate_scene_image(image_prompt, uuid)` after LLM succeeds (`scripts/gameplay.gd:417`).
+- Image prompt also editable via `ImageOverlay` (free mode) and triggers a new generation.
 
 ## 6.2 Workflow Template
 
-The workflow is a standard txt2img pipeline (SDXL-compatible) with the following placeholder-injected fields:
+`data/comfyui/workflow_template.json` — standard SDXL txt2img pipeline:
 
 | Placeholder | Node | Field | Description |
 |---|---|---|---|
-| `__MODEL_NAME__` | `1` (`CheckpointLoaderSimple`) | `inputs.ckpt_name` | Checkpoint filename (e.g. `waiIllustriousSDXL_v170.safetensors`) |
-| `__POSITIVE_PROMPT__` | `3` (`CLIPTextEncode`) | `inputs.text` | Positive prompt text (from `scenePrompt`) |
-| `__NEGATIVE_PROMPT__` | `6` (`CLIPTextEncode`) | `inputs.text` | Negative prompt text |
-| `__SEED__` | `2` (`KSampler`) | `inputs.seed` | Random seed for reproducibility |
-| `__FILENAME_PREFIX__` | `5` (`SaveImage`) | `inputs.filename_prefix` | Output filename prefix |
+| `__MODEL_FILENAME__` / `__MODEL_NAME__` | `1` (`CheckpointLoaderSimple`) | `inputs.ckpt_name` | Checkpoint filename from `ImageServerSettingsManager.settings.model_filename` (default `waiIllustriousSDXL_v170.safetensors`) |
+| `__POSITIVE_PROMPT__` | `3` (`CLIPTextEncode`) | `inputs.text` | `"score_9, score_8_up, score_7_up, masterpiece, ${image_prompt}"` |
+| `__NEGATIVE_PROMPT__` | `6` (`CLIPTextEncode`) | `inputs.text` | `"(white_skin:1.5), ${safe/free_negative_prompt}"` loaded in `scripts/image_server_manager.gd:170` |
+| `__SEED__` | `2` (`KSampler`) | `inputs.seed` | Random 0–2147483647 |
+| `__FILENAME_PREFIX__` | `5` (`SaveImage`) | `inputs.filename_prefix` | `"SN"` (`FILENAME_PREFIX`) |
+| `__IMAGE_WIDTH__` / `__IMAGE_HEIGHT__` | `7` (`EmptyLatentImage`) | `inputs.width/height` | From `GameSettingsManager.settings.image_width/height` (defaults `1344` / `768`) |
 
 ### Pipeline Nodes
 
-1. `CheckpointLoaderSimple` → loads model checkpoint
-2. `KSampler` → samples with 25 steps, cfg=4, dpmpp_2m_sde_gpu sampler, simple scheduler
-3. `CLIPTextEncode` (positive) → encodes positive prompt
-4. `CLIPTextEncode` (negative) → encodes negative prompt
-5. `EmptyLatentImage` → 1280x1024 latent canvas
-6. `VAEDecode` → decodes latent to pixel image
-7. `SaveImage` → saves output
+1. `CheckpointLoaderSimple` (1) → model + clip + vae
+2. `EmptyLatentImage` (7) → latent 1344×768 (configurable)
+3. `CLIPTextEncode` positive (3) / negative (6)
+4. `KSampler` (2) → 25 steps, cfg 4, `dpmpp_2m_sde_gpu`, `simple` scheduler
+5. `VAEDecode` (4)
+6. `SaveImage` (5)
 
-## 6.3 Image Display
+`_fix_comfy_workflow_dict` (`scripts/image_server_manager.gd:196`) normalizes `SaveImage` images slot, casts `seed`/`width`/`height`/`batch_size` and link tuples to correct types.
 
-- **Layered with transitions** — images are displayed full-screen as scene backgrounds with fade/slide transitions between them.
-- No character sprite separation — the image IS the scene illustration.
+## 6.3 Generation Pipeline
 
-## 6.4 Character Consistency
+`generate_scene_image` (`scripts/image_server_manager.gd:375`):
 
-- **Not a priority** — accept visual inconsistency between scenes. The story quality matters more.
+1. `ServerRuntimeManager.push_request("image", …, 120s)` for queue visibility.
+2. Load template → replace placeholders → JSON parse → `_fix_comfy_workflow_dict`.
+3. `_queue_comfy_prompt` → `POST http://127.0.0.1:<port>/prompt` → `prompt_id`.
+4. `_poll_comfy_history` → `GET /history/<prompt_id>` polling (0.5s interval, ≤120 attempts) → first `images[0]` (checks `outputs["5"]` fallback).
+5. `_download_comfy_image` → `GET /view?filename=&subfolder=&type=` → save to `user://saves/<uuid>/images/<filename>` (creates dirs).
+6. Return `{success, save_path, filename, prompt, seed}`; `pop_request`.
 
-## 6.5 Generation Timing
+On success, `Gameplay` appends `filename` to `scene_data["image_filenames"]`, sets `current_image_index` to tail, `save()`, and `_set_background_from_file` (`scripts/gameplay.gd:441`). `ImageOverlay` duplicates this flow standalone.
 
-- **Sequential** — scene text (LLM) generates first (we need the `scenePrompt` for ComfyUI), then image generation follows.
-- Show a loading/transition state while the image generates.
+## 6.4 Image Display
+
+- `%BackgroundImage` (`TextureRect`) shows the active image; default placeholder is `res://assets/images/loading.png` at 50% opacity (`scripts/gameplay.gd:155`).
+- `_load_current_scene_image` scans `user://saves/<uuid>/images/` sorted filenames, clamps `current_image_index`, loads via `Image.load(global_path)` → `ImageTexture`.
+- **Image carousel:** `ImageActionOverlay` (New / Change) → `ImageChangeOverlay` with Prev/Next/Save shows `user://saves/<uuid>/images/` browsing; `current_image_index` persisted on Save (`scripts/gameplay.gd:703-775`).
+
+## 6.5 Character Consistency
+
+- Not a priority — accept inconsistency across scenes.
 
 ## 6.6 Implementation Status
 
 | Component | Status |
 |-----------|--------|
-| ComfyUI workflow template | ✅ Implemented (`data/comfyui/workflow-template.json`) |
-| ComfyUI server lifecycle (start/stop/health) | ✅ Implemented |
-| ComfyUI API call for image generation | ❌ Not yet implemented |
-| Image display in VN scene | ❌ Not yet implemented |
+| ComfyUI workflow template | ✅ `data/comfyui/workflow_template.json` |
+| ComfyUI server lifecycle (start/stop/health) | ✅ `scripts/image_server_manager.gd:1` |
+| ComfyUI API call (queue, poll, download) | ✅ `scripts/image_server_manager.gd:375` |
+| Image display + placeholder | ✅ `scripts/gameplay.gd:155-495` |
+| Image carousel / change overlay | ✅ `scripts/gameplay.gd:703` + `scenes/gameplay.tscn` |
+| Free-mode prompt editing | ✅ `scripts/image_overlay.gd:1` |
