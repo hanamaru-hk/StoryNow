@@ -97,6 +97,21 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "On"
 
+[node name="ShowStreamingRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ShowStreamingLabel" type="Label" parent="CenterContainer/VBoxContainer/ShowStreamingRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Show streaming"
+
+[node name="ShowStreamingCheck" type="CheckButton" parent="CenterContainer/VBoxContainer/ShowStreamingRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "On"
+
 [node name="Spacer2" type="Control" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 16)

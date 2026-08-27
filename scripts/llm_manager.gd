@@ -454,6 +454,8 @@ func _request_completion_stream(port: int, body: String, queue_id: int, request_
 	var buffer := ""
 	var token_count := 0
 	var last_update_msec := 0
+	var stream_preview := ""
+	var show_streaming := bool(GameSettingsManager.settings.get("show_streaming", true))
 	while http.get_status() == HTTPClient.STATUS_BODY:
 		http.poll()
 		var chunk := http.read_response_body_chunk()
@@ -467,17 +469,38 @@ func _request_completion_stream(port: int, body: String, queue_id: int, request_
 		buffer += chunk.get_string_from_utf8()
 		var parsed := _consume_stream_events(buffer)
 		buffer = str(parsed.get("buffer", ""))
-		content += str(parsed.get("content", ""))
+		var streamed_content := str(parsed.get("content", ""))
+		content += streamed_content
 		token_count += int(parsed.get("tokens", 0))
+		if show_streaming and not streamed_content.is_empty():
+			stream_preview = _append_stream_preview(stream_preview, streamed_content)
 		if token_count > 0 and Time.get_ticks_msec() - last_update_msec > 200:
 			last_update_msec = Time.get_ticks_msec()
-			ServerRuntimeManager.update_request(queue_id, {
+			var update := {
 				"status": "%ds" % int((Time.get_ticks_msec() - started_at_msec) / 1000.0),
 				"tokens": token_count,
-			})
+			}
+			if show_streaming:
+				update["stream_text"] = stream_preview
+			ServerRuntimeManager.update_request(queue_id, update)
 
 	http.close()
 	return {"success": true, "content": content}
+
+
+func _append_stream_preview(current: String, piece: String) -> String:
+	var preview := current
+	for i in range(piece.length()):
+		var character := piece.substr(i, 1)
+		if character == "\n":
+			preview = ""
+			continue
+		if character == "\r":
+			continue
+		preview += character
+		if preview.length() > 20:
+			preview = preview.substr(preview.length() - 20)
+	return preview
 
 
 func _consume_stream_events(buffer: String) -> Dictionary:

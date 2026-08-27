@@ -13,6 +13,8 @@ func _ready() -> void:
 	%ScreenSizeOption.item_selected.connect(_on_screen_size_selected)
 	if has_node("%AutoplayCheck"):
 		%AutoplayCheck.toggled.connect(_on_autoplay_toggled)
+	if has_node("%ShowStreamingCheck"):
+		%ShowStreamingCheck.toggled.connect(_on_show_streaming_toggled)
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -62,6 +64,12 @@ func _on_screen_size_selected(index: int) -> void:
 
 func _on_autoplay_toggled(pressed: bool) -> void:
 	_pending["autoplay_tts"] = pressed
+	_update_labels()
+
+
+func _on_show_streaming_toggled(pressed: bool) -> void:
+	_pending["show_streaming"] = pressed
+	_update_labels()
 
 
 func _sync_ui_to_settings() -> void:
@@ -75,6 +83,9 @@ func _sync_ui_to_settings() -> void:
 	if has_node("%AutoplayCheck"):
 		%AutoplayCheck.button_pressed = bool(_pending.get("autoplay_tts", true))
 		%AutoplayCheck.text = I18n.translate("settings_on") if bool(_pending.get("autoplay_tts", true)) else I18n.translate("settings_off")
+	if has_node("%ShowStreamingCheck"):
+		%ShowStreamingCheck.button_pressed = bool(_pending.get("show_streaming", true))
+		%ShowStreamingCheck.text = I18n.translate("settings_on") if bool(_pending.get("show_streaming", true)) else I18n.translate("settings_off")
 
 
 func _update_labels() -> void:
@@ -85,6 +96,10 @@ func _update_labels() -> void:
 		%AutoplayLabel.text = I18n.translate("settings_autoplay_tts") if I18n.translate("settings_autoplay_tts") != "settings_autoplay_tts" else "Auto-play TTS"
 	if has_node("%AutoplayCheck"):
 		%AutoplayCheck.text = I18n.translate("settings_on") if %AutoplayCheck.button_pressed else I18n.translate("settings_off")
+	if has_node("%ShowStreamingLabel"):
+		%ShowStreamingLabel.text = I18n.translate("settings_show_streaming") if I18n.translate("settings_show_streaming") != "settings_show_streaming" else "Show streaming"
+	if has_node("%ShowStreamingCheck"):
+		%ShowStreamingCheck.text = I18n.translate("settings_on") if %ShowStreamingCheck.button_pressed else I18n.translate("settings_off")
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")

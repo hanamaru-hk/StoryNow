@@ -7,6 +7,7 @@ var settings := {
 	"language": "en",
 	"screen_size": "full",
 	"autoplay_tts": true,
+	"show_streaming": true,
 }
 
 

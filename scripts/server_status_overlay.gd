@@ -69,10 +69,15 @@ func _make_queue_row(item: Dictionary) -> Control:
 	style.content_margin_bottom = 5
 	panel.add_theme_stylebox_override("panel", style)
 
+	var stack := VBoxContainer.new()
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.add_theme_constant_override("separation", 4)
+	panel.add_child(stack)
+
 	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 8)
-	panel.add_child(row)
+	stack.add_child(row)
 
 	var label := Label.new()
 	var label_text := str(item.get("label", "Request"))
@@ -94,6 +99,17 @@ func _make_queue_row(item: Dictionary) -> Control:
 	var circle := TimeoutCircle.new()
 	circle.set_request_item(item)
 	row.add_child(circle)
+
+	var stream_text := str(item.get("stream_text", ""))
+	if not stream_text.is_empty():
+		var stream := RichTextLabel.new()
+		stream.bbcode_enabled = false
+		stream.fit_content = true
+		stream.scroll_active = false
+		stream.custom_minimum_size = Vector2(0, 22)
+		stream.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stream.text = stream_text
+		stack.add_child(stream)
 	return panel
 
 
