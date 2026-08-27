@@ -75,11 +75,21 @@ func _make_queue_row(item: Dictionary) -> Control:
 	panel.add_child(row)
 
 	var label := Label.new()
-	label.text = str(item.get("label", "Request"))
+	var label_text := str(item.get("label", "Request"))
+	var tokens := int(item.get("tokens", 0))
+	if tokens > 0:
+		label_text = "%s (%d)" % [label_text, tokens]
+	label.text = label_text
 	label.clip_text = true
 	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(label)
+
+	var status := Label.new()
+	status.text = str(item.get("status", ""))
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	status.custom_minimum_size = Vector2(86, 0)
+	row.add_child(status)
 
 	var circle := TimeoutCircle.new()
 	circle.set_request_item(item)

@@ -154,6 +154,17 @@ func pop_request(request_id: int) -> void:
 			return
 
 
+func update_request(request_id: int, patch: Dictionary) -> void:
+	for index in range(request_queue.size()):
+		var item: Dictionary = request_queue[index]
+		if int(item.get("id", -1)) == request_id:
+			for key in patch.keys():
+				item[key] = patch[key]
+			request_queue[index] = item
+			request_queue_changed.emit(request_queue.duplicate(true))
+			return
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		get_tree().quit()

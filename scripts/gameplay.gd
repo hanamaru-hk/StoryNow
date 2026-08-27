@@ -1155,7 +1155,7 @@ func _handle_new_story() -> bool:
 			print_verbose("Failed to parse JSON: %s" % error_string(err))
 			print_verbose("Failed to parse JSON: %s" % raw_text.substr(0, 300))
 			_pending_retry_action = "new_story"
-			show_error(I18n.translate("error_llm_invalid_json") % raw_text.substr(0, 300), true)
+			show_error(I18n.translate("error_llm_invalid_json") , true)
 			return false
 	var llm_data: Dictionary = json.data as Dictionary
 
@@ -1217,7 +1217,7 @@ func _handle_new_scene() -> bool:
 			print_verbose("Failed to parse JSON (scene): %s" % error_string(err))
 			print_verbose("Failed to parse JSON (scene): %s" % raw_text.substr(0, 300))
 			_pending_retry_action = "new_scene"
-			show_error(I18n.translate("error_llm_invalid_json") % raw_text.substr(0, 300), true)
+			show_error(I18n.translate("error_llm_invalid_json"), true)
 			return false
 	var llm_data: Dictionary = json.data as Dictionary
 	print_verbose("Parsed scene llm_data image_prompt: '%s'" % str(llm_data.get("image_prompt", "<missing>")))

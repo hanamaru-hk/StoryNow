@@ -371,49 +371,21 @@ func request_new_scene() -> Dictionary:
 func _request_completion(prompt: String) -> Dictionary:
 	var request_timeout: float = float(LLMSettingsManager.settings.get("timeout", DEFAULT_BRAINSTORM_TIMEOUT))
 	var queue_id := ServerRuntimeManager.push_request("llm", I18n.translate("request_generating_gameplay"), request_timeout)
-	var http := HTTPRequest.new()
-	http.timeout = request_timeout
-	add_child(http)
 	var port: int = LLMSettingsManager.settings["port"]
-	var url := "http://%s:%d%s" % [LLM_HOST, port, CHAT_ENDPOINT]
 	var body := JSON.stringify({
 		"messages": [{"role": "user", "content": prompt}],
-		"stream": false,
+		"stream": true,
 		"thinking": false,
 		"cache_prompt": false,
 		"chat_template_kwargs": {
 		    "enable_thinking": false
   		},
 	})
-	var headers := PackedStringArray(["Content-Type: application/json"])
-	var request_error := http.request(url, headers, HTTPClient.METHOD_POST, body)
-	if request_error != OK:
-		http.queue_free()
+	var stream_result := await _request_completion_stream(port, body, queue_id, request_timeout)
+	if not stream_result.get("success", false):
 		ServerRuntimeManager.pop_request(queue_id)
-		return {"success": false, "error": "Failed to send request"}
-	var result: Array = await http.request_completed
-	http.queue_free()
-	var result_code: int = result[0]
-	if result_code != HTTPRequest.RESULT_SUCCESS:
-		ServerRuntimeManager.pop_request(queue_id)
-		if result_code == HTTPRequest.RESULT_TIMEOUT:
-			return {"success": false, "error": "Request timed out"}
-		return {"success": false, "error": "Request failed"}
-	var response_code: int = result[1]
-	if response_code < 200 or response_code >= 300:
-		ServerRuntimeManager.pop_request(queue_id)
-		return {"success": false, "error": "HTTP %d" % response_code}
-	var response_body: PackedByteArray = result[3]
-	var json := JSON.new()
-	if json.parse(response_body.get_string_from_utf8()) != OK or json.data is not Dictionary:
-		ServerRuntimeManager.pop_request(queue_id)
-		return {"success": false, "error": "Invalid response"}
-	var choices: Array = json.data.get("choices", [])
-	if choices.is_empty():
-		ServerRuntimeManager.pop_request(queue_id)
-		return {"success": false, "error": "Empty response"}
-	var message: Dictionary = choices[0].get("message", {})
-	var content: String = message.get("content", "")
+		return {"success": false, "error": str(stream_result.get("error", "Request failed"))}
+	var content: String = str(stream_result.get("content", ""))
 	if content.strip_edges().is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Empty content"}
@@ -432,6 +404,117 @@ func _request_completion(prompt: String) -> Dictionary:
 		title = str((tmp_json.data as Dictionary).get("title", ""))
 	ServerRuntimeManager.pop_request(queue_id)
 	return {"success": true, "text": content, "title": title}
+
+
+func _request_completion_stream(port: int, body: String, queue_id: int, request_timeout: float) -> Dictionary:
+	var http := HTTPClient.new()
+	var error := http.connect_to_host(LLM_HOST, port)
+	if error != OK:
+		return {"success": false, "error": "Failed to connect"}
+
+	var started_at_msec := Time.get_ticks_msec()
+	var deadline_msec := started_at_msec + int(request_timeout * 1000.0)
+	while http.get_status() == HTTPClient.STATUS_CONNECTING or http.get_status() == HTTPClient.STATUS_RESOLVING:
+		http.poll()
+		if Time.get_ticks_msec() > deadline_msec:
+			http.close()
+			return {"success": false, "error": "Request timed out"}
+		await get_tree().process_frame
+
+	if http.get_status() != HTTPClient.STATUS_CONNECTED:
+		http.close()
+		return {"success": false, "error": "Failed to connect"}
+
+	var headers := PackedStringArray([
+		"Content-Type: application/json",
+		"Accept: text/event-stream",
+	])
+	error = http.request(HTTPClient.METHOD_POST, CHAT_ENDPOINT, headers, body)
+	if error != OK:
+		http.close()
+		return {"success": false, "error": "Failed to send request"}
+
+	while http.get_status() == HTTPClient.STATUS_REQUESTING:
+		http.poll()
+		if Time.get_ticks_msec() > deadline_msec:
+			http.close()
+			return {"success": false, "error": "Request timed out"}
+		await get_tree().process_frame
+
+	if not http.has_response():
+		http.close()
+		return {"success": false, "error": "No response"}
+
+	var response_code := http.get_response_code()
+	if response_code < 200 or response_code >= 300:
+		http.close()
+		return {"success": false, "error": "HTTP %d" % response_code}
+
+	var content := ""
+	var buffer := ""
+	var token_count := 0
+	var last_update_msec := 0
+	while http.get_status() == HTTPClient.STATUS_BODY:
+		http.poll()
+		var chunk := http.read_response_body_chunk()
+		if chunk.is_empty():
+			if Time.get_ticks_msec() > deadline_msec:
+				http.close()
+				return {"success": false, "error": "Request timed out"}
+			await get_tree().process_frame
+			continue
+
+		buffer += chunk.get_string_from_utf8()
+		var parsed := _consume_stream_events(buffer)
+		buffer = str(parsed.get("buffer", ""))
+		content += str(parsed.get("content", ""))
+		token_count += int(parsed.get("tokens", 0))
+		if token_count > 0 and Time.get_ticks_msec() - last_update_msec > 200:
+			last_update_msec = Time.get_ticks_msec()
+			ServerRuntimeManager.update_request(queue_id, {
+				"status": "%ds" % int((Time.get_ticks_msec() - started_at_msec) / 1000.0),
+				"tokens": token_count,
+			})
+
+	http.close()
+	return {"success": true, "content": content}
+
+
+func _consume_stream_events(buffer: String) -> Dictionary:
+	var content := ""
+	var token_count := 0
+	while true:
+		var separator := buffer.find("\n\n")
+		var separator_length := 2
+		if separator == -1:
+			separator = buffer.find("\r\n\r\n")
+			separator_length = 4
+		if separator == -1:
+			break
+		var event := buffer.substr(0, separator)
+		buffer = buffer.substr(separator + separator_length)
+		for raw_line in event.split("\n"):
+			var line := str(raw_line).strip_edges()
+			if not line.begins_with("data:"):
+				continue
+			var data := line.substr(5).strip_edges()
+			if data == "[DONE]":
+				continue
+			var json := JSON.new()
+			if json.parse(data) != OK or json.data is not Dictionary:
+				continue
+			var choices: Array = json.data.get("choices", [])
+			if choices.is_empty():
+				continue
+			var delta: Dictionary = choices[0].get("delta", {})
+			var raw_piece = delta.get("content", "")
+			if not (raw_piece is String):
+				continue
+			var piece := raw_piece as String
+			if not piece.is_empty():
+				content += piece
+				token_count += 1
+	return {"buffer": buffer, "content": content, "tokens": token_count}
 
 
 func requestScene() -> void:
