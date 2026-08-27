@@ -376,7 +376,7 @@ func _download_comfy_image(filename: String, subfolder: String, img_type: String
 
 
 func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
-	var queue_id := ServerRuntimeManager.push_request("image", "generating image", 120.0)
+	var queue_id := ServerRuntimeManager.push_request("image", I18n.translate("request_generating_image"), 120.0)
 	var workflow_text := _load_workflow_template_text()
 	if workflow_text.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)

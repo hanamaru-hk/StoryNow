@@ -368,7 +368,7 @@ func request_new_scene() -> Dictionary:
 
 
 func _request_completion(prompt: String) -> Dictionary:
-	var queue_id := ServerRuntimeManager.push_request("llm", "generate gameplay", BRAINSTORM_TIMEOUT)
+	var queue_id := ServerRuntimeManager.push_request("llm", I18n.translate("request_generating_gameplay"), BRAINSTORM_TIMEOUT)
 	var http := HTTPRequest.new()
 	http.timeout = BRAINSTORM_TIMEOUT
 	add_child(http)

@@ -78,12 +78,12 @@ func _sync_ui_to_settings() -> void:
 
 
 func _update_labels() -> void:
-	%Title.text = "Advanced Settings"
-	%ExpectedRoundLabel.text = "Expected Round"
-	%MinDialogueRoundsLabel.text = "Minimum Dialogue Rounds"
-	%MinSentencesLabel.text = "Minimum Sentences per Dialogue"
-	%MaxPlotDirectionsLabel.text = "Maximum Plot Directions"
-	%MinSummaryLabel.text = "Minimum Summary Sentences"
-	%Back.text = "Back"
-	%Reset.text = "Reset"
-	%Save.text = "Save"
+	%Title.text = I18n.translate("game_progress_title")
+	%ExpectedRoundLabel.text = I18n.translate("game_progress_expected_round")
+	%MinDialogueRoundsLabel.text = I18n.translate("game_progress_min_dialogue_rounds")
+	%MinSentencesLabel.text = I18n.translate("game_progress_min_sentences")
+	%MaxPlotDirectionsLabel.text = I18n.translate("game_progress_max_plot_directions")
+	%MinSummaryLabel.text = I18n.translate("game_progress_min_summary")
+	%Back.text = I18n.translate("btn_back")
+	%Reset.text = I18n.translate("btn_reset")
+	%Save.text = I18n.translate("btn_save")

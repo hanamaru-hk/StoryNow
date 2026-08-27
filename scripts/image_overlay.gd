@@ -35,7 +35,7 @@ func _on_produce_pressed() -> void:
 		# Keep overlay open; show error via gameplay dialog if available
 		var parent_ctrl := get_parent()
 		if parent_ctrl and parent_ctrl.has_method("show_error"):
-			parent_ctrl.show_error("Image prompt is empty")
+			parent_ctrl.show_error(I18n.translate("image_prompt_empty"))
 		return
 	# Persist edited prompt when free mode (and also save for consistency)
 	SceneDataManager.scene_data["image_prompt"] = prompt_text
@@ -53,7 +53,7 @@ func _on_produce_pressed() -> void:
 	%ImagePromptInput.editable = GameSettingsManager.is_free_mode()
 
 	if not result.get("success", false):
-		var err_msg: String = str(result.get("error", "Failed to generate image"))
+		var err_msg: String = str(result.get("error", I18n.translate("error_failed_generate_image")))
 		var parent_ctrl2 := get_parent()
 		if parent_ctrl2 and parent_ctrl2.has_method("show_error"):
 			parent_ctrl2.show_error(err_msg)

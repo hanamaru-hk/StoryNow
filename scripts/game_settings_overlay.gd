@@ -74,7 +74,7 @@ func _sync_ui_to_settings() -> void:
 	%ScreenSizeOption.selected = size_index
 	if has_node("%AutoplayCheck"):
 		%AutoplayCheck.button_pressed = bool(_pending.get("autoplay_tts", true))
-		%AutoplayCheck.text = "On" if bool(_pending.get("autoplay_tts", true)) else "Off"
+		%AutoplayCheck.text = I18n.translate("settings_on") if bool(_pending.get("autoplay_tts", true)) else I18n.translate("settings_off")
 
 
 func _update_labels() -> void:
@@ -84,7 +84,7 @@ func _update_labels() -> void:
 	if has_node("%AutoplayLabel"):
 		%AutoplayLabel.text = I18n.translate("settings_autoplay_tts") if I18n.translate("settings_autoplay_tts") != "settings_autoplay_tts" else "Auto-play TTS"
 	if has_node("%AutoplayCheck"):
-		%AutoplayCheck.text = "On" if %AutoplayCheck.button_pressed else "Off"
+		%AutoplayCheck.text = I18n.translate("settings_on") if %AutoplayCheck.button_pressed else I18n.translate("settings_off")
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")

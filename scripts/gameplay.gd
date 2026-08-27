@@ -124,7 +124,7 @@ func _ready() -> void:
 				push_warning("Gameplay running: failed to load scene_data for uuid %s" % uuid_running)
 				_scene_data = SceneDataManager.scene_data
 				if _scene_data.is_empty():
-					show_error("Failed to load scene data: %s" % uuid_running)
+					show_error(I18n.translate("error_failed_load_scene_data") % uuid_running)
 			# Restore dialogue index from GameProgressManager
 			current_dialogue_index = int(GameProgressManager.settings.get("current_dialogue", 0))
 			_current_dialog_idx = current_dialogue_index
@@ -420,7 +420,7 @@ func _generate_comfyui_image() -> void:
 	var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))
 	var result: Dictionary = await ImageServerManager.generate_scene_image(image_prompt, uuid)
 	if not result.get("success", false):
-		show_error(str(result.get("error", "Failed to generate image")))
+		show_error(str(result.get("error", I18n.translate("error_failed_generate_image"))))
 		return
 	var save_path: String = str(result.get("save_path", ""))
 	var filename: String = str(result.get("filename", ""))
@@ -681,12 +681,12 @@ func _on_image_action_new_pressed() -> void:
 		# Fallback inline behavior if overlay not instanced
 		var prompt: String = str(SceneDataManager.scene_data.get("image_prompt", ""))
 		if prompt.strip_edges().is_empty():
-			show_error("Image prompt is empty")
+			show_error(I18n.translate("image_prompt_empty"))
 			return
 		var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))
 		var result: Dictionary = await ImageServerManager.generate_scene_image(prompt, uuid)
 		if not result.get("success", false):
-			show_error(str(result.get("error", "Failed to generate image")))
+			show_error(str(result.get("error", I18n.translate("error_failed_generate_image"))))
 			return
 		var save_path: String = str(result.get("save_path", ""))
 		var filename: String = str(result.get("filename", ""))
@@ -708,7 +708,7 @@ func _on_image_action_change_pressed() -> void:
 func _open_image_change_overlay() -> void:
 	var image_files := _get_scene_image_filenames()
 	if image_files.is_empty():
-		show_error("No saved images found for this scene")
+		show_error(I18n.translate("image_no_saved_for_scene"))
 		return
 	var current_index := int(SceneDataManager.scene_data.get("current_image_index", 0))
 	SceneDataManager.scene_data["current_image_index"] = clampi(current_index, 0, image_files.size() - 1)
@@ -720,7 +720,7 @@ func _refresh_image_change_overlay() -> void:
 	var image_files := _get_scene_image_filenames()
 	if image_files.is_empty():
 		%ImagePreview.texture = null
-		%ImageChangeLabel.text = "Image"
+		%ImageChangeLabel.text = I18n.translate("image_change_title")
 		%ImageChangePrev.disabled = true
 		%ImageChangeNext.disabled = true
 		%ImageChangeSave.disabled = true
@@ -738,7 +738,7 @@ func _refresh_image_change_overlay() -> void:
 		%ImagePreview.texture = ImageTexture.create_from_image(img)
 	else:
 		%ImagePreview.texture = null
-	%ImageChangeLabel.text = "Image %d / %d" % [current_index + 1, image_files.size()]
+	%ImageChangeLabel.text = I18n.translate("image_change_counter") % [current_index + 1, image_files.size()]
 	%ImageChangePrev.disabled = image_files.size() <= 1
 	%ImageChangeNext.disabled = image_files.size() <= 1
 	%ImageChangeSave.disabled = false
@@ -1134,7 +1134,7 @@ func _handle_new_story() -> bool:
 			print_verbose("Failed to parse JSON: %s" % error_string(err))
 			print_verbose("Failed to parse JSON: %s" % raw_text.substr(0, 300))
 			_pending_retry_action = "new_story"
-			show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300), true)
+			show_error(I18n.translate("error_llm_invalid_json") % raw_text.substr(0, 300), true)
 			return false
 	var llm_data: Dictionary = json.data as Dictionary
 
@@ -1196,7 +1196,7 @@ func _handle_new_scene() -> bool:
 			print_verbose("Failed to parse JSON (scene): %s" % error_string(err))
 			print_verbose("Failed to parse JSON (scene): %s" % raw_text.substr(0, 300))
 			_pending_retry_action = "new_scene"
-			show_error("LLM returned invalid JSON: " + raw_text.substr(0, 300), true)
+			show_error(I18n.translate("error_llm_invalid_json") % raw_text.substr(0, 300), true)
 			return false
 	var llm_data: Dictionary = json.data as Dictionary
 	print_verbose("Parsed scene llm_data image_prompt: '%s'" % str(llm_data.get("image_prompt", "<missing>")))
@@ -1443,7 +1443,7 @@ func _is_story_end() -> bool:
 
 
 func _story_end_message() -> String:
-	return "故事已完，如想繼續，請打下你希望的劇情"
+	return I18n.translate("story_end_message")
 
 
 func _generate_uuid() -> String:
