@@ -63,7 +63,7 @@ var save_path = await _download_comfy_image(filename, subfolder, type, uuid)
   - `_reconcile_stale_state()` on `_ready` resets `pid=-1, running=false, healthy=false` for both managers.
   - Copies default `game_progress.json` / `game_settings.json` to `user://` if missing (handles typo `default_game_progess.json` fallback).
   - `_start_servers()` launches both via managers; records `_llm_started_this_session` / `_image_started_this_session`.
-  - Heartbeat: `Timer` 8.0s interval (`HEARTBEAT_INTERVAL`) + 2.0s initial delay (`INITIAL_CHECK_DELAY`), calls `health_check()` on both.
+  - Heartbeat: `Timer` uses 2.0s while either service is not yet connected (`HEARTBEAT_NOT_CONNECTED_INTERVAL`) and 10.0s after both services are healthy (`HEARTBEAT_CONNECTED_INTERVAL`) + 2.0s initial delay (`INITIAL_CHECK_DELAY`), calls `health_check()` on both.
   - `ServerStatusOverlay` added deferred to `get_tree().root`.
   - `set_chrome_visible` and `request_queue` signals drive overlay.
   - On `_exit_tree` / `WM_CLOSE_REQUEST` kills owned processes via `taskkill /T /F /PID` (Windows).

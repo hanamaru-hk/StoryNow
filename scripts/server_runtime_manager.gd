@@ -11,7 +11,8 @@ signal image_state_changed(state: ServerState)
 signal chrome_visibility_changed(is_visible: bool)
 signal request_queue_changed(queue: Array)
 
-const HEARTBEAT_INTERVAL := 3.0
+const HEARTBEAT_NOT_CONNECTED_INTERVAL := 1.0
+const HEARTBEAT_CONNECTED_INTERVAL := 10.0
 const INITIAL_CHECK_DELAY := 2.0
 
 var llm_state := ServerState.STARTING
@@ -78,7 +79,7 @@ func _start_servers() -> void:
 
 func _start_heartbeat() -> void:
 	_heartbeat_timer = Timer.new()
-	_heartbeat_timer.wait_time = HEARTBEAT_INTERVAL
+	_heartbeat_timer.wait_time = _get_heartbeat_interval()
 	_heartbeat_timer.timeout.connect(_on_heartbeat)
 	add_child(_heartbeat_timer)
 	_heartbeat_timer.start()
@@ -102,6 +103,7 @@ func _add_overlay() -> void:
 func _on_heartbeat() -> void:
 	LLMManager.health_check()
 	ImageServerManager.health_check()
+	_update_heartbeat_interval()
 
 
 func _on_llm_status_changed(status: Dictionary) -> void:
@@ -116,12 +118,28 @@ func _set_llm_state(new_state: ServerState) -> void:
 	if new_state != llm_state:
 		llm_state = new_state
 		llm_state_changed.emit(llm_state)
+		_update_heartbeat_interval()
 
 
 func _set_image_state(new_state: ServerState) -> void:
 	if new_state != image_state:
 		image_state = new_state
 		image_state_changed.emit(image_state)
+		_update_heartbeat_interval()
+
+
+func _get_heartbeat_interval() -> float:
+	return HEARTBEAT_CONNECTED_INTERVAL if llm_state == ServerState.HEALTHY and image_state == ServerState.HEALTHY else HEARTBEAT_NOT_CONNECTED_INTERVAL
+
+
+func _update_heartbeat_interval() -> void:
+	if _heartbeat_timer == null:
+		return
+	var next_interval := _get_heartbeat_interval()
+	if is_equal_approx(_heartbeat_timer.wait_time, next_interval):
+		return
+	_heartbeat_timer.wait_time = next_interval
+	_heartbeat_timer.start()
 
 
 func set_chrome_visible(is_visible: bool) -> void:

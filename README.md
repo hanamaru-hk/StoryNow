@@ -12,7 +12,7 @@ AI-generated visual novel — Godot client that drives local **llama.cpp**, **Co
    - `data/llama-models/cen/huihui-qwen3.5-9b-Q4_K_M.gguf` (primary)
    - `server/ComfyUI/` (+ checkpoint `waiIllustriousSDXL_v170.safetensors` under `ComfyUI/models/checkpoints/`)
    - `server/sherpa-onnx/` for TTS models and Sherpa runtime libs (`powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1`; native Godot wrapper lives in `addons/sherpa_tts/`)
-3. **Open** `project.godot` in Godot, run. `ServerRuntimeManager` auto-starts both servers, heartbeat 8s, status dots top-right.
+3. **Open** `project.godot` in Godot, run. `ServerRuntimeManager` auto-starts both servers, heartbeat 2s until connected and 10s after connected, status dots top-right.
 4. **Play:** Start → (optional Random/Enhance) → Start → Gameplay (choices → next scene). Saves under `user://saves/<uuid>/` (`OS.get_user_data_dir()`).
 
 ## Defaults & Config
