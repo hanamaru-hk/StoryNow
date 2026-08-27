@@ -8,10 +8,12 @@ func _ready() -> void:
 	%Load.pressed.connect(_on_load_pressed)
 	%Gallery.pressed.connect(_on_gallery_pressed)
 	%Setting.pressed.connect(_on_setting_pressed)
-	%ImageSetting.pressed.connect(_on_image_server_setting_pressed)
-	%LLMSetting.pressed.connect(_on_llm_setting_pressed)
+	%AdvancedSetting.pressed.connect(_on_advanced_setting_pressed)
 	%Exit.pressed.connect(_on_exit_pressed)
 	%GameSettingsOverlay.closed.connect(_on_settings_closed)
+	%AdvancedSettingsOverlay.closed.connect(_on_settings_closed)
+	%AdvancedSettingsOverlay.image_settings_requested.connect(_on_image_server_setting_pressed)
+	%AdvancedSettingsOverlay.llm_settings_requested.connect(_on_llm_setting_pressed)
 	%ImageServerSettingsOverlay.closed.connect(_on_settings_closed)
 	%LLMSettingsOverlay.closed.connect(_on_settings_closed)
 	%FirstTimeLanguageOverlay.language_selected.connect(_on_first_time_language_selected)
@@ -39,6 +41,10 @@ func _on_gallery_pressed() -> void:
 
 func _on_setting_pressed() -> void:
 	%GameSettingsOverlay.open()
+
+
+func _on_advanced_setting_pressed() -> void:
+	%AdvancedSettingsOverlay.open()
 
 
 func _on_image_server_setting_pressed() -> void:
@@ -71,7 +77,6 @@ func _update_labels() -> void:
 	%Load.text = I18n.translate("btn_load")
 	%Gallery.text = I18n.translate("btn_gallery")
 	%Setting.text = I18n.translate("btn_game_setting")
-	%ImageSetting.text = I18n.translate("btn_image_server_setting")
-	%LLMSetting.text = I18n.translate("btn_llm_setting")
+	%AdvancedSetting.text = I18n.translate("btn_advanced_setting")
 	%Exit.text = I18n.translate("btn_exit")
 	$CenterContainer/VBoxContainer/Title.text = I18n.translate("main_title")
