@@ -17,6 +17,8 @@ func _ready() -> void:
 	ServerRuntimeManager.image_state_changed.connect(_on_image_state_changed)
 	ServerRuntimeManager.chrome_visibility_changed.connect(_on_chrome_visibility_changed)
 	ServerRuntimeManager.request_queue_changed.connect(_on_request_queue_changed)
+	if I18n.has_signal("language_changed"):
+		I18n.language_changed.connect(_on_language_changed)
 	_apply_llm(ServerRuntimeManager.llm_state)
 	_apply_image(ServerRuntimeManager.image_state)
 	_on_chrome_visibility_changed(ServerRuntimeManager.chrome_visible)
@@ -30,6 +32,15 @@ func _on_llm_state_changed(state: ServerRuntimeManager.ServerState) -> void:
 
 func _on_image_state_changed(state: ServerRuntimeManager.ServerState) -> void:
 	_apply_image(state)
+
+
+func _on_language_changed(_lang: String) -> void:
+	_update_labels()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		_update_labels()
 
 
 func _on_chrome_visibility_changed(is_visible: bool) -> void:
@@ -147,7 +158,7 @@ func _color_for(state: ServerRuntimeManager.ServerState) -> Color:
 func _update_labels() -> void:
 	if has_node("%LLMLabel"):
 		var t_llm: String = I18n.translate("server_llm")
-		%LLMLabel.text = t_llm if t_llm != "server_llm" else "LLM"
+		%LLMLabel.text = t_llm if t_llm != "server_llm" else "LLM Engine"
 	if has_node("%ImageLabel"):
 		var t_img: String = I18n.translate("server_image")
-		%ImageLabel.text = t_img if t_img != "server_image" else "Image"
+		%ImageLabel.text = t_img if t_img != "server_image" else "Image Engine"

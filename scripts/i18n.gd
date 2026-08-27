@@ -3,6 +3,8 @@ extends Node
 const LANGUAGES := ["en", "zh_CN", "zh_TW", "yue"]
 const DEFAULT_LANG := "en"
 
+signal language_changed(new_lang: String)
+
 var current_lang: String = DEFAULT_LANG
 
 var _translations := {
@@ -117,8 +119,8 @@ var _translations := {
 		"generating_gameplay": "Generating the gameplay...",
 		"image_action_new": "New",
 		"image_action_change": "Change",
-		"server_llm": "LLM",
-		"server_image": "Image",
+		"server_llm": "LLM Engine",
+		"server_image": "Image Engine",
 		"gallery_empty": "No saves found",
 	},
 	"zh_CN": {
@@ -232,8 +234,8 @@ var _translations := {
 		"generating_gameplay": "正在生成剧情...",
 		"image_action_new": "新建",
 		"image_action_change": "更换",
-		"server_llm": "LLM",
-		"server_image": "图像",
+		"server_llm": "LLM引擎",
+		"server_image": "图像引擎",
 		"gallery_empty": "没有存档",
 	},
 	"zh_TW": {
@@ -347,8 +349,8 @@ var _translations := {
 		"generating_gameplay": "正在生成劇情...",
 		"image_action_new": "新建",
 		"image_action_change": "更換",
-		"server_llm": "LLM",
-		"server_image": "圖像",
+		"server_llm": "LLM引擎",
+		"server_image": "圖像引擎",
 		"gallery_empty": "冇存檔",
 	},
 	"yue": {
@@ -462,8 +464,8 @@ var _translations := {
 		"generating_gameplay": "生成緊劇情...",
 		"image_action_new": "新建",
 		"image_action_change": "更換",
-		"server_llm": "LLM",
-		"server_image": "圖像",
+		"server_llm": "LLM引擎",
+		"server_image": "圖像引擎",
 		"gallery_empty": "冇存檔",
 	},
 }
@@ -472,8 +474,12 @@ var _translations := {
 func set_language(lang: String) -> void:
 	if lang not in LANGUAGES:
 		return
+	if current_lang == lang:
+		TranslationServer.set_locale(lang)
+		return
 	current_lang = lang
 	TranslationServer.set_locale(lang)
+	language_changed.emit(lang)
 
 
 func translate(key: String) -> String:
