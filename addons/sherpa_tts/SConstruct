@@ -1,0 +1,40 @@
+import os
+import shutil
+
+env = SConscript("godot-cpp/SConstruct", {"api_version": "4.7"})
+
+env.Append(CPPPATH=[
+    "#src",
+    "#../../server/sherpa-onnx/include",
+])
+
+env.Append(LIBPATH=[
+    "#../../server/sherpa-onnx/lib",
+])
+
+env.Append(LIBS=[
+    "sherpa-onnx-c-api",
+])
+
+sources = Glob("src/*.cpp")
+target_path = "bin/sherpa_tts{}{}".format(env["suffix"], env["SHLIBSUFFIX"])
+library = env.SharedLibrary(target=target_path, source=sources)
+
+
+def copy_runtime_dlls(target, source, env):
+    bin_dir = "bin"
+    sherpa_lib_dir = os.path.join("..", "..", "server", "sherpa-onnx", "lib")
+    for dll in [
+        "sherpa-onnx-c-api.dll",
+        "onnxruntime.dll",
+        "onnxruntime_providers_shared.dll",
+    ]:
+        src = os.path.join(sherpa_lib_dir, dll)
+        dst = os.path.join(bin_dir, dll)
+        if os.path.exists(src):
+            shutil.copy2(src, dst)
+
+
+env.AddPostAction(library, copy_runtime_dlls)
+
+Default(library)

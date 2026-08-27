@@ -102,7 +102,7 @@ func _ready() -> void:
 	_resize_choice_overlay_panel()
 
 	# --- TTS auto-play ---
-	if TTSManager.has_signal("tts_generated") and not TTSManager.tts_generated.is_connected(_on_tts_generated):
+	if is_instance_valid(TTSManager) and TTSManager.has_signal("tts_generated") and not TTSManager.tts_generated.is_connected(_on_tts_generated):
 		TTSManager.tts_generated.connect(_on_tts_generated)
 
 	_update_labels()

@@ -1,7 +1,7 @@
 extends Node
 ## Headless Sherpa-ONNX TTS manager.
-## Uses sherpa-onnx-offline-tts.exe via PowerShell .ps1 to preserve UTF-8
-## (avoids OS.create_process / OS.execute UTF-8 corruption on Windows).
+## Prefers the native SherpaOfflineTTS GDExtension and falls back to the
+## Python helper via PowerShell when the extension is not loaded.
 ## Generates wav per interaction.dialogue -> attaches sound_filename.
 
 signal tts_generated(uuid: String, idx: int, sound_filename: String, save_path: String)
@@ -33,7 +33,7 @@ func _ready() -> void:
 
 
 func is_available() -> bool:
-	return FileAccess.file_exists(AppPaths.external_path(SHERPA_EXE))
+	return _has_native_tts() or FileAccess.file_exists(AppPaths.external_path(SHERPA_EXE))
 
 
 func _model_for(sex: String, language: String) -> Dictionary:
@@ -68,10 +68,11 @@ func _resolve_model(onnx_rel: String) -> Dictionary:
 
 
 func _is_sherpa_ready(model: Dictionary) -> bool:
-	var exe_global := AppPaths.external_path(SHERPA_EXE)
-	if not FileAccess.file_exists(exe_global):
-		push_warning("TTSManager: sherpa exe not found: %s" % exe_global)
-		return false
+	if not _has_native_tts():
+		var exe_global := AppPaths.external_path(SHERPA_EXE)
+		if not FileAccess.file_exists(exe_global):
+			push_warning("TTSManager: sherpa exe not found: %s" % exe_global)
+			return false
 	for k in ["onnx", "tokens"]:
 		var p: String = str(model.get(k, ""))
 		var gp := AppPaths.external_path(p)
@@ -270,6 +271,9 @@ func _attach_sound_filename(uuid: String, idx: int, fname: String) -> void:
 
 
 func _synthesize(text: String, output_global_path: String, model: Dictionary) -> int:
+	if _has_native_tts():
+		return await _synthesize_native(text, output_global_path, model)
+
 	# Reliable: Godot -> UTF-8 text file -> PowerShell reads UTF-8 -> Python helper -> Sherpa
 	# No Chinese in PS1 or command line, only file paths (ASCII)
 	var tmp_id := "%d_%d" % [Time.get_ticks_msec(), randi()]
@@ -362,6 +366,61 @@ exit $LASTEXITCODE
 	# 4. Delete both temp files
 	_cleanup_tts_temp_files([ps1_user, txt_user, helper_user])
 	return exit_code
+
+
+func _has_native_tts() -> bool:
+	return ClassDB.class_exists("SherpaOfflineTTS")
+
+
+func _synthesize_native(text: String, output_global_path: String, model: Dictionary) -> int:
+	var tts_text := _normalize_tts_punctuation(text)
+	print_verbose("TTSManager: native text after punctuation normalization: %s" % tts_text)
+	var native_model := _globalized_model(model)
+	var thread := Thread.new()
+	var err := thread.start(Callable(self, "_synthesize_native_thread").bind(tts_text, output_global_path, native_model))
+	if err != OK:
+		push_warning("TTSManager: failed to start native TTS thread: %d" % err)
+		return -1
+	while thread.is_alive():
+		await get_tree().process_frame
+	var result = thread.wait_to_finish()
+	if result is Dictionary and bool(result.get("ok", false)) and FileAccess.file_exists(output_global_path):
+		return 0
+	var message := ""
+	if result is Dictionary:
+		message = str(result.get("error", ""))
+	if message.is_empty():
+		message = "native synthesis failed"
+	push_warning("TTSManager: %s" % message)
+	return -1
+
+
+func _synthesize_native_thread(text: String, output_global_path: String, model: Dictionary) -> Dictionary:
+	var tts: Object = ClassDB.instantiate("SherpaOfflineTTS")
+	if tts == null:
+		return {"ok": false, "error": "SherpaOfflineTTS could not be instantiated"}
+	var ok := bool(tts.call("synthesize_to_wav", text, output_global_path, model, SID, SPEED, NUM_THREADS))
+	if ok:
+		return {"ok": true, "error": ""}
+	return {"ok": false, "error": str(tts.call("get_last_error"))}
+
+
+func _globalized_model(model: Dictionary) -> Dictionary:
+	var out := model.duplicate(true)
+	for key in ["onnx", "tokens", "data_dir", "lexicon"]:
+		var value := str(out.get(key, ""))
+		if not value.is_empty():
+			out[key] = AppPaths.external_path(value)
+	var rule_fsts := str(out.get("rule_fsts", ""))
+	if not rule_fsts.is_empty():
+		var parts := rule_fsts.split(",")
+		var glob_parts: Array = []
+		for p in parts:
+			var gp := AppPaths.external_path(str(p).strip_edges())
+			if FileAccess.file_exists(gp):
+				glob_parts.append(gp)
+		out["rule_fsts"] = ",".join(glob_parts)
+	return out
 
 
 func _tts_helper_path_for_process(helper_user: String) -> String:
