@@ -3,4 +3,4 @@
 - 包含 __MAXIMUM_PLOT_DIRECTIONS__ 个有意义的选项，每个选项将故事引向不同的剧情方向。
 - 将 `language` 设为 `zh_CN`。
 - `summary` 最多包含 __MINIMUM_SENTENCES_IN_SUMMARY__ 个句子，使用简单分句，且每个句子最多包含两个分句。
-- 如果 current_round 大于或等于 expected_rounds，请尽量将 end 设为 true，除非这与故事发展相冲突。
+- 如果 current_round 大于或等于 expected_rounds，请尽量将 `end` 设为 true。
