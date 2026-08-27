@@ -373,8 +373,10 @@ func _download_comfy_image(filename: String, subfolder: String, img_type: String
 
 
 func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
+	var queue_id := ServerRuntimeManager.push_request("image", "generating image", 120.0)
 	var workflow_text := _load_workflow_template_text()
 	if workflow_text.is_empty():
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Failed to load ComfyUI workflow_template.json", "prompt": image_prompt}
 	var model_filename: String = str(ImageServerSettingsManager.settings.get("model_filename", ""))
 	if model_filename.is_empty():
@@ -398,21 +400,27 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	var json := JSON.new()
 	var err := json.parse(workflow_text)
 	if err != OK or not json.data is Dictionary:
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Invalid ComfyUI workflow template after replacement: %s" % error_string(err), "prompt": image_prompt}
 	var workflow_dict: Dictionary = json.data as Dictionary
 	_fix_comfy_workflow_dict(workflow_dict, seed_val)
 	var prompt_id := await _queue_comfy_prompt(workflow_dict)
 	if prompt_id.is_empty():
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Failed to queue ComfyUI prompt", "prompt": image_prompt}
 	var image_info := await _poll_comfy_history(prompt_id)
 	if image_info.is_empty():
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "ComfyUI did not return image (timeout or error)", "prompt": image_prompt}
 	var filename: String = str(image_info.get("filename", ""))
 	var subfolder: String = str(image_info.get("subfolder", ""))
 	var img_type: String = str(image_info.get("type", "output"))
 	if filename.is_empty():
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "ComfyUI history missing filename", "prompt": image_prompt}
 	var save_path := await _download_comfy_image(filename, subfolder, img_type, uuid)
 	if save_path.is_empty():
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Failed to download ComfyUI image", "prompt": image_prompt}
+	ServerRuntimeManager.pop_request(queue_id)
 	return {"success": true, "save_path": save_path, "filename": filename, "prompt": image_prompt, "seed": seed_val}

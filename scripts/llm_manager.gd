@@ -368,6 +368,7 @@ func request_new_scene() -> Dictionary:
 
 
 func _request_completion(prompt: String) -> Dictionary:
+	var queue_id := ServerRuntimeManager.push_request("llm", "generate gameplay", BRAINSTORM_TIMEOUT)
 	var http := HTTPRequest.new()
 	http.timeout = BRAINSTORM_TIMEOUT
 	add_child(http)
@@ -386,27 +387,33 @@ func _request_completion(prompt: String) -> Dictionary:
 	var request_error := http.request(url, headers, HTTPClient.METHOD_POST, body)
 	if request_error != OK:
 		http.queue_free()
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Failed to send request"}
 	var result: Array = await http.request_completed
 	http.queue_free()
 	var result_code: int = result[0]
 	if result_code != HTTPRequest.RESULT_SUCCESS:
+		ServerRuntimeManager.pop_request(queue_id)
 		if result_code == HTTPRequest.RESULT_TIMEOUT:
 			return {"success": false, "error": "Request timed out"}
 		return {"success": false, "error": "Request failed"}
 	var response_code: int = result[1]
 	if response_code < 200 or response_code >= 300:
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "HTTP %d" % response_code}
 	var response_body: PackedByteArray = result[3]
 	var json := JSON.new()
 	if json.parse(response_body.get_string_from_utf8()) != OK or json.data is not Dictionary:
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Invalid response"}
 	var choices: Array = json.data.get("choices", [])
 	if choices.is_empty():
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Empty response"}
 	var message: Dictionary = choices[0].get("message", {})
 	var content: String = message.get("content", "")
 	if content.strip_edges().is_empty():
+		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Empty content"}
 	# Extract title field from content for TitleLabel (best-effort, no repair)
 	var title: String = ""
@@ -421,6 +428,7 @@ func _request_completion(prompt: String) -> Dictionary:
 	var tmp_json := JSON.new()
 	if tmp_json.parse(t_for_title) == OK and tmp_json.data is Dictionary:
 		title = str((tmp_json.data as Dictionary).get("title", ""))
+	ServerRuntimeManager.pop_request(queue_id)
 	return {"success": true, "text": content, "title": title}
 
 

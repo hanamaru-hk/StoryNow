@@ -9,6 +9,7 @@ enum ServerState { STARTING, HEALTHY, UNHEALTHY }
 signal llm_state_changed(state: ServerState)
 signal image_state_changed(state: ServerState)
 signal chrome_visibility_changed(is_visible: bool)
+signal request_queue_changed(queue: Array)
 
 const HEARTBEAT_INTERVAL := 8.0
 const INITIAL_CHECK_DELAY := 2.0
@@ -16,10 +17,12 @@ const INITIAL_CHECK_DELAY := 2.0
 var llm_state := ServerState.STARTING
 var image_state := ServerState.STARTING
 var chrome_visible := true
+var request_queue: Array[Dictionary] = []
 
 var _heartbeat_timer: Timer
 var _llm_started_this_session := false
 var _image_started_this_session := false
+var _next_request_id := 1
 
 
 func _ready() -> void:
@@ -123,6 +126,29 @@ func set_chrome_visible(is_visible: bool) -> void:
 		return
 	chrome_visible = is_visible
 	chrome_visibility_changed.emit(chrome_visible)
+
+
+func push_request(kind: String, label: String, timeout_seconds: float) -> int:
+	var request_id := _next_request_id
+	_next_request_id += 1
+	request_queue.append({
+		"id": request_id,
+		"kind": kind,
+		"label": label,
+		"timeout_seconds": timeout_seconds,
+		"started_at_msec": Time.get_ticks_msec(),
+	})
+	request_queue_changed.emit(request_queue.duplicate(true))
+	return request_id
+
+
+func pop_request(request_id: int) -> void:
+	for index in range(request_queue.size()):
+		var item: Dictionary = request_queue[index]
+		if int(item.get("id", -1)) == request_id:
+			request_queue.remove_at(index)
+			request_queue_changed.emit(request_queue.duplicate(true))
+			return
 
 
 func _notification(what: int) -> void:
