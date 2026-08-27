@@ -28,7 +28,7 @@ func _ready() -> void:
 	%PrevSceneButton.pressed.connect(_on_prev_scene_pressed)
 	%NextSceneButton.pressed.connect(_on_next_scene_pressed)
 	%SettingButton.pressed.connect(_on_setting_pressed)
-	%BackButton.pressed.connect(_on_back_pressed)
+	%GameplayMenuButton.pressed.connect(_on_gameplay_menu_pressed)
 
 	# --- Choice overlay ---
 	%ChoiceConfirm.pressed.connect(_on_choice_confirm)
@@ -47,6 +47,29 @@ func _ready() -> void:
 	# --- GameProgressOverlay (in-game advanced settings) ---
 	if has_node("%GameProgressOverlay"):
 		%GameProgressOverlay.closed.connect(_on_settings_closed)
+
+	# --- Gameplay menu and settings overlays ---
+	if has_node("%GameplayMenuOverlay"):
+		%GameplayMenuOverlay.closed.connect(_on_settings_closed)
+		%GameplayMenuOverlay.load_requested.connect(_on_gameplay_menu_load_requested)
+		%GameplayMenuOverlay.gallery_requested.connect(_on_gameplay_menu_gallery_requested)
+		%GameplayMenuOverlay.game_settings_requested.connect(_on_gameplay_menu_game_settings_requested)
+		%GameplayMenuOverlay.advanced_settings_requested.connect(_on_gameplay_menu_advanced_settings_requested)
+		%GameplayMenuOverlay.main_menu_requested.connect(_on_back_to_main_menu_requested)
+	if has_node("%LoadGameOverlay"):
+		%LoadGameOverlay.closed.connect(_on_settings_closed)
+	if has_node("%GalleryOverlay"):
+		%GalleryOverlay.closed.connect(_on_settings_closed)
+	if has_node("%GameSettingsOverlay"):
+		%GameSettingsOverlay.closed.connect(_on_settings_closed)
+	if has_node("%AdvancedSettingsOverlay"):
+		%AdvancedSettingsOverlay.closed.connect(_on_settings_closed)
+		%AdvancedSettingsOverlay.image_settings_requested.connect(_on_image_server_setting_requested)
+		%AdvancedSettingsOverlay.llm_settings_requested.connect(_on_llm_setting_requested)
+	if has_node("%ImageServerSettingsOverlay"):
+		%ImageServerSettingsOverlay.closed.connect(_on_settings_closed)
+	if has_node("%LLMSettingsOverlay"):
+		%LLMSettingsOverlay.closed.connect(_on_settings_closed)
 
 	# --- ImageOverlay (extracted) ---
 	if has_node("%ImageOverlay"):
@@ -79,7 +102,7 @@ func _ready() -> void:
 
 	_update_labels()
 	_load_default_background()
-	# Disable all SidePanel buttons except Setting and BackButton at start
+	# Disable all SidePanel buttons except Setting and gameplay menu at start
 	_set_all_side_buttons_disabled_except_settings_back()
 
 	match GameProgressManager.settings.get("game_status", ""):
@@ -235,7 +258,7 @@ func _set_all_side_buttons_disabled_except_settings_back() -> void:
 	%PrevSceneButton.disabled = true
 	%NextSceneButton.disabled = true
 	%SettingButton.disabled = false
-	%BackButton.disabled = false
+	%GameplayMenuButton.disabled = false
 
 
 func _update_button_eligibility() -> void:
@@ -600,7 +623,42 @@ func _on_setting_pressed() -> void:
 		%GameProgressOverlay.open()
 
 
-func _on_back_pressed() -> void:
+func _on_gameplay_menu_pressed() -> void:
+	if has_node("%GameplayMenuOverlay"):
+		%GameplayMenuOverlay.open()
+
+
+func _on_gameplay_menu_load_requested() -> void:
+	if has_node("%LoadGameOverlay"):
+		%LoadGameOverlay.open()
+
+
+func _on_gameplay_menu_gallery_requested() -> void:
+	if has_node("%GalleryOverlay"):
+		%GalleryOverlay.open()
+
+
+func _on_gameplay_menu_game_settings_requested() -> void:
+	if has_node("%GameSettingsOverlay"):
+		%GameSettingsOverlay.open()
+
+
+func _on_gameplay_menu_advanced_settings_requested() -> void:
+	if has_node("%AdvancedSettingsOverlay"):
+		%AdvancedSettingsOverlay.open()
+
+
+func _on_image_server_setting_requested() -> void:
+	if has_node("%ImageServerSettingsOverlay"):
+		%ImageServerSettingsOverlay.open()
+
+
+func _on_llm_setting_requested() -> void:
+	if has_node("%LLMSettingsOverlay"):
+		%LLMSettingsOverlay.open()
+
+
+func _on_back_to_main_menu_requested() -> void:
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
@@ -1282,7 +1340,7 @@ func _update_labels() -> void:
 	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "< Scene"
 	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Next Scene >"
 	%SettingButton.text = I18n.translate("btn_setting") if I18n.translate("btn_setting") != "btn_setting" else "Setting"
-	%BackButton.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
+	%GameplayMenuButton.text = I18n.translate("btn_gameplay_menu") if I18n.translate("btn_gameplay_menu") != "btn_gameplay_menu" else "Menu"
 	%ChoiceCancel.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	%ChoiceConfirm.text = I18n.translate("btn_confirm") if I18n.translate("btn_confirm") != "btn_confirm" else "Confirm"
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
@@ -1292,6 +1350,8 @@ func _update_labels() -> void:
 		%PlotOverlay._update_labels()
 	if has_node("%DialogueOverlay") and %DialogueOverlay.has_method("_update_labels"):
 		%DialogueOverlay._update_labels()
+	if has_node("%GameplayMenuOverlay") and %GameplayMenuOverlay.has_method("_update_labels"):
+		%GameplayMenuOverlay._update_labels()
 	# Error dialog buttons
 	%ErrorReturnDialog.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnDialog") else ""
 	if _error_retry_button != null:
