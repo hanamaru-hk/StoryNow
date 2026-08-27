@@ -1,5 +1,7 @@
 extends Control
 
+var _random_confirm_dialog: ConfirmationDialog
+
 
 func _ready() -> void:
 	%Random.pressed.connect(_on_random_pressed)
@@ -7,10 +9,18 @@ func _ready() -> void:
 	%Advanced.pressed.connect(_on_advanced_pressed)
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
+	_create_random_confirm_dialog()
 	_update_labels()
 
 
 func _on_random_pressed() -> void:
+	if not _is_llm_ready():
+		_show_error_dialog(I18n.translate("notice_wait_llm_ready"))
+		return
+	_random_confirm_dialog.popup_centered()
+
+
+func _request_random_text() -> void:
 	%Random.disabled = true
 	_show_loading(true)
 	var result: Dictionary = await LLMManager.request_random()
@@ -21,13 +31,20 @@ func _on_random_pressed() -> void:
 	else:
 		%BackgroundInput.text = result["text"]
 
+
 func _on_enhance_pressed() -> void:
-	var input: String = %BackgroundInput.text
-	%Random.disabled = true
+	if not _is_llm_ready():
+		_show_error_dialog(I18n.translate("notice_wait_llm_ready"))
+		return
+	var input: String = %BackgroundInput.text.strip_edges()
+	if input.is_empty():
+		_show_error_dialog(I18n.translate("notice_write_something_first"))
+		return
+	%Enhance.disabled = true
 	_show_loading(true)
 	var result: Dictionary = await LLMManager.request_enhance(input)
 	_show_loading(false)
-	%Random.disabled = false
+	%Enhance.disabled = false
 	if not result.get("success", false):
 		_show_error_dialog(result.get("error", ""))
 	else:
@@ -48,6 +65,13 @@ func _show_error_dialog(message: String) -> void:
 
 
 func _on_start_pressed() -> void:
+	if not _are_story_servers_ready():
+		_show_error_dialog(I18n.translate("notice_wait_llm_and_image_ready"))
+		return
+	var input: String = %BackgroundInput.text.strip_edges()
+	if input.is_empty():
+		_show_error_dialog(I18n.translate("notice_write_something_first"))
+		return
 	var uuid := _generate_uuid()
 	SceneDataManager.scene_data = {
 		"uuid": uuid,
@@ -56,7 +80,7 @@ func _on_start_pressed() -> void:
 		"interactions": [],
 		"choices": [],
 		"image_prompt": "",
-		"summary": %BackgroundInput.text,
+		"summary": input,
 		"end": false,
 		"expected_rounds": GameProgressManager.settings.get("expected_rounds", 20),
 		"current_round": 1,
@@ -92,12 +116,40 @@ func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
+func _is_llm_ready() -> bool:
+	return ServerRuntimeManager.llm_state == ServerRuntimeManager.ServerState.HEALTHY
+
+
+func _is_image_server_ready() -> bool:
+	return ServerRuntimeManager.image_state == ServerRuntimeManager.ServerState.HEALTHY
+
+
+func _are_story_servers_ready() -> bool:
+	return _is_llm_ready() and _is_image_server_ready()
+
+
+func _create_random_confirm_dialog() -> void:
+	_random_confirm_dialog = ConfirmationDialog.new()
+	_random_confirm_dialog.name = "RandomConfirmDialog"
+	_random_confirm_dialog.confirmed.connect(_on_random_confirmed)
+	add_child(_random_confirm_dialog)
+
+
+func _on_random_confirmed() -> void:
+	%BackgroundInput.text = ""
+	await _request_random_text()
+
+
 func _update_labels() -> void:
 	$MarginContainer/VBoxContainer/Title.text = I18n.translate("prompt_title")
 	$MarginContainer/VBoxContainer/Description.text = I18n.translate("prompt_desc")
 	$MarginContainer/VBoxContainer/BackgroundInput.placeholder_text = I18n.translate("prompt_placeholder")
 	%Random.text = I18n.translate("btn_random")
+	%Enhance.text = I18n.translate("btn_enhance")
+	%Advanced.text = I18n.translate("btn_advanced_setting")
 	%Start.text = I18n.translate("btn_start")
 	%Back.text = I18n.translate("btn_back")
 	%LoadingLabel.text = I18n.translate("loading_title")
 	%ErrorDialog.title = I18n.translate("error_dialog_title")
+	_random_confirm_dialog.title = I18n.translate("confirm_dialog_title")
+	_random_confirm_dialog.dialog_text = I18n.translate("confirm_random_clear_text")
