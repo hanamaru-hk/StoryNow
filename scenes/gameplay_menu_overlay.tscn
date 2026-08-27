@@ -79,6 +79,13 @@ custom_minimum_size = Vector2(240, 48)
 size_flags_horizontal = 4
 text = "Back to Main Menu"
 
+[node name="QuitGame" type="Button" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+size_flags_horizontal = 4
+text = "退出遊戲"
+
 [node name="Spacer2" type="Control" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 16)

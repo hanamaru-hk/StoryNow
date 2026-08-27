@@ -58,6 +58,7 @@ func _ready() -> void:
 		%GameplayMenuOverlay.game_settings_requested.connect(_on_gameplay_menu_game_settings_requested)
 		%GameplayMenuOverlay.advanced_settings_requested.connect(_on_gameplay_menu_advanced_settings_requested)
 		%GameplayMenuOverlay.main_menu_requested.connect(_on_back_to_main_menu_requested)
+		%GameplayMenuOverlay.quit_game_requested.connect(_on_quit_game_requested)
 	if has_node("%LoadGameOverlay"):
 		%LoadGameOverlay.closed.connect(_on_settings_closed)
 	if has_node("%GalleryOverlay"):
@@ -726,6 +727,10 @@ func _on_llm_setting_requested() -> void:
 
 func _on_back_to_main_menu_requested() -> void:
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
+
+
+func _on_quit_game_requested() -> void:
+	get_tree().quit()
 
 
 func _on_play_audio_pressed() -> void:

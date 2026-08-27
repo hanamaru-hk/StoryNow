@@ -6,6 +6,7 @@ signal gallery_requested
 signal game_settings_requested
 signal advanced_settings_requested
 signal main_menu_requested
+signal quit_game_requested
 
 
 func _ready() -> void:
@@ -14,6 +15,7 @@ func _ready() -> void:
 	%GameSetting.pressed.connect(_on_game_setting_pressed)
 	%AdvancedSetting.pressed.connect(_on_advanced_setting_pressed)
 	%BackToMainMenu.pressed.connect(_on_back_to_main_menu_pressed)
+	%QuitGame.pressed.connect(_on_quit_game_pressed)
 	%Back.pressed.connect(_on_back_pressed)
 	_update_labels()
 
@@ -53,6 +55,11 @@ func _on_back_to_main_menu_pressed() -> void:
 	main_menu_requested.emit()
 
 
+func _on_quit_game_pressed() -> void:
+	visible = false
+	quit_game_requested.emit()
+
+
 func _on_back_pressed() -> void:
 	close()
 
@@ -64,4 +71,5 @@ func _update_labels() -> void:
 	%GameSetting.text = I18n.translate("btn_game_setting")
 	%AdvancedSetting.text = I18n.translate("btn_advanced_setting")
 	%BackToMainMenu.text = I18n.translate("btn_back_to_main_menu")
+	%QuitGame.text = I18n.translate("btn_quit_game")
 	%Back.text = I18n.translate("btn_back")
