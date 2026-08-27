@@ -1,7 +1,6 @@
-- 遵循下方範本的結構。
 - `image_prompt` 保持為英文，使用逗號分隔的 Danbooru 標籤描述視覺場景（例如 "1girl, solo, classroom, sunlight, detailed background"），不得為空。__DANBOORU_GUARDRAIL__
 - 用廣東話／粵語口語為本幕編寫至少 __MINIMUM_DIALOGUES_PER_SCENE__ 輪自然的對話與／或旁白，每輪對話至少包含 __MINIMUM_SENTENCES_PER_DIALOGUE__ 句話，書寫使用繁體中文。
 - 包含 __MAXIMUM_PLOT_DIRECTIONS__ 個有意義的選項，每個選項將故事引向不同的劇情方向。
 - 將 `language` 設為 `yue`。
-- `summary 最多包含 __MINIMUM_SENTENCES_IN_SUMMARY__ 個句子，使用簡單分句，且每個句子最多包含兩個分句。
-- 若 current_round == expected rounds，請根據故事發展決定是否將 end 設為 true。
+- `summary` 最多包含 __MINIMUM_SENTENCES_IN_SUMMARY__ 個句子，使用簡單分句，且每個句子最多包含兩個分句。
+- 若 current_round 大於或等於 expected_rounds，請盡量將 end 設為 true，除非咁樣會同故事發展相衝突。

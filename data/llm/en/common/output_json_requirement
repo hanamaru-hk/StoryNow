@@ -3,4 +3,4 @@
 - Include __MAXIMUM_PLOT_DIRECTIONS__ meaningful choices, with each choice leading the story in a distinct plot direction.
 - Set `language` to `en`.
 - `summary` will contain no more than __MINIMUM_SENTENCES_IN_SUMMARY__ sentences, use simple clauses, and have no more than two clauses per sentence.
-- If current_round == expected_rounds , please decide to set end to true based on the development of the story.
+- If current_round is greater than or equal to expected_rounds, try your best to set end to true, unless it conflicts with the story's development.
