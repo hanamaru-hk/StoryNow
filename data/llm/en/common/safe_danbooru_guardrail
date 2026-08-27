@@ -1,0 +1,1 @@
+Filter the provided Danbooru tags to strictly maintain a G-rated / Safe-For-Work (SFW) standard. Remove all tags related to nudity, sexual content, violence, blood, drugs, profanity, or suggestive themes. Return only the safe tags as a comma-separated list.

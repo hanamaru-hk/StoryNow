@@ -2,8 +2,6 @@
 
 根據下方玩家輸入，用繁體中文編寫故事背景。
 
-__GUARDRAIL__
-
 <player_input>
 __PLAYER_INPUT__
 </player_input>
@@ -11,5 +9,7 @@ __PLAYER_INPUT__
 <story_background_requirement>
 __STORY_BACKGROUND_REQUIREMENT__
 </story_background_requirement>
+
+__GUARDRAIL__
 
 只回傳背景文字。

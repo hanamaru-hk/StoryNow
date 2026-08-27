@@ -1,9 +1,9 @@
 Create an original visual novel story background in English.
 
-__GUARDRAIL__
-
 <story_background_requirement>
 __STORY_BACKGROUND_REQUIREMENT__
 </story_background_requirement>
+
+__GUARDRAIL__
 
 Return only the background text.

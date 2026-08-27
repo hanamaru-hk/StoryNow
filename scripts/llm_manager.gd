@@ -188,9 +188,11 @@ func request_random() -> Dictionary:
 		return {"success": false, "error": "Failed to load requirement template"}
 	
 	if GameSettingsManager.is_free_mode():
+		print_verbose("Free mode: using free guardrail")
 		var guardrail := _load_prompt(FREE_GUARDRAIL)
 		prompt = prompt.replace("__GUARDRAIL__", guardrail)
 	else:
+		print_verbose("Safe mode: using safe guardrail")
 		var guardrail := _load_prompt(SAFE_GUARDRAIL)
 		prompt = prompt.replace("__GUARDRAIL__", guardrail)
 	prompt = prompt.replace("__STORY_BACKGROUND_REQUIREMENT__", requirement)
@@ -208,9 +210,11 @@ func request_enhance(input: String) -> Dictionary:
 	if requirement.is_empty():
 		return {"success": false, "error": "Failed to load requirement template"}
 	if GameSettingsManager.is_free_mode():
+		print_verbose("Free mode: using free guardrail")
 		var guardrail := _load_prompt(FREE_GUARDRAIL)
 		prompt = prompt.replace("__GUARDRAIL__", guardrail)
 	else:
+		print_verbose("Safe mode: using safe guardrail")
 		var guardrail := _load_prompt(SAFE_GUARDRAIL)
 		prompt = prompt.replace("__GUARDRAIL__", guardrail)
 	prompt = prompt.replace("__STORY_BACKGROUND_REQUIREMENT__", requirement)

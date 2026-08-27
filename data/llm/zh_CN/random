@@ -1,9 +1,9 @@
 用简体中文创作一个原创的视觉小说故事背景。
 
-__GUARDRAIL__
-
 <story_background_requirement>
 __STORY_BACKGROUND_REQUIREMENT__
 </story_background_requirement>
+
+__GUARDRAIL__
 
 只返回背景文本。

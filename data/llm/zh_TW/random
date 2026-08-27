@@ -1,9 +1,9 @@
 用繁體中文創作一個原創的視覺小說故事背景。
 
-__GUARDRAIL__
-
 <story_background_requirement>
 __STORY_BACKGROUND_REQUIREMENT__
 </story_background_requirement>
+
+__GUARDRAIL__
 
 只回傳背景文字。
