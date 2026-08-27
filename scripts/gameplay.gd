@@ -291,7 +291,8 @@ func _populate_dynamic_choice_buttons() -> void:
 	var choices = SceneDataManager.scene_data.get("choices", [])
 	if not choices is Array:
 		return
-	for choice in choices:
+	for choice_index in choices.size():
+		var choice = choices[choice_index]
 		var text: String = ""
 		if choice is Dictionary:
 			# template uses "plot", fallback to common keys
@@ -301,20 +302,43 @@ func _populate_dynamic_choice_buttons() -> void:
 		text = text.strip_edges()
 		if text.is_empty():
 			continue
+		var row := HBoxContainer.new()
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_theme_constant_override("separation", 8)
+		container.add_child(row)
+
 		var btn := Button.new()
 		btn.text = text
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		btn.custom_minimum_size = Vector2(0, 40)
 		btn.pressed.connect(_on_dynamic_choice_pressed.bind(text))
-		container.add_child(btn)
+		row.add_child(btn)
+
+		var delete_btn := Button.new()
+		delete_btn.text = I18n.translate("btn_delete") if I18n.translate("btn_delete") != "btn_delete" else "Delete"
+		delete_btn.custom_minimum_size = Vector2(88, 40)
+		delete_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+		delete_btn.pressed.connect(_on_dynamic_choice_delete_pressed.bind(choice_index))
+		row.add_child(delete_btn)
 
 
 func _on_dynamic_choice_pressed(choice_text: String) -> void:
-	# Fill CustomInput with the chosen plot so user can edit or confirm
 	if has_node("%CustomInput"):
 		%CustomInput.text = choice_text
-		%CustomInput.grab_focus()
+	_on_choice_confirm()
+
+
+func _on_dynamic_choice_delete_pressed(choice_index: int) -> void:
+	var choices: Array = SceneDataManager.scene_data.get("choices", [])
+	if not choices is Array:
+		return
+	if choice_index < 0 or choice_index >= choices.size():
+		return
+	choices.remove_at(choice_index)
+	SceneDataManager.scene_data["choices"] = choices
+	SceneDataManager.save()
+	_populate_dynamic_choice_buttons()
 
 
 
