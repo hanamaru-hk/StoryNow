@@ -69,6 +69,9 @@ instant-visual-novel/
 │   ├── default_game_progress.json       # {current_dialogue/uuid/round, expected_rounds, minimum_*/maximum_*, game_status}
 │   ├── default_llm_settings.json        # {port: 48763}
 │   ├── default_image_server_settings.json # {port: 56321, model_filename}
+│   ├── llama-models/
+│   │   ├── cen/*.gguf
+│   │   └── ab/*.gguf
 │   ├── comfyui/
 │   │   ├── workflow_template.json       # SDXL txt2img workflow (client_id + 7 nodes)
 │   │   ├── safe_negative_prompt
@@ -85,8 +88,7 @@ instant-visual-novel/
 ├── saves/                               # Runtime saves mirror (dev); real saves in user://saves/
 ├── server/                              # AI server binaries (gitignored: server/, .godot/, *.uid/import)
 │   ├── llama/llama-server.exe
-│   ├── llama-models/*.gguf
-│   ├── ComfyUI/ComfyUI_windows_portable/
+│   ├── ComfyUI/
 │   └── sherpa-onnx/{bin,lib,models}/
 ├── project.godot                        # Autoloads + main_scene + viewport/renderer
 ├── .gitignore

@@ -9,8 +9,8 @@ AI-generated visual novel — Godot client that drives local **llama.cpp**, **Co
 1. **Install Godot 4.3** (GL Compatibility renderer).
 2. **Servers:** extract binaries into `server/`:
    - `server/llama/llama-server.exe` (llama.cpp b10514+)
-   - `server/llama-models/huihui-qwen3.5-9b-Q4_K_M.gguf` (primary)
-   - `server/ComfyUI/ComfyUI_windows_portable/` (+ checkpoint `waiIllustriousSDXL_v170.safetensors` under `ComfyUI/models/checkpoints/`)
+   - `data/llama-models/cen/huihui-qwen3.5-9b-Q4_K_M.gguf` (primary)
+   - `server/ComfyUI/` (+ checkpoint `waiIllustriousSDXL_v170.safetensors` under `ComfyUI/models/checkpoints/`)
    - `server/sherpa-onnx/` for TTS models and Sherpa runtime libs (`powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1`; native Godot wrapper lives in `addons/sherpa_tts/`)
 3. **Open** `project.godot` in Godot, run. `ServerRuntimeManager` auto-starts both servers, heartbeat 8s, status dots top-right.
 4. **Play:** Start → (optional Random/Enhance) → Start → Gameplay (choices → next scene). Saves under `user://saves/<uuid>/` (`OS.get_user_data_dir()`).
@@ -38,8 +38,8 @@ Chrome hides on right-click background, restores on left-click; `ServerStatusOve
 ```
 scenes/  main, brainstorm, gameplay (+ 12 overlays)
 scripts/ managers (llm, image_server, server_runtime, game_progress, scene_data, tts, i18n, game_settings) + overlays + gameplay/brainstorm/main
-data/    theme, defaults, comfyui workflow/negative prompts, llm prompts per lang
-server/  llama, llama-models, ComfyUI, sherpa-onnx models/runtime libs (gitignored)
+data/    theme, defaults, llama models, comfyui workflow/negative prompts, llm prompts per lang
+server/  llama, ComfyUI, sherpa-onnx models/runtime libs (gitignored)
 addons/  sherpa_tts native Godot TTS extension
 saves/   dev mirror; runtime saves in user://saves/<uuid>/
 ```
