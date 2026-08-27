@@ -61,6 +61,7 @@ instant-visual-novel/
 │   ├── image_server_settings_overlay.gd
 │   ├── tts_manager.gd                   # Sherpa-ONNX offline TTS queue
 │   ├── tts_helper.py                    # Python bridge for Sherpa (UTF-8 safe)
+│   ├── setup_sherpa_python.ps1          # Creates server/sherpa-onnx/python TTS venv
 │   ├── download_sherpa.ps1
 │   └── request_timeout_circle.gd        # Circular timeout indicator
 ├── data/

@@ -9,6 +9,7 @@ signal batch_completed(uuid: String)
 
 const SHERPA_DIR := "server/sherpa-onnx"
 const SHERPA_EXE := "server/sherpa-onnx/bin/sherpa-onnx-offline-tts.exe"
+const SHERPA_PYTHON := "server/sherpa-onnx/python/Scripts/python.exe"
 const MODELS_ROOT := "server/sherpa-onnx/models"
 const SPEED := 1.0
 const SID := 0
@@ -313,16 +314,21 @@ func _synthesize(text: String, output_global_path: String, model: Dictionary) ->
 	print_verbose("TTSManager: text after punctuation normalization: %s" % tts_text)
 	tf.store_string(tts_text)
 	tf.close()
-# 2. Write PS1 that calls Python helper with --text-file (no Chinese in PS1)
+	# 2. Write PS1 that calls Python helper with --text-file (no Chinese in PS1)
 	# PS1 itself is ASCII-only, so no BOM / encoding issues
 	var ps1_content := """$ErrorActionPreference='Stop'
-if (Get-Command py -ErrorAction SilentlyContinue) {
+$BundledPython = "%s"
+if (Test-Path $BundledPython) {
+  & $BundledPython "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
+} elseif (Get-Command py -ErrorAction SilentlyContinue) {
   py "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
 } else {
   python "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
 }
 exit $LASTEXITCODE
 """ % [
+	AppPaths.external_path(SHERPA_PYTHON),
+	helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS,
 	helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS,
 	helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS,
 ]

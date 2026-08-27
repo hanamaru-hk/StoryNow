@@ -85,6 +85,6 @@ var save_path = await _download_comfy_image(filename, subfolder, type, uuid)
 
 ## 9.6 TTS Internals
 
-- `_synthesize` (`scripts/tts_manager.gd:272`) writes `user://tmp_tts_<id>.txt` (UTF-8 dialogue with CJK punctuation normalized via `_normalize_tts_punctuation`) and `user://tmp_tts_<id>.ps1`, then `OS.create_process("powershell", ["-NoProfile","-ExecutionPolicy","Bypass","-File",ps1])` polling `OS.is_process_running(pid)`. Cleanup deletes temp files. Rate-limited by 6s timer between queue items (`scripts/tts_manager.gd:211`).
+- `_synthesize` (`scripts/tts_manager.gd:272`) writes `user://tmp_tts_<id>.txt` (UTF-8 dialogue with CJK punctuation normalized via `_normalize_tts_punctuation`) and `user://tmp_tts_<id>.ps1`, then `OS.create_process("powershell", ["-NoProfile","-ExecutionPolicy","Bypass","-File",ps1])` polling `OS.is_process_running(pid)`. The generated PowerShell prefers `server/sherpa-onnx/python/Scripts/python.exe` and falls back to `py` / `python`. Cleanup deletes temp files. Rate-limited by 6s timer between queue items (`scripts/tts_manager.gd:211`).
 - Model resolution by `language`/`sex` (`scripts/tts_manager.gd:39`), with `espeak-ng-data` vs `lexicon + rule.fst` branching.
 - Queue dedup: same `uuid+idx` enqueued replaces previous entry (`scripts/tts_manager.gd:152`).

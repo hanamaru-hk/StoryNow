@@ -5,7 +5,7 @@
 | llama.cpp | b10514 (and later) | [llama-b10514-bin-win-x64.zip](https://github.com/ggerganov/llama.cpp/releases/download/b10514/llama-b10514-bin-win-x64.zip) — extracted to `server/llama/` |
 | ComfyUI | v0.33.1 (portable) | [ComfyUI_windows_portable_nvidia.7z](https://github.com/Comfy-Org/ComfyUI/releases/download/v0.33.1/ComfyUI_windows_portable_nvidia.7z) — extracted to `server/ComfyUI/ComfyUI_windows_portable/` |
 | LLM model | ≤9B GGUF | `server/llama-models/huihui-qwen3.5-9b-Q4_K_M.gguf` (primary, `scripts/llm_manager.gd:45`); alt `DeepSeek-R1-Distill-Llama-8B-Uncensored.Q4_K_M.gguf`, `unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf` supported |
-| Sherpa-ONNX | v1.13.5 | [sherpa-onnx-v1.13.5-win-x64-shared.tar.bz2](https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.5/sherpa-onnx-v1.13.5-win-x64-shared.tar.bz2) — extracted to `server/sherpa-onnx/` (run `powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1`) |
+| Sherpa-ONNX | v1.13.5 | [sherpa-onnx-v1.13.5-win-x64-shared.tar.bz2](https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.5/sherpa-onnx-v1.13.5-win-x64-shared.tar.bz2) — extracted to `server/sherpa-onnx/` (run `powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1`; run `powershell -ExecutionPolicy Bypass -File scripts/setup_sherpa_python.ps1` for the TTS Python venv) |
 | SDXL Checkpoint | e.g. `waiIllustriousSDXL_v170.safetensors` | Placed in `server/ComfyUI/ComfyUI_windows_portable/ComfyUI/models/checkpoints/`; selected via `ImageServerSettingsManager.settings.model_filename` |
 
 ## Default Ports
@@ -52,7 +52,7 @@ Bundled under `server/sherpa-onnx/models/` (gitignored, preserved on upgrade):
 
 Model selection in `scripts/tts_manager.gd:39-57` by `language` + `sex`. Each needs `*.onnx`, `tokens.txt`, and either `espeak-ng-data/` or `lexicon.txt` + `*.fst`.
 
-CLI used via `scripts/tts_helper.py` (not direct exe): `python tts_helper.py --vits-model <onnx> --vits-tokens <tokens> [--vits-data-dir <…> | --vits-lexicon <…> --tts-rule-fsts <…>] --output-filename <wav> --text-file <utf8.txt>`.
+TTS uses `scripts/tts_helper.py` through the Sherpa-local Python venv when present: `server/sherpa-onnx/python/Scripts/python.exe tts_helper.py --vits-model <onnx> --vits-tokens <tokens> [--vits-data-dir <…> | --vits-lexicon <…> --tts-rule-fsts <…>] --output-filename <wav> --text-file <utf8.txt>`. If the venv is missing, `TTSManager` falls back to `py` / `python`.
 
 ### TTS Auto-Play
 
@@ -60,7 +60,7 @@ CLI used via `scripts/tts_helper.py` (not direct exe): `python tts_helper.py --v
 - Attaches `sound_filename` to each interaction and saves to `user://saves/<uuid>/sounds/tts_<idx>_<hash>.wav` (`scripts/tts_manager.gd:222`).
 - Auto-plays via `Gameplay/TTSPlayer` (`AudioStreamPlayer`) when `current_dialogue_index == generated idx` and `GameSettingsManager.settings.autoplay_tts == true` (interrupt previous). Also on `Prev/Next Dialogue` and `Prev Scene` reload if wav exists (`scripts/gameplay.gd:993`).
 - Cantonese male uses pitch 0.7x via `TTSVoice` bus `AudioEffectPitchShift` (`scripts/gameplay.gd:4-5`).
-- UTF-8 safe: writes `user://tmp_tts_<id>.txt` + `.ps1` then `powershell -File` then deletes; powerShell via `OS.create_process` polling (`scripts/tts_manager.gd:272-355`).
+- UTF-8 safe: writes `user://tmp_tts_<id>.txt` + `.ps1` then `powershell -File` then deletes; PowerShell prefers `server/sherpa-onnx/python/Scripts/python.exe`, falling back to `py` / `python`; process is polled via `OS.create_process` (`scripts/tts_manager.gd:272-355`).
 
 ### Free vs Safe Mode
 

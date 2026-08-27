@@ -28,7 +28,7 @@
 └──────────┘           └────────────┘         └──────────────┘
 ```
 
-Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions`, `/health`) and ComfyUI (`/prompt`, `/history/<id>`, `/view`, `/system_stats`). TTS is a local subprocess via PowerShell `.ps1` + `scripts/tts_helper.py`. No middleware.
+Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions`, `/health`) and ComfyUI (`/prompt`, `/history/<id>`, `/view`, `/system_stats`). TTS is a local subprocess via PowerShell `.ps1` + `scripts/tts_helper.py`, preferring the Sherpa-local Python venv under `server/sherpa-onnx/python/`. No middleware.
 
 ## Key Components
 
