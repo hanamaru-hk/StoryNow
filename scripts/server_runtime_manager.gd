@@ -11,7 +11,7 @@ signal image_state_changed(state: ServerState)
 signal chrome_visibility_changed(is_visible: bool)
 signal request_queue_changed(queue: Array)
 
-const HEARTBEAT_INTERVAL := 8.0
+const HEARTBEAT_INTERVAL := 3.0
 const INITIAL_CHECK_DELAY := 2.0
 
 var llm_state := ServerState.STARTING

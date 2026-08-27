@@ -3,7 +3,8 @@ extends Node
 
 const STATUS_PATH := "user://llm_status.json"
 const LLAMA_DIR := "server/llama"
-const LLAMA_MODELS_DIR := "data/llama-models"
+const LLAMA_MODELS_DIR_CEN := "data/llama-models/cen"
+const LLAMA_MODELS_DIR_AB := "data/llama-models/ab"
 const HEALTH_TIMEOUT := 5.0
 const DEFAULT_BRAINSTORM_TIMEOUT := 60.0
 const LLM_HOST := "127.0.0.1"
@@ -43,7 +44,7 @@ func start_server() -> void:
 	var port_number := str(port)
 	var exe_path := AppPaths.external_path(LLAMA_DIR + "/llama-server.exe")
 	# var model_path := AppPaths.external_path(LLAMA_MODELS_DIR + "/ab/DeepSeek-R1-Distill-Llama-8B-Uncensored.Q4_K_M.gguf")
-	var model_path := AppPaths.external_path(LLAMA_MODELS_DIR + "/cen/huihui-qwen3.5-9b-Q4_K_M.gguf")
+	var model_path := AppPaths.external_path(LLAMA_MODELS_DIR_AB + "/huihui-qwen3.5-9b-Q4_K_M.gguf")
 	# var model_path := AppPaths.external_path(LLAMA_MODELS_DIR + "/cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf")
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
