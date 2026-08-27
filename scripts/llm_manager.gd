@@ -498,8 +498,8 @@ func _append_stream_preview(current: String, piece: String) -> String:
 		if character == "\r":
 			continue
 		preview += character
-		if preview.length() > 20:
-			preview = preview.substr(preview.length() - 20)
+		if preview.length() > 15:
+			preview = preview.substr(preview.length() - 15)
 	return preview
 
 
