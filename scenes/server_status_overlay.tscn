@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://server_status_overlay"]
+[gd_scene load_steps=3 format=3 uid="uid://server_status_overlay"]
 
 [ext_resource type="Script" path="res://scripts/server_status_overlay.gd" id="1"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_queue_panel"]
 
 [node name="ServerStatusOverlay" type="CanvasLayer"]
 layer = 10
@@ -58,6 +60,7 @@ offset_top = 64.0
 offset_right = -8.0
 offset_bottom = 276.0
 grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_queue_panel")
 
 [node name="QueueList" type="VBoxContainer" parent="QueuePanel"]
 unique_name_in_owner = true
