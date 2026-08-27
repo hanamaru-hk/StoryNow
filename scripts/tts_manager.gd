@@ -24,10 +24,20 @@ var _queue: Array = [] # Array[Dictionary] {uuid, idx, dialogue, sex, language}
 var _generating: bool = false
 var _current_task: Dictionary = {}
 var _native_extension: Resource = null
+var _native_thread: Thread = null
+var _shutting_down: bool = false
 
 
 func _ready() -> void:
 	pass
+
+
+func _exit_tree() -> void:
+	_shutting_down = true
+	_queue.clear()
+	if _native_thread != null and _native_thread.is_started():
+		_native_thread.wait_to_finish()
+	_native_thread = null
 
 
 func is_available() -> bool:
@@ -89,6 +99,8 @@ func _is_sherpa_ready(model: Dictionary) -> bool:
 
 
 func generate_all_for_scene(scene_data: Dictionary) -> void:
+	if _shutting_down:
+		return
 	if scene_data.is_empty():
 		return
 	var uuid := str(scene_data.get("uuid", "")).strip_edges()
@@ -116,6 +128,8 @@ func generate_all_for_scene(scene_data: Dictionary) -> void:
 
 
 func generate_single_interaction(uuid: String, idx: int) -> void:
+	if _shutting_down:
+		return
 	var u := uuid.strip_edges()
 	if u.is_empty():
 		u = str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
@@ -138,6 +152,8 @@ func generate_single_interaction(uuid: String, idx: int) -> void:
 
 
 func generate_for_interaction(uuid: String, idx: int, dialogue: String, sex: String) -> void:
+	if _shutting_down:
+		return
 	var d2 := dialogue.strip_edges()
 	if d2.is_empty():
 		return
@@ -147,6 +163,8 @@ func generate_for_interaction(uuid: String, idx: int, dialogue: String, sex: Str
 
 
 func _enqueue(uuid: String, idx: int, dialogue: String, sex: String, language: String) -> void:
+	if _shutting_down:
+		return
 	# dedup: if same uuid+idx already queued, replace dialogue/sex
 	for q in _queue:
 		if str(q.get("uuid", "")) == uuid and int(q.get("idx", -1)) == idx:
@@ -163,18 +181,18 @@ func _enqueue(uuid: String, idx: int, dialogue: String, sex: String, language: S
 
 
 func _process_queue_deferred() -> void:
-	if _generating:
+	if _shutting_down or _generating:
 		return
 	call_deferred("_process_queue")
 
 
 func _process_queue() -> void:
-	if _generating:
+	if _shutting_down or _generating:
 		return
 	if _queue.is_empty():
 		return
 	_generating = true
-	while not _queue.is_empty():
+	while not _shutting_down and not _queue.is_empty():
 		var task: Dictionary = _queue.pop_front()
 		_current_task = task
 		var uuid: String = str(task.get("uuid", ""))
@@ -197,6 +215,8 @@ func _process_queue() -> void:
 				push_warning("TTSManager: failed to create sounds dir %s" % sounds_dir)
 				continue
 		var exit_code := await _synthesize(dialogue, out_path, model)
+		if _shutting_down:
+			return
 		if exit_code != 0:
 			push_warning("TTSManager: synthesize failed idx %d exit %d" % [idx, exit_code])
 			continue
@@ -281,17 +301,25 @@ func _has_native_tts() -> bool:
 
 
 func _synthesize_native(text: String, output_global_path: String, model: Dictionary) -> int:
+	if _shutting_down:
+		return -1
 	var tts_text := _normalize_tts_punctuation(text)
 	print_verbose("TTSManager: native text after punctuation normalization: %s" % tts_text)
 	var native_model := _globalized_model(model)
-	var thread := Thread.new()
-	var err := thread.start(Callable(self, "_synthesize_native_thread").bind(tts_text, output_global_path, native_model))
+	_native_thread = Thread.new()
+	var err := _native_thread.start(Callable(self, "_synthesize_native_thread").bind(tts_text, output_global_path, native_model))
 	if err != OK:
 		push_warning("TTSManager: failed to start native TTS thread: %d" % err)
+		_native_thread = null
 		return -1
-	while thread.is_alive():
+	while _native_thread != null and _native_thread.is_alive():
 		await get_tree().process_frame
-	var result = thread.wait_to_finish()
+	if _native_thread == null:
+		return -1
+	var result = _native_thread.wait_to_finish()
+	_native_thread = null
+	if _shutting_down:
+		return -1
 	if result is Dictionary and bool(result.get("ok", false)) and FileAccess.file_exists(output_global_path):
 		return 0
 	var message := ""
