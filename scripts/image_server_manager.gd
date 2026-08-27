@@ -506,7 +506,7 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	if filename.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "ComfyUI history missing filename", "prompt": image_prompt}
-	ServerRuntimeManager.update_request(queue_id, {"status": "Downloading", "progress": 0.95})
+	ServerRuntimeManager.update_request(queue_id, {"status": I18n.translate("queue_status_transferring"), "progress": 0.95})
 	var save_path := await _download_comfy_image(filename, subfolder, img_type, uuid)
 	if save_path.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
