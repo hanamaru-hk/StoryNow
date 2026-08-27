@@ -60,6 +60,38 @@ layout_mode = 2
 custom_minimum_size = Vector2(200, 40)
 placeholder_text = "48763"
 
+[node name="TimeoutRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TimeoutLabel" type="Label" parent="CenterContainer/VBoxContainer/TimeoutRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Timeout"
+
+[node name="TimeoutInput" type="LineEdit" parent="CenterContainer/VBoxContainer/TimeoutRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 40)
+placeholder_text = "60"
+
+[node name="ContextSizeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ContextSizeLabel" type="Label" parent="CenterContainer/VBoxContainer/ContextSizeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Context Size"
+
+[node name="ContextSizeInput" type="LineEdit" parent="CenterContainer/VBoxContainer/ContextSizeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 40)
+placeholder_text = "0"
+
 [node name="Spacer2" type="Control" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 16)

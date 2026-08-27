@@ -5,6 +5,8 @@ const DEFAULT_SETTINGS_PATH := "data/default_llm_settings.json"
 
 var settings := {
 	"port": 48763,
+	"timeout": 60,
+	"context_size": 0,
 }
 
 

@@ -5,7 +5,7 @@ const STATUS_PATH := "user://llm_status.json"
 const LLAMA_DIR := "server/llama"
 const LLAMA_MODELS_DIR := "server/llama-models"
 const HEALTH_TIMEOUT := 5.0
-const BRAINSTORM_TIMEOUT := 120.0
+const DEFAULT_BRAINSTORM_TIMEOUT := 60.0
 const LLM_HOST := "127.0.0.1"
 const CHAT_ENDPOINT := "/v1/chat/completions"
 const PROMPT_DIR := "data/llm"
@@ -39,6 +39,7 @@ func start_server() -> void:
 	if status["running"]:
 		return
 	var port: int = LLMSettingsManager.settings["port"]
+	var context_size: int = int(LLMSettingsManager.settings.get("context_size", 0))
 	var port_number := str(port)
 	var exe_path := AppPaths.external_path(LLAMA_DIR + "/llama-server.exe")
 	# var model_path := AppPaths.external_path(LLAMA_MODELS_DIR + "/DeepSeek-R1-Distill-Llama-8B-Uncensored.Q4_K_M.gguf")
@@ -47,7 +48,7 @@ func start_server() -> void:
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
 		return
-	var args := PackedStringArray(["-c","0","-ngl","99","-m", model_path, "--port", port_number])
+	var args := PackedStringArray(["-c", str(context_size), "-ngl", "99", "-m", model_path, "--port", port_number])
 	var pid: int = OS.create_process(exe_path, args, OS.is_stdout_verbose())
 	if pid < 0:
 		push_error("Failed to start Ollama process")
@@ -368,9 +369,10 @@ func request_new_scene() -> Dictionary:
 
 
 func _request_completion(prompt: String) -> Dictionary:
-	var queue_id := ServerRuntimeManager.push_request("llm", I18n.translate("request_generating_gameplay"), BRAINSTORM_TIMEOUT)
+	var request_timeout: float = float(LLMSettingsManager.settings.get("timeout", DEFAULT_BRAINSTORM_TIMEOUT))
+	var queue_id := ServerRuntimeManager.push_request("llm", I18n.translate("request_generating_gameplay"), request_timeout)
 	var http := HTTPRequest.new()
-	http.timeout = BRAINSTORM_TIMEOUT
+	http.timeout = request_timeout
 	add_child(http)
 	var port: int = LLMSettingsManager.settings["port"]
 	var url := "http://%s:%d%s" % [LLM_HOST, port, CHAT_ENDPOINT]
