@@ -8,12 +8,14 @@ enum ServerState { STARTING, HEALTHY, UNHEALTHY }
 
 signal llm_state_changed(state: ServerState)
 signal image_state_changed(state: ServerState)
+signal chrome_visibility_changed(is_visible: bool)
 
 const HEARTBEAT_INTERVAL := 8.0
 const INITIAL_CHECK_DELAY := 2.0
 
 var llm_state := ServerState.STARTING
 var image_state := ServerState.STARTING
+var chrome_visible := true
 
 var _heartbeat_timer: Timer
 var _llm_started_this_session := false
@@ -114,6 +116,13 @@ func _set_image_state(new_state: ServerState) -> void:
 	if new_state != image_state:
 		image_state = new_state
 		image_state_changed.emit(image_state)
+
+
+func set_chrome_visible(is_visible: bool) -> void:
+	if chrome_visible == is_visible:
+		return
+	chrome_visible = is_visible
+	chrome_visibility_changed.emit(chrome_visible)
 
 
 func _notification(what: int) -> void:

@@ -16,8 +16,10 @@ signal retry_requested
 var _error_retry_button: Button = null
 var _pending_retry_action: String = ""  # "new_story" or "new_scene"
 var _retry_in_progress: bool = false
+var _chrome_visible: bool = true
 
 func _ready() -> void:
+	_set_chrome_visible(true)
 	# --- Dialogue panel grid buttons ---
 	%PlotButton.pressed.connect(_on_plot_pressed)
 	%PlayAudioButton.pressed.connect(_on_play_audio_pressed)
@@ -402,7 +404,22 @@ func _load_current_scene_image(uuid: String = "") -> bool:
 # works even when GUI Controls (Dialogue/TopBar) would otherwise mark the event
 # as handled and prevent _unhandled_input from firing.
 func _input(event: InputEvent) -> void:
-	pass
+	if not event is InputEventMouseButton:
+		return
+	var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT and mouse_event.button_index != MOUSE_BUTTON_RIGHT:
+		return
+	if not _chrome_visible:
+		_set_chrome_visible(true)
+		get_viewport().set_input_as_handled()
+		return
+	if _has_blocking_overlay_visible():
+		return
+	if mouse_event.button_index == MOUSE_BUTTON_RIGHT and _is_background_click(mouse_event.position):
+		_set_chrome_visible(false)
+		get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -410,7 +427,56 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _toggle_chrome() -> void:
-	pass
+	_set_chrome_visible(not _chrome_visible)
+
+
+func _set_chrome_visible(is_visible: bool) -> void:
+	_chrome_visible = is_visible
+	if has_node("%TopBar"):
+		%TopBar.visible = is_visible
+	if has_node("%Dialogue"):
+		%Dialogue.visible = is_visible
+	ServerRuntimeManager.set_chrome_visible(is_visible)
+
+
+func _is_background_click(position: Vector2) -> bool:
+	var is_on_background: bool = _is_point_inside_control(%BackgroundImage, position)
+	var is_on_top_bar: bool = _is_point_inside_visible_control(%TopBar, position)
+	var is_on_dialogue: bool = _is_point_inside_visible_control(%Dialogue, position)
+	return is_on_background and not is_on_top_bar and not is_on_dialogue
+
+
+func _has_blocking_overlay_visible() -> bool:
+	var overlay_names: Array[String] = [
+		"ChoiceOverlay",
+		"ImageActionOverlay",
+		"ImageChangeOverlay",
+		"ImageOverlay",
+		"PlotOverlay",
+		"DialogueOverlay",
+		"GameplayMenuOverlay",
+		"LoadGameOverlay",
+		"GalleryOverlay",
+		"GameSettingsOverlay",
+		"AdvancedSettingsOverlay",
+		"ImageServerSettingsOverlay",
+		"LLMSettingsOverlay",
+		"GameProgressOverlay",
+		"ErrorReturnDialog",
+	]
+	for overlay_name in overlay_names:
+		var overlay: Node = get_node_or_null(overlay_name)
+		if overlay is CanvasItem and (overlay as CanvasItem).visible:
+			return true
+	return false
+
+
+func _is_point_inside_visible_control(control: Control, position: Vector2) -> bool:
+	return control.visible and _is_point_inside_control(control, position)
+
+
+func _is_point_inside_control(control: Control, position: Vector2) -> bool:
+	return control.get_global_rect().has_point(position)
 
 
 func _on_dialog_area_input(event: InputEvent) -> void:

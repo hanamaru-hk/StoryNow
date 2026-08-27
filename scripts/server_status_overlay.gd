@@ -11,8 +11,10 @@ const COLOR_STARTING := Color(0.5, 0.5, 0.5)
 func _ready() -> void:
 	ServerRuntimeManager.llm_state_changed.connect(_on_llm_state_changed)
 	ServerRuntimeManager.image_state_changed.connect(_on_image_state_changed)
+	ServerRuntimeManager.chrome_visibility_changed.connect(_on_chrome_visibility_changed)
 	_apply_llm(ServerRuntimeManager.llm_state)
 	_apply_image(ServerRuntimeManager.image_state)
+	_on_chrome_visibility_changed(ServerRuntimeManager.chrome_visible)
 
 
 func _on_llm_state_changed(state: ServerRuntimeManager.ServerState) -> void:
@@ -21,6 +23,10 @@ func _on_llm_state_changed(state: ServerRuntimeManager.ServerState) -> void:
 
 func _on_image_state_changed(state: ServerRuntimeManager.ServerState) -> void:
 	_apply_image(state)
+
+
+func _on_chrome_visibility_changed(is_visible: bool) -> void:
+	visible = is_visible
 
 
 func _apply_llm(state: ServerRuntimeManager.ServerState) -> void:
