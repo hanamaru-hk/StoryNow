@@ -28,7 +28,7 @@
 └──────────┘           └────────────┘         └──────────────┘
 ```
 
-Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions`, `/health`) and ComfyUI (`/prompt`, `/history/<id>`, `/view`, `/system_stats`). TTS is a local subprocess via PowerShell `.ps1` + `scripts/tts_helper.py`, preferring the Sherpa-local Python venv under `server/sherpa-onnx/python/`. No middleware.
+Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions`, `/health`) and ComfyUI (`/prompt`, `/history/<id>`, `/view`, `/system_stats`). TTS uses the native `SherpaOfflineTTS` GDExtension in `addons/sherpa_tts/`, backed by Sherpa-ONNX runtime libraries under `server/sherpa-onnx/`. No middleware.
 
 ## Key Components
 
@@ -39,7 +39,7 @@ Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions
 | **ImageServerManager** | `scripts/image_server_manager.gd:1` | ComfyUI lifecycle (`user://image_server_status.json`), workflow templating (`data/comfyui/workflow_template.json`), `generate_scene_image` (queue → poll history → download to `user://saves/<uuid>/images/`). |
 | **SceneDataManager** | `scripts/scene_data_manager.gd:1` | Per-scene persistence (`SAVE_DIR = user://saves`): `save()` / `load_data(uuid)` for `scene_data` JSON. Aliases `load(uuid)` for compatibility. |
 | **GameProgressManager** | `scripts/game_progress_manager.gd:1` | Global progress (`user://game_progress.json`): `current_uuid`, `current_round`, `expected_rounds`, tunables (`minimum_dialogues_per_scene`, etc.), `game_status` state machine. |
-| **TTSManager** | `scripts/tts_manager.gd:1` | Queue-based Sherpa synthesis, model selection by `language`/`sex`, PowerShell UTF-8 safe invocation, `sound_filename` attachment + `tts_generated` signal for auto-play. |
+| **TTSManager** | `scripts/tts_manager.gd:1` | Queue-based native Sherpa synthesis, model selection by `language`/`sex`, `sound_filename` attachment + `tts_generated` signal for auto-play. |
 | **I18n / GameSettingsManager** | `scripts/i18n.gd:1`, `scripts/game_settings_manager.gd:1` | i18n (en, zh_CN, zh_TW, yue) + display/TTS settings (`user://game_settings.json`, `safe_mode` / `free_mode` file flag). |
 | **ServerStatusOverlay** | `scripts/server_status_overlay.gd:1` | CanvasLayer always-on-top dot indicator + request queue list; listens to `ServerRuntimeManager` signals. |
 

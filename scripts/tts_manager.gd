@@ -1,16 +1,13 @@
 extends Node
 ## Headless Sherpa-ONNX TTS manager.
-## Prefers the native SherpaOfflineTTS GDExtension and falls back to the
-## Python helper via PowerShell when the extension is not loaded.
+## Uses the native SherpaOfflineTTS GDExtension.
 ## Generates wav per interaction.dialogue -> attaches sound_filename.
 
 signal tts_generated(uuid: String, idx: int, sound_filename: String, save_path: String)
 signal batch_completed(uuid: String)
 
-const SHERPA_DIR := "server/sherpa-onnx"
-const SHERPA_EXE := "server/sherpa-onnx/bin/sherpa-onnx-offline-tts.exe"
-const SHERPA_PYTHON := "server/sherpa-onnx/python/Scripts/python.exe"
-const MODELS_ROOT := "server/sherpa-onnx/models"
+const MODELS_ROOT := "data/sherpa-models"
+const SHERPA_EXTENSION := "res://addons/sherpa_tts/sherpa_tts.gdextension"
 const SPEED := 1.0
 const SID := 0
 const NUM_THREADS := 4
@@ -26,6 +23,7 @@ const MODEL_YUE_FALLBACK := "vits-cantonese-hf-xiaomaiiwn/vits-cantonese-hf-xiao
 var _queue: Array = [] # Array[Dictionary] {uuid, idx, dialogue, sex, language}
 var _generating: bool = false
 var _current_task: Dictionary = {}
+var _native_extension: Resource = null
 
 
 func _ready() -> void:
@@ -33,7 +31,7 @@ func _ready() -> void:
 
 
 func is_available() -> bool:
-	return _has_native_tts() or FileAccess.file_exists(AppPaths.external_path(SHERPA_EXE))
+	return _has_native_tts()
 
 
 func _model_for(sex: String, language: String) -> Dictionary:
@@ -58,7 +56,7 @@ func _model_for(sex: String, language: String) -> Dictionary:
 
 func _resolve_model(onnx_rel: String) -> Dictionary:
 	# onnx_rel like vits-piper-en_US-amy-low/en_US-amy-low.onnx
-	var base_dir := MODELS_ROOT + "/" + onnx_rel.get_base_dir() # models/xxx
+	var base_dir := MODELS_ROOT + "/" + onnx_rel.get_base_dir()
 	var tokens := base_dir + "/tokens.txt"
 	var data_dir := base_dir + "/espeak-ng-data"
 	var lexicon := base_dir + "/lexicon.txt"
@@ -69,10 +67,8 @@ func _resolve_model(onnx_rel: String) -> Dictionary:
 
 func _is_sherpa_ready(model: Dictionary) -> bool:
 	if not _has_native_tts():
-		var exe_global := AppPaths.external_path(SHERPA_EXE)
-		if not FileAccess.file_exists(exe_global):
-			push_warning("TTSManager: sherpa exe not found: %s" % exe_global)
-			return false
+		push_warning("TTSManager: native SherpaOfflineTTS extension is not loaded")
+		return false
 	for k in ["onnx", "tokens"]:
 		var p: String = str(model.get(k, ""))
 		var gp := AppPaths.external_path(p)
@@ -209,7 +205,7 @@ func _process_queue() -> void:
 		_attach_sound_filename(uuid, idx, fname)
 		var user_save_path := "user://saves/%s/sounds/%s" % [uuid, fname]
 		tts_generated.emit(uuid, idx, fname, user_save_path)
-		await get_tree().create_timer(6).timeout
+		await get_tree().create_timer(1.5).timeout
 	var batch_uuid := str(_current_task.get("uuid", ""))
 	_current_task = {}
 	_generating = false
@@ -271,104 +267,16 @@ func _attach_sound_filename(uuid: String, idx: int, fname: String) -> void:
 
 
 func _synthesize(text: String, output_global_path: String, model: Dictionary) -> int:
-	if _has_native_tts():
-		return await _synthesize_native(text, output_global_path, model)
-
-	# Reliable: Godot -> UTF-8 text file -> PowerShell reads UTF-8 -> Python helper -> Sherpa
-	# No Chinese in PS1 or command line, only file paths (ASCII)
-	var tmp_id := "%d_%d" % [Time.get_ticks_msec(), randi()]
-	var txt_user := "user://tmp_tts_%s.txt" % tmp_id
-	var ps1_user := "user://tmp_tts_%s.ps1" % tmp_id
-	var txt_global := ProjectSettings.globalize_path(txt_user)
-	var ps1_global := ProjectSettings.globalize_path(ps1_user)
-	var helper_user := "user://tmp_tts_helper_%s.py" % tmp_id
-	var helper_global := _tts_helper_path_for_process(helper_user)
-	if helper_global.is_empty():
-		_cleanup_tts_temp_files([ps1_user, txt_user, helper_user])
+	if not _has_native_tts():
 		return -1
-	var onnx_global := AppPaths.external_path(str(model.get("onnx", "")))
-	var tokens_global := AppPaths.external_path(str(model.get("tokens", "")))
-	var data_dir_global := AppPaths.external_path(str(model.get("data_dir", "")))
-	var lexicon_global := AppPaths.external_path(str(model.get("lexicon", "")))
-	var rule_fsts_global := str(model.get("rule_fsts", ""))
-	var rule_fsts_arg := ""
-	if not rule_fsts_global.is_empty():
-		var parts := rule_fsts_global.split(",")
-		var glob_parts: Array = []
-		for p in parts:
-			var gp := AppPaths.external_path(str(p).strip_edges())
-			if FileAccess.file_exists(gp):
-				glob_parts.append(gp)
-		rule_fsts_arg = ",".join(glob_parts)
-	var extra_args := ""
-	var gp_data_check := AppPaths.external_path(str(model.get("data_dir", "")))
-	var has_data_dir := DirAccess.dir_exists_absolute(gp_data_check)
-	if has_data_dir:
-		extra_args = '--vits-data-dir "%s"' % data_dir_global
-	else:
-		var has_lex := FileAccess.file_exists(lexicon_global)
-		if has_lex:
-			extra_args = '--vits-lexicon "%s"' % lexicon_global
-			if not rule_fsts_arg.is_empty():
-				extra_args += ' --tts-rule-fsts "%s"' % rule_fsts_arg
-		else:
-			extra_args = '--vits-data-dir "%s"' % data_dir_global
-	# 1. Write dialogue to UTF-8 text file (Godot FileAccess is UTF-8)
-	var tf := FileAccess.open(txt_user, FileAccess.WRITE)
-	if tf == null:
-		push_error("TTSManager: failed to create txt %s" % txt_user)
-		return -1
-	var tts_text := _normalize_tts_punctuation(text)
-	print_verbose("TTSManager: text after punctuation normalization: %s" % tts_text)
-	tf.store_string(tts_text)
-	tf.close()
-	# 2. Write PS1 that calls Python helper with --text-file (no Chinese in PS1)
-	# PS1 itself is ASCII-only, so no BOM / encoding issues
-	var ps1_content := """$ErrorActionPreference='Stop'
-$BundledPython = "%s"
-if (Test-Path $BundledPython) {
-  & $BundledPython "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
-} elseif (Get-Command py -ErrorAction SilentlyContinue) {
-  py "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
-} else {
-  python "%s" --vits-model "%s" --vits-tokens "%s" %s --output-filename "%s" --text-file "%s" --num-threads=%d
-}
-exit $LASTEXITCODE
-""" % [
-	AppPaths.external_path(SHERPA_PYTHON),
-	helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS,
-	helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS,
-	helper_global, onnx_global, tokens_global, extra_args, output_global_path, txt_global, NUM_THREADS,
-]
-	var f := FileAccess.open(ps1_user, FileAccess.WRITE)
-	if f == null:
-		push_error("TTSManager: failed to create ps1 %s" % ps1_user)
-		if FileAccess.file_exists(txt_user):
-			var d2 := DirAccess.open(txt_global.get_base_dir())
-			if d2:
-				d2.remove(txt_global.get_file())
-		return -1
-	f.store_string(ps1_content)
-	f.close()
-	# 3. Run PS1 off the main thread. OS.execute blocks the whole game (hover/input
-	# stall ~1s+) while Python loads the ONNX model and synthesizes. Poll instead.
-	var args := PackedStringArray(["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ps1_global])
-	var pid: int = OS.create_process("powershell", args, false)
-	if pid < 0:
-		pid = OS.create_process("pwsh", args, false)
-	if pid < 0:
-		push_error("TTSManager: failed to start powershell for TTS")
-		_cleanup_tts_temp_files([ps1_user, txt_user, helper_user])
-		return -1
-	while OS.is_process_running(pid):
-		await get_tree().process_frame
-	var exit_code := 0 if FileAccess.file_exists(output_global_path) else -1
-	# 4. Delete both temp files
-	_cleanup_tts_temp_files([ps1_user, txt_user, helper_user])
-	return exit_code
+	return await _synthesize_native(text, output_global_path, model)
 
 
 func _has_native_tts() -> bool:
+	if not ClassDB.class_exists("SherpaOfflineTTS"):
+		_native_extension = ResourceLoader.load(SHERPA_EXTENSION)
+		if _native_extension == null:
+			push_warning("TTSManager: failed to load native extension: %s" % SHERPA_EXTENSION)
 	return ClassDB.class_exists("SherpaOfflineTTS")
 
 
@@ -411,6 +319,10 @@ func _globalized_model(model: Dictionary) -> Dictionary:
 		var value := str(out.get(key, ""))
 		if not value.is_empty():
 			out[key] = AppPaths.external_path(value)
+	if not DirAccess.dir_exists_absolute(str(out.get("data_dir", ""))):
+		out["data_dir"] = ""
+	if not FileAccess.file_exists(str(out.get("lexicon", ""))):
+		out["lexicon"] = ""
 	var rule_fsts := str(out.get("rule_fsts", ""))
 	if not rule_fsts.is_empty():
 		var parts := rule_fsts.split(",")
@@ -421,26 +333,6 @@ func _globalized_model(model: Dictionary) -> Dictionary:
 				glob_parts.append(gp)
 		out["rule_fsts"] = ",".join(glob_parts)
 	return out
-
-
-func _tts_helper_path_for_process(helper_user: String) -> String:
-	var external_helper := AppPaths.external_path("scripts/tts_helper.py")
-	if FileAccess.file_exists(external_helper):
-		return external_helper
-	var bundled_helper := "res://scripts/tts_helper.py"
-	var src := FileAccess.open(bundled_helper, FileAccess.READ)
-	if src == null:
-		push_error("TTSManager: tts_helper.py not found at %s or %s" % [external_helper, bundled_helper])
-		return ""
-	var helper_text := src.get_as_text()
-	src.close()
-	var out := FileAccess.open(helper_user, FileAccess.WRITE)
-	if out == null:
-		push_error("TTSManager: failed to create helper %s" % helper_user)
-		return ""
-	out.store_string(helper_text)
-	out.close()
-	return ProjectSettings.globalize_path(helper_user)
 
 
 func _normalize_tts_punctuation(text: String) -> String:
@@ -480,18 +372,6 @@ func _ascii_punctuation_for_tts(c: String) -> String:
 		"・", "･", "·":
 			return " "
 	return c
-
-
-func _cleanup_tts_temp_files(user_paths: Array) -> void:
-	for user_path in user_paths:
-		if not FileAccess.file_exists(user_path):
-			continue
-		var g := ProjectSettings.globalize_path(str(user_path))
-		var dir := g.get_base_dir()
-		var fname := g.get_file()
-		var d := DirAccess.open(dir)
-		if d != null:
-			d.remove(fname)
 
 
 func _generate_uuid() -> String:

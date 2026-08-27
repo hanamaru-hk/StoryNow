@@ -15,5 +15,5 @@ scons platform=windows target=template_debug arch=x86_64
 The build links against the existing local Sherpa package under `server/sherpa-onnx`
 and copies the required runtime DLLs into `addons/sherpa_tts/bin`.
 
-`scripts/tts_manager.gd` automatically uses `SherpaOfflineTTS` when the extension
-is loaded, and falls back to the existing Python/PowerShell helper otherwise.
+`scripts/tts_manager.gd` requires `SherpaOfflineTTS`; there is no Python TTS
+fallback path.

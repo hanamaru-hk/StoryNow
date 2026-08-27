@@ -9,4 +9,4 @@ addons/sherpa_tts/bin/*.exp
 addons/sherpa_tts/bin/*.lib
 addons/sherpa_tts/bin/*.pdb
 addons/sherpa_tts/src/*.obj
-
+data/sherpa-models
