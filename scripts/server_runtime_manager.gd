@@ -24,6 +24,7 @@ var _heartbeat_timer: Timer
 var _llm_started_this_session := false
 var _image_started_this_session := false
 var _next_request_id := 1
+var _is_shutting_down := false
 
 
 func _ready() -> void:
@@ -133,7 +134,9 @@ func _get_heartbeat_interval() -> float:
 
 
 func _update_heartbeat_interval() -> void:
-	if _heartbeat_timer == null:
+	if _is_shutting_down or not is_inside_tree():
+		return
+	if _heartbeat_timer == null or not _heartbeat_timer.is_inside_tree():
 		return
 	var next_interval := _get_heartbeat_interval()
 	if is_equal_approx(_heartbeat_timer.wait_time, next_interval):
@@ -189,6 +192,11 @@ func _notification(what: int) -> void:
 
 
 func _exit_tree() -> void:
+	_is_shutting_down = true
+	if LLMManager.status_changed.is_connected(_on_llm_status_changed):
+		LLMManager.status_changed.disconnect(_on_llm_status_changed)
+	if ImageServerManager.status_changed.is_connected(_on_image_status_changed):
+		ImageServerManager.status_changed.disconnect(_on_image_status_changed)
 	if _llm_started_this_session:
 		LLMManager.stop_server()
 		_llm_started_this_session = false
