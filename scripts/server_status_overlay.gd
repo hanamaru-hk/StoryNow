@@ -101,6 +101,16 @@ func _make_queue_row(item: Dictionary) -> Control:
 	circle.set_request_item(item)
 	row.add_child(circle)
 
+	if str(item.get("kind", "")) == "image" and item.has("progress"):
+		var progress_bar := ProgressBar.new()
+		progress_bar.min_value = 0.0
+		progress_bar.max_value = 1.0
+		progress_bar.value = clampf(float(item.get("progress", 0.0)), 0.0, 1.0)
+		progress_bar.show_percentage = false
+		progress_bar.custom_minimum_size = Vector2(0, 8)
+		progress_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stack.add_child(progress_bar)
+
 	var stream_text := str(item.get("stream_text", ""))
 	if not stream_text.is_empty():
 		var stream := RichTextLabel.new()

@@ -274,11 +274,12 @@ func _queue_comfy_prompt(workflow_dict: Dictionary) -> String:
 	return prompt_id
 
 
-func _poll_comfy_history(prompt_id: String) -> Dictionary:
+func _poll_comfy_history(prompt_id: String, queue_id: int) -> Dictionary:
 	var port: int = int(ImageServerSettingsManager.settings.get("port", 56321))
 	var url := "http://127.0.0.1:%d/history/%s" % [port, prompt_id]
 	var max_attempts: int = 120
-	for _attempt in max_attempts:
+	for attempt in max_attempts:
+		await _update_comfy_queue_progress(prompt_id, queue_id, attempt, max_attempts)
 		var http := HTTPRequest.new()
 		add_child(http)
 		http.timeout = 60.0
@@ -325,6 +326,89 @@ func _poll_comfy_history(prompt_id: String) -> Dictionary:
 				return (n5["images"] as Array)[0] as Dictionary
 		await get_tree().create_timer(0.5).timeout
 	return {}
+
+
+func _update_comfy_queue_progress(prompt_id: String, queue_id: int, attempt: int, max_attempts: int) -> void:
+	var queue_state := await _get_comfy_queue_state(prompt_id)
+	var progress := 0.1
+	var status_text := "Queued"
+	match str(queue_state.get("state", "")):
+		"running":
+			progress = 0.25 + 0.65 * clampf(float(attempt) / maxf(float(max_attempts), 1.0), 0.0, 1.0)
+			status_text = "Running"
+		"pending":
+			var position := int(queue_state.get("position", 0))
+			progress = 0.1
+			status_text = "Queued %d" % position
+		"done":
+			progress = 0.92
+			status_text = "Finalizing"
+		_:
+			progress = 0.15 + 0.5 * clampf(float(attempt) / maxf(float(max_attempts), 1.0), 0.0, 1.0)
+			status_text = "Waiting"
+	ServerRuntimeManager.update_request(queue_id, {
+		"status": status_text,
+		"progress": progress,
+	})
+
+
+func _get_comfy_queue_state(prompt_id: String) -> Dictionary:
+	var port: int = int(ImageServerSettingsManager.settings.get("port", 56321))
+	var url := "http://127.0.0.1:%d/queue" % port
+	var http := HTTPRequest.new()
+	add_child(http)
+	http.timeout = 5.0
+	var req_err := http.request(url, PackedStringArray(), HTTPClient.METHOD_GET, "")
+	if req_err != OK:
+		http.queue_free()
+		return {"state": "unknown"}
+	var result: Array = await http.request_completed
+	http.queue_free()
+	var result_code: int = result[0]
+	var response_code: int = result[1]
+	var body: PackedByteArray = result[3]
+	if result_code != HTTPRequest.RESULT_SUCCESS or response_code < 200 or response_code >= 300:
+		return {"state": "unknown"}
+	var json := JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK or not json.data is Dictionary:
+		return {"state": "unknown"}
+	var data: Dictionary = json.data as Dictionary
+	var running := _find_prompt_in_queue(data.get("queue_running", []), prompt_id)
+	if not running.is_empty():
+		return {"state": "running"}
+	var pending := _find_prompt_in_queue(data.get("queue_pending", []), prompt_id)
+	if not pending.is_empty():
+		return {"state": "pending", "position": int(pending.get("position", 0))}
+	return {"state": "done"}
+
+
+func _find_prompt_in_queue(items: Variant, prompt_id: String) -> Dictionary:
+	if not (items is Array):
+		return {}
+	var queue_items: Array = items as Array
+	for index in range(queue_items.size()):
+		var item = queue_items[index]
+		if _queue_item_has_prompt_id(item, prompt_id):
+			return {"position": index + 1}
+	return {}
+
+
+func _queue_item_has_prompt_id(item: Variant, prompt_id: String) -> bool:
+	if item is Dictionary:
+		var dict: Dictionary = item as Dictionary
+		if str(dict.get("prompt_id", "")) == prompt_id:
+			return true
+		for value in dict.values():
+			if _queue_item_has_prompt_id(value, prompt_id):
+				return true
+	elif item is Array:
+		var array_item: Array = item as Array
+		for value in array_item:
+			if _queue_item_has_prompt_id(value, prompt_id):
+				return true
+	elif str(item) == prompt_id:
+		return true
+	return false
 
 
 func _download_comfy_image(filename: String, subfolder: String, img_type: String, uuid: String) -> String:
@@ -411,7 +495,8 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	if prompt_id.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Failed to queue ComfyUI prompt", "prompt": image_prompt}
-	var image_info := await _poll_comfy_history(prompt_id)
+	ServerRuntimeManager.update_request(queue_id, {"status": "Queued", "progress": 0.1})
+	var image_info := await _poll_comfy_history(prompt_id, queue_id)
 	if image_info.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "ComfyUI did not return image (timeout or error)", "prompt": image_prompt}
@@ -421,9 +506,11 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	if filename.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "ComfyUI history missing filename", "prompt": image_prompt}
+	ServerRuntimeManager.update_request(queue_id, {"status": "Downloading", "progress": 0.95})
 	var save_path := await _download_comfy_image(filename, subfolder, img_type, uuid)
 	if save_path.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		return {"success": false, "error": "Failed to download ComfyUI image", "prompt": image_prompt}
+	ServerRuntimeManager.update_request(queue_id, {"status": "Done", "progress": 1.0})
 	ServerRuntimeManager.pop_request(queue_id)
 	return {"success": true, "save_path": save_path, "filename": filename, "prompt": image_prompt, "seed": seed_val}
