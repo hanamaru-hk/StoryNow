@@ -92,7 +92,10 @@ func _start_heartbeat() -> void:
 
 
 func _add_overlay() -> void:
-	var overlay := preload("res://scenes/server_status_overlay.tscn").instantiate()
+	var overlay_scene := load("res://scenes/server_status_overlay.tscn") as PackedScene
+	if overlay_scene == null:
+		return
+	var overlay: Node = overlay_scene.instantiate()
 	get_tree().root.add_child(overlay)
 
 
