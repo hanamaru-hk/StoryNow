@@ -80,4 +80,7 @@ func _update_labels() -> void:
 	%Setting.text = I18n.translate("btn_game_setting")
 	%AdvancedSetting.text = I18n.translate("btn_advanced_setting")
 	%Exit.text = I18n.translate("btn_exit")
-	$CenterContainer/VBoxContainer/Title.text = I18n.translate("main_title")
+
+
+func _on_menu_video_finished() -> void:
+	%MenuVideo.paused = true

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://main_menu"]
+[gd_scene load_steps=11 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2"]
@@ -8,6 +8,11 @@
 [ext_resource type="PackedScene" path="res://scenes/load_game_overlay.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/gallery_overlay.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/advanced_settings_overlay.tscn" id="8"]
+[ext_resource type="VideoStream" path="res://assets/videos/1.ogv" id="9"]
+[ext_resource type="Texture2D" path="res://assets/images/block.png" id="10"]
+
+[sub_resource type="SystemFont" id="SystemFont_serif_cjk"]
+font_names = PackedStringArray("Noto Serif CJK TC", "Noto Serif CJK SC", "Source Han Serif TC", "Source Han Serif SC", "PMingLiU", "MingLiU", "SimSun", "Songti SC", "Yu Mincho", "MS Mincho", "Times New Roman", "Georgia")
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -27,11 +32,38 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.1, 0.1, 0.15, 1)
 
+[node name="MenuVideo" type="VideoStreamPlayer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+anchor_top = 0.0
+offset_right = 1440.0
+offset_bottom = 1080.0
+stream = ExtResource("9")
+autoplay = true
+expand = true
+
+[node name="BlockImage" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1280.0
+grow_horizontal = 0
+grow_vertical = 2
+texture = ExtResource("10")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 600.0
+offset_right = 600.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -39,57 +71,65 @@ grow_vertical = 2
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-text = "StoryNow"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Spacer" type="Control" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 32)
-
-[node name="Start" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="Start" type="LinkButton" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(240, 48)
+custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
+theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_font_sizes/font_size = 56
 text = "Start"
+underline = 1
 
-[node name="Load" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="Load" type="LinkButton" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(240, 48)
+custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
+theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_font_sizes/font_size = 56
 text = "Load"
+underline = 1
 
-[node name="Gallery" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="Gallery" type="LinkButton" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(240, 48)
+custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
+theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_font_sizes/font_size = 56
 text = "Gallery"
+underline = 1
 
-[node name="Setting" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="Setting" type="LinkButton" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(240, 48)
+custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
+theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_font_sizes/font_size = 56
 text = "Setting"
+underline = 1
 
-[node name="AdvancedSetting" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="AdvancedSetting" type="LinkButton" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(240, 48)
+custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
+theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_font_sizes/font_size = 56
 text = "Advanced Setting"
+underline = 1
 
-[node name="Exit" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="Exit" type="LinkButton" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(240, 48)
+custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
+theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_font_sizes/font_size = 56
 text = "Exit"
+underline = 1
 
 [node name="GameSettingsOverlay" parent="." instance=ExtResource("2")]
 unique_name_in_owner = true
@@ -111,3 +151,5 @@ unique_name_in_owner = true
 
 [node name="GalleryOverlay" parent="." instance=ExtResource("7")]
 unique_name_in_owner = true
+
+[connection signal="finished" from="MenuVideo" to="." method="_on_menu_video_finished"]
