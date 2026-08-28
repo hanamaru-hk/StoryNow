@@ -18,6 +18,7 @@ func open() -> void:
 
 func _choose_language(lang: String) -> void:
 	GameSettingsManager.set_language(lang)
+	GameSettingsManager.complete_first_time_setup()
 	visible = false
 	language_selected.emit(lang)
 

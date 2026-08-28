@@ -4,10 +4,13 @@ const SETTINGS_PATH := "user://game_settings.json"
 const DEFAULT_SETTINGS_PATH := "data/default_game_settings.json"
 
 var settings := {
+	"first_time": true,
 	"language": "en",
 	"screen_size": "full",
 	"safe_mode": false,
 	"tried_free_mode_yet": false,
+	"image_width": "1344",
+	"image_height": "768",
 	"autoplay_tts": true,
 	"show_streaming": true,
 }
@@ -54,6 +57,11 @@ func reset_to_defaults() -> void:
 func set_language(lang: String) -> void:
 	settings["language"] = lang
 	_apply_language()
+	save_settings()
+
+
+func complete_first_time_setup() -> void:
+	settings["first_time"] = false
 	save_settings()
 
 

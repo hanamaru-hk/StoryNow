@@ -64,7 +64,7 @@ func _on_exit_pressed() -> void:
 
 
 func _check_first_time_overlay() -> void:
-	if not FileAccess.file_exists(GameSettingsManager.SETTINGS_PATH):
+	if bool(GameSettingsManager.settings.get("first_time", true)):
 		%FirstTimeLanguageOverlay.open()
 
 
