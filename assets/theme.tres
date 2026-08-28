@@ -1,4 +1,7 @@
 [gd_resource type="Theme" load_steps=2 format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSerifCJKjp-SemiBold.otf" id="1_noto_serif_cjk_jp_semibold"]
+
 [resource]
+default_font = ExtResource("1_noto_serif_cjk_jp_semibold")
 default_font_size = 28

@@ -9,9 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/gallery_overlay.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/advanced_settings_overlay.tscn" id="8"]
 [ext_resource type="VideoStream" path="res://assets/videos/1.ogv" id="9"]
-
-[sub_resource type="SystemFont" id="SystemFont_serif_cjk"]
-font_names = PackedStringArray("Noto Serif CJK TC", "Noto Serif CJK SC", "Source Han Serif TC", "Source Han Serif SC", "PMingLiU", "MingLiU", "SimSun", "Songti SC", "Yu Mincho", "MS Mincho", "Times New Roman", "Georgia")
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSerifCJKjp-Bold.otf" id="10_noto_serif_cjk_jp_bold"]
 
 [sub_resource type="Shader" id="Shader_left_black_fade"]
 code = "shader_type canvas_item;
@@ -85,7 +83,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
 theme_override_font_sizes/font_size = 56
 text = "Start"
 underline = 1
@@ -95,7 +93,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
 theme_override_font_sizes/font_size = 56
 text = "Load"
 underline = 1
@@ -105,7 +103,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
 theme_override_font_sizes/font_size = 56
 text = "Gallery"
 underline = 1
@@ -115,7 +113,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
 theme_override_font_sizes/font_size = 56
 text = "Setting"
 underline = 1
@@ -125,7 +123,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
 theme_override_font_sizes/font_size = 56
 text = "Advanced Setting"
 underline = 1
@@ -135,7 +133,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(480, 96)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("SystemFont_serif_cjk")
+theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
 theme_override_font_sizes/font_size = 56
 text = "Exit"
 underline = 1
