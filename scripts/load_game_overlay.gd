@@ -7,6 +7,8 @@ var _all_entries: Array[Dictionary] = []
 var _current_page: int = 1
 var _total_pages: int = 1
 var _error_dialog: AcceptDialog
+var _delete_confirm_dialog: ConfirmationDialog
+var _pending_delete_uuid: String = ""
 
 func _ready() -> void:
 	if has_node("%LoadCloseButton"):
@@ -14,6 +16,7 @@ func _ready() -> void:
 	if has_node("%LoadBackground"):
 		%LoadBackground.gui_input.connect(_on_background_input)
 	_create_error_dialog()
+	_create_delete_confirm_dialog()
 	_update_labels()
 
 
@@ -47,6 +50,10 @@ func _update_labels() -> void:
 		%LoadCloseButton.text = b
 	if _error_dialog != null:
 		_error_dialog.title = I18n.translate("error_dialog_title")
+	if _delete_confirm_dialog != null:
+		_delete_confirm_dialog.title = I18n.translate("confirm_dialog_title")
+		_delete_confirm_dialog.ok_button_text = I18n.translate("btn_confirm")
+		_delete_confirm_dialog.cancel_button_text = I18n.translate("btn_cancel")
 
 
 func _refresh_list() -> void:
@@ -384,13 +391,22 @@ func _add_save_item(entry: Dictionary) -> void:
 
 	row.add_child(vbox)
 
-	var btn_text: String = I18n.translate("btn_load") if I18n.translate("btn_load") != "btn_load" else "Load"
-	var btn := Button.new()
-	btn.text = btn_text
-	btn.custom_minimum_size = Vector2(120, 44)
-	btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	btn.pressed.connect(_on_save_pressed.bind(uuid, entry))
-	row.add_child(btn)
+	var delete_btn_text: String = I18n.translate("btn_delete") if I18n.translate("btn_delete") != "btn_delete" else "Delete"
+	var delete_btn := Button.new()
+	delete_btn.text = delete_btn_text
+	delete_btn.custom_minimum_size = Vector2(120, 44)
+	delete_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	delete_btn.disabled = _is_current_gameplay_save(uuid)
+	delete_btn.pressed.connect(_on_delete_save_pressed.bind(uuid, title))
+	row.add_child(delete_btn)
+
+	var load_btn_text: String = I18n.translate("btn_load") if I18n.translate("btn_load") != "btn_load" else "Load"
+	var load_btn := Button.new()
+	load_btn.text = load_btn_text
+	load_btn.custom_minimum_size = Vector2(120, 44)
+	load_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	load_btn.pressed.connect(_on_save_pressed.bind(uuid, entry))
+	row.add_child(load_btn)
 
 	container.add_child(row)
 
@@ -466,6 +482,83 @@ func _on_save_pressed(uuid: String, entry: Dictionary) -> void:
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 
+func _on_delete_save_pressed(uuid: String, title: String) -> void:
+	var clean_uuid := uuid.strip_edges()
+	if clean_uuid.is_empty():
+		return
+	if _is_current_gameplay_save(clean_uuid):
+		return
+	_pending_delete_uuid = clean_uuid
+	if _delete_confirm_dialog == null:
+		_create_delete_confirm_dialog()
+	var template := I18n.translate("load_delete_confirm")
+	if template == "load_delete_confirm":
+		template = "Delete this save?\n%s"
+	_delete_confirm_dialog.dialog_text = template % title
+	_delete_confirm_dialog.popup_centered()
+
+
+func _on_delete_confirmed() -> void:
+	var uuid := _pending_delete_uuid.strip_edges()
+	_pending_delete_uuid = ""
+	if uuid.is_empty():
+		return
+	if _is_current_gameplay_save(uuid):
+		return
+	var save_path := "%s/%s" % [SceneDataManager.SAVE_DIR, uuid]
+	if not _delete_directory_recursive(save_path):
+		_show_error_dialog(I18n.translate("error_dialog_text"))
+		return
+	if str(GameProgressManager.settings.get("current_uuid", "")).strip_edges() == uuid:
+		GameProgressManager.settings["current_uuid"] = ""
+		GameProgressManager.settings["current_dialogue"] = 0
+		GameProgressManager.settings["game_status"] = ""
+		GameProgressManager.save_settings()
+	if str(SceneDataManager.scene_data.get("uuid", "")).strip_edges() == uuid:
+		SceneDataManager.scene_data = {}
+	_refresh_list()
+
+
+func _on_delete_canceled() -> void:
+	_pending_delete_uuid = ""
+
+
+func _is_current_gameplay_save(uuid: String) -> bool:
+	var clean_uuid := uuid.strip_edges()
+	if clean_uuid.is_empty():
+		return false
+	if get_tree().current_scene != null and get_tree().current_scene.name == "Gameplay":
+		return clean_uuid == str(GameProgressManager.settings.get("current_uuid", "")).strip_edges()
+	return false
+
+
+func _delete_directory_recursive(path: String) -> bool:
+	if path.strip_edges().is_empty() or not DirAccess.dir_exists_absolute(path):
+		return false
+	var dir := DirAccess.open(path)
+	if dir == null:
+		return false
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		if file_name != "." and file_name != "..":
+			var child_path := "%s/%s" % [path, file_name]
+			var ok := true
+			if dir.current_is_dir():
+				ok = _delete_directory_recursive(child_path)
+			else:
+				ok = dir.remove(file_name) == OK
+			if not ok:
+				dir.list_dir_end()
+				return false
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	var parent := DirAccess.open(path.get_base_dir())
+	if parent == null:
+		return false
+	return parent.remove(path.get_file()) == OK
+
+
 func _is_llm_ready() -> bool:
 	return ServerRuntimeManager.llm_state == ServerRuntimeManager.ServerState.HEALTHY
 
@@ -482,6 +575,14 @@ func _create_error_dialog() -> void:
 	_error_dialog = AcceptDialog.new()
 	_error_dialog.name = "LoadErrorDialog"
 	add_child(_error_dialog)
+
+
+func _create_delete_confirm_dialog() -> void:
+	_delete_confirm_dialog = ConfirmationDialog.new()
+	_delete_confirm_dialog.name = "LoadDeleteConfirmDialog"
+	_delete_confirm_dialog.confirmed.connect(_on_delete_confirmed)
+	_delete_confirm_dialog.canceled.connect(_on_delete_canceled)
+	add_child(_delete_confirm_dialog)
 
 
 func _show_error_dialog(message: String) -> void:
