@@ -4,11 +4,9 @@ const CURRENT_VERSION := "1.0"
 const CANTONESE_MALE_PITCH_SCALE := 0.7
 const TTS_VOICE_BUS := "TTSVoice"
 const GENERATING_IMAGE_PATH := "res://assets/images/generating.jpg"
-const MUSIC_DIR := "data/music"
 
 var _scene_data: Dictionary = {}
 var _current_dialog_idx: int = 0
-var _current_bgm_path: String = ""
 
 # Requested public dialogue tracking vars
 var current_dialogue_index: int = 0
@@ -27,8 +25,8 @@ func _ready() -> void:
 	%PlayAudioButton.pressed.connect(_on_play_audio_pressed)
 	%DialogButton.pressed.connect(_on_dialog_btn_pressed)
 	%ImageButton.pressed.connect(_on_image_btn_pressed)
-	%PrevDialogButton.pressed.connect(_on_prev_dialog_pressed)
-	%NextDialogButton.pressed.connect(_on_next_dialog_pressed)
+	%PrevLineButton.pressed.connect(_on_prev_dialog_pressed)
+	%NextLineButton.pressed.connect(_on_next_dialog_pressed)
 	%PrevSceneButton.pressed.connect(_on_prev_scene_pressed)
 	%NextSceneButton.pressed.connect(_on_next_scene_pressed)
 	%SettingButton.pressed.connect(_on_setting_pressed)
@@ -105,7 +103,6 @@ func _ready() -> void:
 		TTSManager.tts_generated.connect(_on_tts_generated)
 	if is_instance_valid(TTSManager) and TTSManager.has_signal("batch_completed") and not TTSManager.batch_completed.is_connected(_on_tts_batch_completed):
 		TTSManager.batch_completed.connect(_on_tts_batch_completed)
-
 	_update_labels()
 	_load_default_background()
 	# Disable all SidePanel buttons except Setting and gameplay menu at start
@@ -341,74 +338,7 @@ func _load_image_from_file_access(img: Image, path: String) -> Error:
 
 
 func _play_scene_bgm() -> void:
-	var mood: String = _scene_bgm_mood()
-	if mood.is_empty():
-		_stop_scene_bgm()
-		return
-	var music_path: String = _pick_random_music_path(mood)
-	if music_path.is_empty():
-		push_warning("No music found for bgm mood: %s" % mood)
-		_stop_scene_bgm()
-		return
-	if music_path == _current_bgm_path and _get_bgm_player().playing:
-		return
-	var stream: AudioStreamMP3 = AudioStreamMP3.load_from_file(music_path)
-	if stream == null:
-		push_warning("Failed to load bgm: %s" % music_path)
-		_stop_scene_bgm()
-		return
-	stream.loop = true
-	_current_bgm_path = music_path
-	var player := _get_bgm_player()
-	player.stream = stream
-	player.play()
-
-
-func _stop_scene_bgm() -> void:
-	if not has_node("%BGMPlayer"):
-		return
-	var player := _get_bgm_player()
-	player.stop()
-	player.stream = null
-	_current_bgm_path = ""
-
-
-func _scene_bgm_mood() -> String:
-	var mood: String = str(SceneDataManager.scene_data.get("bgm_mood", "")).strip_edges().to_lower()
-	if mood.is_empty():
-		mood = str(SceneDataManager.scene_data.get("music_mood", "")).strip_edges().to_lower()
-	return mood
-
-
-func _pick_random_music_path(mood: String) -> String:
-	var dir_path: String = AppPaths.external_path(MUSIC_DIR.path_join(mood))
-	var dir := DirAccess.open(dir_path)
-	if dir == null:
-		return ""
-	var candidates: PackedStringArray = []
-	dir.list_dir_begin()
-	var file_name: String = dir.get_next()
-	while not file_name.is_empty():
-		if not dir.current_is_dir() and _is_supported_music_file(file_name):
-			candidates.append(dir_path.path_join(file_name))
-		file_name = dir.get_next()
-	dir.list_dir_end()
-	if candidates.is_empty():
-		return ""
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	return candidates[rng.randi_range(0, candidates.size() - 1)]
-
-
-func _is_supported_music_file(file_name: String) -> bool:
-	var lower_name: String = file_name.to_lower()
-	return lower_name.ends_with(".mp3")
-
-
-func _get_bgm_player() -> AudioStreamPlayer:
-	if has_node("%BGMPlayer"):
-		return %BGMPlayer as AudioStreamPlayer
-	return $BGMPlayer as AudioStreamPlayer
+	MusicManager.play_for_scene(SceneDataManager.scene_data)
 
 # ------------------------------------------------------------------
 # Dialogue helpers — current/total tracking and UI update
@@ -581,8 +511,8 @@ func _set_all_side_buttons_disabled_except_settings_back() -> void:
 	%ImageButton.disabled = true
 	%PlotButton.disabled = true
 	%PlayAudioButton.disabled = true
-	%PrevDialogButton.disabled = true
-	%NextDialogButton.disabled = true
+	%PrevLineButton.disabled = true
+	%NextLineButton.disabled = true
 	%PrevSceneButton.disabled = true
 	%NextSceneButton.disabled = true
 	%SettingButton.disabled = false
@@ -595,8 +525,8 @@ func _update_button_eligibility() -> void:
 	%ImageButton.disabled = not is_running
 	%PlotButton.disabled = not is_running
 	%PlayAudioButton.disabled = not _current_dialogue_wav_exists()
-	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
-	%NextDialogButton.disabled = not is_running and _is_at_choice_dialogue()
+	%PrevLineButton.disabled = not _is_prev_dialogue_exist()
+	%NextLineButton.disabled = not is_running and _is_at_choice_dialogue()
 	%PrevSceneButton.disabled = not is_running or not _is_prev_scene_exist()
 	%NextSceneButton.disabled = not is_running
 
@@ -1940,8 +1870,8 @@ func _update_labels() -> void:
 	%ImageButton.text = I18n.translate("btn_image") if I18n.translate("btn_image") != "btn_image" else "Image"
 	%PlotButton.text = I18n.translate("btn_plot") if I18n.translate("btn_plot") != "btn_plot" else "Plot"
 	%PlayAudioButton.text = I18n.translate("btn_play_audio") if I18n.translate("btn_play_audio") != "btn_play_audio" else "Play"
-	%PrevDialogButton.text = I18n.translate("btn_prev_dialog") if I18n.translate("btn_prev_dialog") != "btn_prev_dialog" else "< Dialogue"
-	%NextDialogButton.text = I18n.translate("btn_next_dialog") if I18n.translate("btn_next_dialog") != "btn_next_dialog" else "Dialogue >"
+	%PrevLineButton.text = I18n.translate("btn_prev_dialog") if I18n.translate("btn_prev_dialog") != "btn_prev_dialog" else "< Dialogue"
+	%NextLineButton.text = I18n.translate("btn_next_dialog") if I18n.translate("btn_next_dialog") != "btn_next_dialog" else "Dialogue >"
 	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "<< Scene"
 	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Scene >>"
 	%SettingButton.text = I18n.translate("btn_setting") if I18n.translate("btn_setting") != "btn_setting" else "Setting"
