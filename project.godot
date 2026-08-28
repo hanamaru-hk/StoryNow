@@ -31,6 +31,7 @@ ServerRuntimeManager="*res://scripts/server_runtime_manager.gd"
 SceneDataManager="*res://scripts/scene_data_manager.gd"
 GameProgressManager="*res://scripts/game_progress_manager.gd"
 TTSManager="*res://scripts/tts_manager.gd"
+MusicManager="*res://scripts/music_manager.gd"
 
 [display]
 

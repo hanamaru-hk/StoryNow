@@ -15,6 +15,10 @@ func _ready() -> void:
 		%AutoplayCheck.toggled.connect(_on_autoplay_toggled)
 	if has_node("%ShowStreamingCheck"):
 		%ShowStreamingCheck.toggled.connect(_on_show_streaming_toggled)
+	if has_node("%MusicVolumeSlider"):
+		%MusicVolumeSlider.value_changed.connect(_on_music_volume_changed)
+	if has_node("%MusicMuteCheck"):
+		%MusicMuteCheck.toggled.connect(_on_music_mute_toggled)
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -44,6 +48,7 @@ func _on_save_pressed() -> void:
 	GameSettingsManager.settings = _pending.duplicate(true)
 	GameSettingsManager._apply_language()
 	GameSettingsManager._apply_screen_size()
+	GameSettingsManager.music_settings_changed.emit()
 	GameSettingsManager.save_settings()
 	_pending = {}
 	visible = false
@@ -99,6 +104,16 @@ func _on_show_streaming_toggled(pressed: bool) -> void:
 	_update_labels()
 
 
+func _on_music_volume_changed(value: float) -> void:
+	_pending["music_volume"] = int(round(value))
+	_update_labels()
+
+
+func _on_music_mute_toggled(pressed: bool) -> void:
+	_pending["music_muted"] = pressed
+	_update_labels()
+
+
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
@@ -118,6 +133,13 @@ func _sync_ui_to_settings() -> void:
 	if has_node("%ShowStreamingCheck"):
 		%ShowStreamingCheck.button_pressed = bool(_pending.get("show_streaming", true))
 		%ShowStreamingCheck.text = I18n.translate("settings_on") if bool(_pending.get("show_streaming", true)) else I18n.translate("settings_off")
+	if has_node("%MusicVolumeSlider"):
+		%MusicVolumeSlider.value = float(_pending.get("music_volume", 70))
+	if has_node("%MusicVolumeValue"):
+		%MusicVolumeValue.text = "%d%%" % int(_pending.get("music_volume", 70))
+	if has_node("%MusicMuteCheck"):
+		%MusicMuteCheck.button_pressed = bool(_pending.get("music_muted", false))
+		%MusicMuteCheck.text = I18n.translate("settings_on") if bool(_pending.get("music_muted", false)) else I18n.translate("settings_off")
 
 
 func _update_labels() -> void:
@@ -132,6 +154,14 @@ func _update_labels() -> void:
 		%ShowStreamingLabel.text = I18n.translate("settings_show_streaming") if I18n.translate("settings_show_streaming") != "settings_show_streaming" else "Show streaming"
 	if has_node("%ShowStreamingCheck"):
 		%ShowStreamingCheck.text = I18n.translate("settings_on") if %ShowStreamingCheck.button_pressed else I18n.translate("settings_off")
+	if has_node("%MusicVolumeLabel"):
+		%MusicVolumeLabel.text = I18n.translate("settings_music_volume") if I18n.translate("settings_music_volume") != "settings_music_volume" else "Music Volume"
+	if has_node("%MusicVolumeValue"):
+		%MusicVolumeValue.text = "%d%%" % int(_pending.get("music_volume", 70))
+	if has_node("%MusicMuteLabel"):
+		%MusicMuteLabel.text = I18n.translate("settings_music_mute") if I18n.translate("settings_music_mute") != "settings_music_mute" else "Mute Music"
+	if has_node("%MusicMuteCheck"):
+		%MusicMuteCheck.text = I18n.translate("settings_on") if %MusicMuteCheck.button_pressed else I18n.translate("settings_off")
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")

@@ -21,6 +21,7 @@ func _ready() -> void:
 		%LoadGameOverlay.closed.connect(_on_settings_closed)
 	if has_node("%GalleryOverlay"):
 		%GalleryOverlay.closed.connect(_on_settings_closed)
+	MusicManager.play_random_mood("others")
 	_update_labels()
 	_check_first_time_overlay()
 

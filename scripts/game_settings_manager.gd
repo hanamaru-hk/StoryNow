@@ -1,5 +1,7 @@
 extends Node
 
+signal music_settings_changed
+
 const SETTINGS_PATH := "user://game_settings.json"
 const DEFAULT_SETTINGS_PATH := "data/default_game_settings.json"
 
@@ -15,6 +17,8 @@ var settings := {
 	"image_height": "768",
 	"autoplay_tts": true,
 	"show_streaming": true,
+	"music_volume": 70,
+	"music_muted": false,
 }
 
 
@@ -64,6 +68,7 @@ func reset_to_defaults() -> void:
 			_apply_language()
 			_apply_screen_size()
 			save_settings()
+			music_settings_changed.emit()
 
 
 func set_language(lang: String) -> void:
@@ -82,6 +87,13 @@ func set_screen_size(size: String) -> void:
 	_update_hidden_screen_fields()
 	_apply_screen_size()
 	save_settings()
+
+
+func set_music_settings(volume: int, muted: bool) -> void:
+	settings["music_volume"] = clampi(volume, 0, 100)
+	settings["music_muted"] = muted
+	save_settings()
+	music_settings_changed.emit()
 
 
 func toggle_fullscreen() -> void:
