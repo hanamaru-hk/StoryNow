@@ -92,6 +92,7 @@ func _ready() -> void:
 	# --- ErrorReturnPopup ---
 	%ErrorReturnPopup.confirmed.connect(_on_error_return)
 	%ErrorReturnPopup.canceled.connect(_on_error_return)
+	_center_popup_buttons(%ErrorReturnPopup)
 	# AcceptDialog close via X also triggers canceled
 	# Add Retry button for LLM JSON parse failures
 	_setup_error_popup_retry()
@@ -1822,6 +1823,13 @@ func _setup_error_popup_retry() -> void:
 	# Also listen for custom_action (some Godot versions emit this instead of Button.pressed)
 	if not %ErrorReturnPopup.custom_action.is_connected(_on_error_custom_action):
 		%ErrorReturnPopup.custom_action.connect(_on_error_custom_action)
+	_center_popup_buttons(%ErrorReturnPopup)
+
+
+func _center_popup_buttons(popup: AcceptDialog) -> void:
+	var ok_button := popup.get_ok_button()
+	if ok_button != null and ok_button.get_parent() is BoxContainer:
+		(ok_button.get_parent() as BoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER
 
 
 func _update_error_popup_retry_visibility(allow_retry: bool) -> void:

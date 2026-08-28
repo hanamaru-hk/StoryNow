@@ -331,7 +331,7 @@ wrap_mode = 1
 
 [node name="ButtonRow" type="HBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
-alignment = 2
+alignment = 1
 theme_override_constants/separation = 16
 
 [node name="EditBack" type="Button" parent="EditPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
@@ -397,7 +397,7 @@ autowrap_mode = 3
 
 [node name="ButtonRow" type="HBoxContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
-alignment = 2
+alignment = 1
 theme_override_constants/separation = 16
 
 [node name="RegenerateCancel" type="Button" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]

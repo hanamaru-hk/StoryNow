@@ -575,6 +575,7 @@ func _create_error_popup() -> void:
 	_error_popup = AcceptDialog.new()
 	_error_popup.name = "LoadErrorPopup"
 	add_child(_error_popup)
+	_center_popup_buttons(_error_popup)
 
 
 func _create_delete_confirm_popup() -> void:
@@ -583,6 +584,13 @@ func _create_delete_confirm_popup() -> void:
 	_delete_confirm_popup.confirmed.connect(_on_delete_confirmed)
 	_delete_confirm_popup.canceled.connect(_on_delete_canceled)
 	add_child(_delete_confirm_popup)
+	_center_popup_buttons(_delete_confirm_popup)
+
+
+func _center_popup_buttons(popup: AcceptDialog) -> void:
+	var ok_button := popup.get_ok_button()
+	if ok_button != null and ok_button.get_parent() is BoxContainer:
+		(ok_button.get_parent() as BoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER
 
 
 func _show_error_popup(message: String) -> void:

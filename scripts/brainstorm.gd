@@ -10,6 +10,7 @@ func _ready() -> void:
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
 	_create_random_confirm_popup()
+	_center_popup_buttons(%ErrorPopup)
 	_update_labels()
 
 
@@ -134,6 +135,13 @@ func _create_random_confirm_popup() -> void:
 	_random_confirm_popup.name = "RandomConfirmPopup"
 	_random_confirm_popup.confirmed.connect(_on_random_confirmed)
 	add_child(_random_confirm_popup)
+	_center_popup_buttons(_random_confirm_popup)
+
+
+func _center_popup_buttons(popup: AcceptDialog) -> void:
+	var ok_button := popup.get_ok_button()
+	if ok_button != null and ok_button.get_parent() is BoxContainer:
+		(ok_button.get_parent() as BoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER
 
 
 func _on_random_confirmed() -> void:
