@@ -197,6 +197,14 @@ func clear_requests_by_kinds(kinds: Array[String]) -> void:
 		request_queue_changed.emit(request_queue.duplicate(true))
 
 
+func has_generation_requests() -> bool:
+	for item in request_queue:
+		var kind := str(item.get("kind", ""))
+		if kind == "llm" or kind == "image" or kind == "sound":
+			return true
+	return false
+
+
 func cancel_active_generation_tasks() -> void:
 	LLMManager.cancel_active_request()
 	await ImageServerManager.interrupt_active_generation()

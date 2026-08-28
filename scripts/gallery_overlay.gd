@@ -364,6 +364,8 @@ func _on_gallery_item_pressed(uuid: String, entry: Dictionary) -> void:
 		return
 	if not SceneDataManager.load_data(uuid):
 		return
+	if ServerRuntimeManager.has_generation_requests():
+		await ServerRuntimeManager.cancel_active_generation_tasks()
 	SceneDataManager.scene_data["current_image_index"] = image_index
 	SceneDataManager.save()
 	GameProgressManager.settings["current_uuid"] = uuid

@@ -438,6 +438,8 @@ func _on_save_pressed(uuid: String, entry: Dictionary) -> void:
 	if not _are_story_servers_ready():
 		_show_error_dialog(I18n.translate("notice_wait_llm_and_image_ready"))
 		return
+	if ServerRuntimeManager.has_generation_requests():
+		await ServerRuntimeManager.cancel_active_generation_tasks()
 	# Similar to prev scene handler: set game progress uuid and go to gameplay
 	GameProgressManager.settings["current_uuid"] = uuid
 	GameProgressManager.settings["game_status"] = "running"
