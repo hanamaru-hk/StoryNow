@@ -403,6 +403,10 @@ func _is_prev_dialogue_exist() -> bool:
 	return current_dialogue_index != 0
 
 
+func _can_open_choice_overlay() -> bool:
+	return _current_game_status() == "running" and current_dialogue_index >= total_dialogue - 1
+
+
 func is_prev_scene_exist() -> bool:
 	return _is_prev_scene_exist()
 
@@ -427,6 +431,7 @@ func _set_all_side_buttons_disabled_except_settings_back() -> void:
 func _update_button_eligibility() -> void:
 	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
 	%PrevSceneButton.disabled = not _is_prev_scene_exist()
+	%NextSceneButton.disabled = not _can_open_choice_overlay()
 
 
 func _enable_all_side_buttons_by_eligibility() -> void:
@@ -435,7 +440,6 @@ func _enable_all_side_buttons_by_eligibility() -> void:
 	%PlotButton.disabled = false
 	%PlayAudioButton.disabled = false
 	%NextDialogButton.disabled = false
-	%NextSceneButton.disabled = false
 	# Prev buttons depend on eligibility
 	_update_button_eligibility()
 
@@ -779,11 +783,13 @@ func _on_prev_dialog_pressed() -> void:
 func _on_next_dialog_pressed() -> void:
 	# Spec: if (current_dialogue_index > total_dialogue) show choice overlay
 	if current_dialogue_index > total_dialogue:
-		_show_choice_overlay()
+		if _can_open_choice_overlay():
+			_show_choice_overlay()
 		return
 	# Also handle end-of-dialogue -> choice overlay (index at last dialogue)
 	if current_dialogue_index >= total_dialogue - 1:
-		_show_choice_overlay()
+		if _can_open_choice_overlay():
+			_show_choice_overlay()
 		return
 	if total_dialogue <= 1:
 		return
@@ -812,6 +818,8 @@ func _on_prev_scene_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 func _on_next_scene_pressed() -> void:
+	if not _can_open_choice_overlay():
+		return
 	_show_choice_overlay()
 
 
