@@ -81,13 +81,7 @@ func _refresh_list() -> void:
 					f.close()
 					if err == OK and json.data is Dictionary:
 						var data: Dictionary = json.data as Dictionary
-						var title: String = str(data.get("title", "")).strip_edges()
-						if title.is_empty():
-							title = str(data.get("summary", "")).strip_edges()
-							if title.length() > 80:
-								title = title.substr(0, 80) + "..."
-						if title.is_empty():
-							title = uuid
+						var title: String = _get_save_title(uuid, data)
 						var round_val: Variant = data.get("current_round", data.get("round", 1))
 						var round_int: int = 1
 						if round_val is int:
@@ -135,6 +129,25 @@ func _add_empty_label(text: String) -> void:
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container.add_child(lbl)
+
+
+func _is_generating_save(data: Dictionary) -> bool:
+	var game_status := str(data.get("game_status", "")).strip_edges()
+	return game_status == "new_story" or game_status == "new_scene" or game_status == "new scene"
+
+
+func _get_save_title(uuid: String, data: Dictionary) -> String:
+	if _is_generating_save(data):
+		var generating_text := I18n.translate("generating")
+		return generating_text if generating_text != "generating" else "Generating"
+	var title := str(data.get("title", "")).strip_edges()
+	if title.is_empty():
+		title = str(data.get("summary", "")).strip_edges()
+		if title.length() > 80:
+			title = title.substr(0, 80) + "..."
+	if title.is_empty():
+		title = uuid
+	return title
 
 
 func _show_current_page() -> void:
@@ -328,9 +341,7 @@ func _add_save_item(entry: Dictionary) -> void:
 	var container: VBoxContainer = %LoadList
 	var uuid: String = str(entry.get("uuid", ""))
 	var data: Dictionary = entry.get("data", {}) as Dictionary if entry.get("data", {}) is Dictionary else {}
-	var title: String = str(data.get("title", "")).strip_edges()
-	if title.is_empty():
-		title = uuid
+	var title: String = _get_save_title(uuid, data)
 	var timestamp: String = str(entry.get("timestamp", "")).strip_edges()
 
 	var row := HBoxContainer.new()
