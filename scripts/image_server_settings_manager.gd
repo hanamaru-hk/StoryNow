@@ -14,6 +14,7 @@ func _ready() -> void:
 
 
 func save_settings() -> void:
+	_normalize_integer_settings()
 	var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(settings, "\t"))
@@ -30,6 +31,7 @@ func load_settings() -> void:
 		file.close()
 		if error == OK and json.data is Dictionary:
 			settings.merge(json.data, true)
+			_normalize_integer_settings()
 
 
 func reset_to_defaults() -> void:
@@ -40,4 +42,11 @@ func reset_to_defaults() -> void:
 		file.close()
 		if error == OK and json.data is Dictionary:
 			settings = json.data.duplicate()
+			_normalize_integer_settings()
 			save_settings()
+
+
+func _normalize_integer_settings() -> void:
+	for key in ["port", "timeout"]:
+		if settings.has(key):
+			settings[key] = str(settings[key]).to_int()

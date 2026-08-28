@@ -10,6 +10,9 @@ func _ready() -> void:
 	%Reset.pressed.connect(_on_reset_pressed)
 	%Save.pressed.connect(_on_save_pressed)
 	%ModelOption.item_selected.connect(_on_model_selected)
+	%PortInput.text_changed.connect(_on_integer_input_changed.bind(%PortInput))
+	%TimeoutInput.text_changed.connect(_on_integer_input_changed.bind(%TimeoutInput))
+	%ContextSizeInput.text_changed.connect(_on_integer_input_changed.bind(%ContextSizeInput))
 	%PortInput.text_submitted.connect(_on_port_submitted)
 	%TimeoutInput.text_submitted.connect(_on_timeout_submitted)
 	%ContextSizeInput.text_submitted.connect(_on_context_size_submitted)
@@ -67,6 +70,24 @@ func _on_context_size_submitted(_text: String) -> void:
 	_apply_context_size()
 
 
+func _on_integer_input_changed(text: String, input: LineEdit) -> void:
+	var sanitized := _digits_only(text)
+	if sanitized == text:
+		return
+	var old_caret := input.caret_column
+	input.text = sanitized
+	input.caret_column = clampi(old_caret - (text.length() - sanitized.length()), 0, sanitized.length())
+
+
+func _digits_only(text: String) -> String:
+	var result := ""
+	for i in range(text.length()):
+		var character := text.substr(i, 1)
+		if character >= "0" and character <= "9":
+			result += character
+	return result
+
+
 func _apply_port() -> void:
 	var port_text: String = %PortInput.text.strip_edges()
 	if port_text.is_valid_int():
@@ -108,9 +129,13 @@ func _sync_ui_to_settings() -> void:
 	var model_index := model_filenames.find(selected_model)
 	if model_index >= 0:
 		%ModelOption.selected = model_index
-	%PortInput.text = str(_pending["port"])
-	%TimeoutInput.text = str(_pending["timeout"])
-	%ContextSizeInput.text = str(_pending["context_size"])
+	%PortInput.text = _integer_text(_pending.get("port", 48763))
+	%TimeoutInput.text = _integer_text(_pending.get("timeout", 60))
+	%ContextSizeInput.text = _integer_text(_pending.get("context_size", 0))
+
+
+func _integer_text(value: Variant) -> String:
+	return str(str(value).to_int())
 
 
 func _update_labels() -> void:

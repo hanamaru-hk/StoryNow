@@ -9,6 +9,8 @@ func _ready() -> void:
 	%Back.pressed.connect(_on_back_pressed)
 	%Reset.pressed.connect(_on_reset_pressed)
 	%Save.pressed.connect(_on_save_pressed)
+	%PortInput.text_changed.connect(_on_integer_input_changed.bind(%PortInput))
+	%TimeoutInput.text_changed.connect(_on_integer_input_changed.bind(%TimeoutInput))
 	%PortInput.text_submitted.connect(_on_port_submitted)
 	%TimeoutInput.text_submitted.connect(_on_timeout_submitted)
 	_sync_ui_to_settings()
@@ -53,6 +55,24 @@ func _on_timeout_submitted(_text: String) -> void:
 	_apply_timeout()
 
 
+func _on_integer_input_changed(text: String, input: LineEdit) -> void:
+	var sanitized := _digits_only(text)
+	if sanitized == text:
+		return
+	var old_caret := input.caret_column
+	input.text = sanitized
+	input.caret_column = clampi(old_caret - (text.length() - sanitized.length()), 0, sanitized.length())
+
+
+func _digits_only(text: String) -> String:
+	var result := ""
+	for i in range(text.length()):
+		var character := text.substr(i, 1)
+		if character >= "0" and character <= "9":
+			result += character
+	return result
+
+
 func _apply_port() -> void:
 	var port_text: String = %PortInput.text.strip_edges()
 	if port_text.is_valid_int():
@@ -72,8 +92,12 @@ func _apply_timeout() -> void:
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
-	%PortInput.text = str(_pending["port"])
-	%TimeoutInput.text = str(_pending["timeout"])
+	%PortInput.text = _integer_text(_pending.get("port", 56321))
+	%TimeoutInput.text = _integer_text(_pending.get("timeout", 120))
+
+
+func _integer_text(value: Variant) -> String:
+	return str(str(value).to_int())
 
 
 func _update_labels() -> void:
