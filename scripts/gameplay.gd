@@ -1,6 +1,5 @@
 extends Control
 
-const CURRENT_VERSION := "1.0"
 const CANTONESE_MALE_PITCH_SCALE := 0.7
 const TTS_VOICE_BUS := "TTSVoice"
 const GENERATING_VIDEO_PATH := "res://assets/videos/3.ogv"
@@ -1371,60 +1370,6 @@ func _on_settings_closed() -> void:
 	_update_labels()
 
 
-func _extract_json(text: String) -> String:
-	var t := text.strip_edges()
-	if t.begins_with("```"):
-		var start := t.find("\n")
-		var end := t.rfind("```")
-		if start != -1 and end != -1 and end > start:
-			t = t.substr(start + 1, end - start - 1).strip_edges()
-		else:
-			t = t.replace("```json", "").replace("```", "").strip_edges()
-	return t
-
-
-func _repair_llm_json_text(text: String) -> String:
-	# LLM often emits image_prompt with bare quotes like "recurring" instead of \"recurring\",
-	# which breaks JSON parsing. Repair by sanitizing the image_prompt value before parse.
-	var key := "\"image_prompt\""
-	var idx := text.find(key)
-	if idx == -1:
-		return text
-	var colon := text.find(":", idx + key.length())
-	if colon == -1:
-		return text
-	var first_quote := text.find("\"", colon)
-	if first_quote == -1:
-		return text
-	# Find the closing delimiter before "summary" — look for the last '",' before summary key
-	var summary_key := "\"summary\""
-	var summary_idx := text.find(summary_key, first_quote)
-	if summary_idx == -1:
-		# Fallback: try "end" or "language"
-		summary_idx = text.find("\"end\"", first_quote)
-		if summary_idx == -1:
-			summary_idx = text.find("\"language\"", first_quote)
-		if summary_idx == -1:
-			return text
-	# The image_prompt's closing quote is the '",' immediately before summary (allow whitespace)
-	var close_seq := text.rfind("\",", summary_idx)
-	if close_seq == -1 or close_seq <= first_quote:
-		return text
-	# Also handle the case where value ends with \" then ",
-	var raw_val := text.substr(first_quote + 1, close_seq - first_quote - 1)
-	# Sanitize: strip escaped and unescaped quotes, newlines, and Danbooru tag noise
-	var sanitized := raw_val.replace("\\\"", "").replace("\\", "").replace("\"", "").replace("'", "").replace("\n", " ").replace("\r", " ")
-	# Collapse whitespace and clean trailing commas
-	sanitized = sanitized.strip_edges()
-	# Remove duplicate commas
-	while sanitized.find(",,") != -1:
-		sanitized = sanitized.replace(",,", ",")
-	# Rebuild text with sanitized value (no inner quotes, safe for JSON)
-	var before := text.substr(0, first_quote + 1)
-	var after := text.substr(close_seq)
-	return before + sanitized + after
-
-
 func _format_title_with_round(title: String) -> String:
 	var t := title.strip_edges()
 	if t.is_empty():
@@ -1444,137 +1389,50 @@ func _apply_title_from_result(result_title: String, fallback_data: Dictionary = 
 	%TitleLabel.text = _format_title_with_round(t)
 
 
-func _should_force_story_end() -> bool:
-	var current_round := int(GameProgressManager.settings.get("current_round", SceneDataManager.scene_data.get("current_round", 0)))
-	var expected_rounds := int(GameProgressManager.settings.get("expected_rounds", SceneDataManager.scene_data.get("expected_rounds", 0)))
-	return expected_rounds > 0 and current_round >= expected_rounds
-
-
 func _handle_new_story() -> bool:
-	var result: Dictionary = await LLMManager.request_new_story()
-	print_verbose("LLM request_new_story result: %s" % str(result))
-	# Apply title field from _request_completion immediately when request finishes
-	_apply_title_from_result(str(result.get("title", "")))
-	if not result.get("success", false):
-		_pending_retry_action = "new_story"
-		show_error(str(result.get("error", "Failed to generate story")), true)
-		return false
-	var raw_text: String = str(result.get("text", ""))
-	var json_str: String = _extract_json(raw_text)
-	var json := JSON.new()
-	var err := json.parse(json_str)
-	if err != OK or not json.data is Dictionary:
-		# Try to repair common LLM malformed image_prompt (bare quotes) and re-parse
-		var repaired := _repair_llm_json_text(json_str)
-		if repaired != json_str:
-			print_verbose("Attempting repaired JSON parse for image_prompt bare quotes")
-			json = JSON.new()
-			err = json.parse(repaired)
-			if err == OK and json.data is Dictionary:
-				json_str = repaired
-			else:
-				# Fallback: try fallback extraction for image_prompt even if still invalid,
-				# then attempt to recover other fields via manual parse
-				print_verbose("Repaired JSON still invalid: %s" % error_string(err))
-		if err != OK or not json.data is Dictionary:
-			print_verbose("Failed to parse JSON: %s" % error_string(err))
-			print_verbose("Failed to parse JSON: %s" % raw_text.substr(0, 300))
-			_pending_retry_action = "new_story"
-			show_error(I18n.translate("error_llm_invalid_json") , true)
-			return false
-	var llm_data: Dictionary = json.data as Dictionary
-
-	print_verbose("Parsed llm_data image_prompt: '%s'" % str(llm_data.get("image_prompt", "<missing>")))
-	# Don't modify the format of the LLM JSON – just extract and merge into SceneDataManager.scene_data
-	if SceneDataManager.scene_data.is_empty():
-		SceneDataManager.scene_data = llm_data.duplicate(true)
-		if not SceneDataManager.scene_data.has("uuid"):
-			SceneDataManager.scene_data["uuid"] = str(GameProgressManager.settings.get("current_uuid", ""))
-	else:
-		for key in llm_data.keys():
-			SceneDataManager.scene_data[key] = llm_data[key]
-	# Ensure essential meta fields remain if LLM omitted them
-	if not SceneDataManager.scene_data.has("uuid"):
-		SceneDataManager.scene_data["uuid"] = str(GameProgressManager.settings.get("current_uuid", ""))
-	if not SceneDataManager.scene_data.has("version"):
-		SceneDataManager.scene_data["version"] = "1.0"
-	if not SceneDataManager.scene_data.has("current_image_index"):
-		SceneDataManager.scene_data["current_image_index"] = 0
-	if _should_force_story_end():
-		SceneDataManager.scene_data["end"] = true
-	SceneDataManager.save()
-	_scene_data = SceneDataManager.scene_data
-	_play_scene_bgm()
-	# Apply title field to TitleLabel when request finishes
-	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
-	# Keep legacy progress status aligned while scene_data owns resumable status.
-	_begin_image_generation()
-	# Non-blocking TTS generation for all dialogues
-	_begin_voice_generation(SceneDataManager.scene_data)
-	print_verbose("Final scene data: " + str(SceneDataManager.scene_data))
-	print_verbose("Final game progress settings: " + str(GameProgressManager.settings))
-	return true
+	return await _handle_generated_scene("new_story")
 
 
 func _handle_new_scene() -> bool:
-	var result: Dictionary = await LLMManager.request_new_scene()
-	print_verbose("LLM request_new_scene result: %s" % str(result))
+	return await _handle_generated_scene("new_scene")
+
+
+func _handle_generated_scene(flow: String) -> bool:
+	var result: Dictionary
+	if flow == "new_story":
+		result = await LLMManager.request_new_story()
+	else:
+		result = await LLMManager.request_new_scene()
+	print_verbose("LLM %s result: %s" % [flow, str(result)])
 	_apply_title_from_result(str(result.get("title", "")))
-	if not result.get("success", false):
-		_pending_retry_action = "new_scene"
-		show_error(str(result.get("error", "Failed to generate scene")), true)
+
+	var parsed := GameplaySceneService.parse_generation_result(result)
+	if not parsed.get("success", false):
+		_pending_retry_action = flow
+		var error_message := str(parsed.get("error", "Generation failed"))
+		if error_message == "invalid_json":
+			error_message = I18n.translate("error_llm_invalid_json")
+		show_error(error_message, true)
 		return false
-	var raw_text: String = str(result.get("text", ""))
-	var json_str: String = _extract_json(raw_text)
-	var json := JSON.new()
-	var err := json.parse(json_str)
-	if err != OK or not json.data is Dictionary:
-		var repaired := _repair_llm_json_text(json_str)
-		if repaired != json_str:
-			print_verbose("Attempting repaired JSON parse for image_prompt bare quotes (scene)")
-			json = JSON.new()
-			err = json.parse(repaired)
-			if err == OK and json.data is Dictionary:
-				json_str = repaired
-			else:
-				print_verbose("Repaired JSON still invalid: %s" % error_string(err))
-		if err != OK or not json.data is Dictionary:
-			print_verbose("Failed to parse JSON (scene): %s" % error_string(err))
-			print_verbose("Failed to parse JSON (scene): %s" % raw_text.substr(0, 300))
-			_pending_retry_action = "new_scene"
-			show_error(I18n.translate("error_llm_invalid_json"), true)
-			return false
-	var llm_data: Dictionary = json.data as Dictionary
-	print_verbose("Parsed scene llm_data image_prompt: '%s'" % str(llm_data.get("image_prompt", "<missing>")))
-	# Merge into SceneDataManager.scene_data — preserve current uuid/prev_uuid/version/current_round
-	var current_uuid := str(GameProgressManager.settings.get("current_uuid", ""))
-	var preserved_uuid := str(SceneDataManager.scene_data.get("uuid", current_uuid))
-	var preserved_prev := str(SceneDataManager.scene_data.get("prev_uuid", ""))
-	var preserved_version := str(SceneDataManager.scene_data.get("version", CURRENT_VERSION))
-	var preserved_current_round: Variant = SceneDataManager.scene_data.get("current_round", GameProgressManager.settings.get("current_round", 1))
-	for key in llm_data.keys():
-		SceneDataManager.scene_data[key] = llm_data[key]
-	# Restore preserved meta
-	SceneDataManager.scene_data["uuid"] = preserved_uuid
-	if not preserved_prev.is_empty():
-		SceneDataManager.scene_data["prev_uuid"] = preserved_prev
-	SceneDataManager.scene_data["version"] = preserved_version
-	SceneDataManager.scene_data["current_round"] = preserved_current_round
-	if not SceneDataManager.scene_data.has("current_image_index"):
-		SceneDataManager.scene_data["current_image_index"] = 0
-	if not SceneDataManager.scene_data.has("id"):
-		SceneDataManager.scene_data["id"] = preserved_uuid
-	if _should_force_story_end():
-		SceneDataManager.scene_data["end"] = true
+
+	var llm_data: Dictionary = parsed["data"]
+	var current_round := int(GameProgressManager.settings.get("current_round", SceneDataManager.scene_data.get("current_round", 1)))
+	var expected_rounds := int(GameProgressManager.settings.get("expected_rounds", SceneDataManager.scene_data.get("expected_rounds", 0)))
+	SceneDataManager.scene_data = GameplaySceneService.merge_generated_scene(
+		SceneDataManager.scene_data,
+		llm_data,
+		str(GameProgressManager.settings.get("current_uuid", "")),
+		current_round,
+		expected_rounds,
+		flow == "new_scene"
+	)
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
 	_play_scene_bgm()
-	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
+	_apply_title_from_result(str(llm_data.get("title", parsed.get("title", ""))), llm_data)
 	_begin_image_generation()
-	# Non-blocking TTS generation for all dialogues (scene)
 	_begin_voice_generation(SceneDataManager.scene_data)
-	print_verbose("Final scene data (scene): " + str(SceneDataManager.scene_data))
-	print_verbose("Final game progress settings (scene): " + str(GameProgressManager.settings))
+	print_verbose("Final scene data (%s): %s" % [flow, str(SceneDataManager.scene_data)])
 	return true
 # ------------------------------------------------------------------
 # New story/scene flow with retry support (called from _ready)
@@ -1746,88 +1604,30 @@ func _on_choice_confirm() -> void:
 	var stripped_text: String = raw_text.strip_edges()
 	if stripped_text.is_empty():
 		return
-	var normalized_input: String = stripped_text.to_lower()
-
-	var choices: Array = SceneDataManager.scene_data.get("choices", [])
-	if not choices is Array:
-		choices = []
-		SceneDataManager.scene_data["choices"] = choices
-
-	var choice_index: int = -1
-	for i in choices.size():
-		var c = choices[i]
-		var plot_raw: String = ""
-		if c is Dictionary:
-			plot_raw = str(c.get("plot", c.get("text", c.get("choice", ""))))
-		else:
-			plot_raw = str(c)
-		if plot_raw.strip_edges().to_lower() == normalized_input:
-			choice_index = i
-			break
-
-	if choice_index == -1:
-		choice_index = choices.size()
-		choices.append({"plot": stripped_text})
-		SceneDataManager.scene_data["choices"] = choices
-		SceneDataManager.save()
-
-	# Ensure entry is a Dictionary for id handling
-	if not choices[choice_index] is Dictionary:
-		choices[choice_index] = {"plot": str(choices[choice_index])}
-		SceneDataManager.scene_data["choices"] = choices
-		SceneDataManager.save()
-
 	var cur_round: int = int(GameProgressManager.settings.get("current_round", 1))
+	var transition := GameplaySceneService.build_choice_transition(
+		SceneDataManager.scene_data,
+		stripped_text,
+		cur_round,
+		I18n.current_lang,
+		GameplaySceneService.generate_uuid()
+	)
+	if not transition.get("success", false):
+		return
 
-	print_verbose("Choice confirmed: '%s', index: %d, current_round: %d" % [stripped_text, choice_index, cur_round])
-	# Keep GameProgressManager in sync if it tracks current_round
-	if GameProgressManager.settings.has("current_round"):
-		GameProgressManager.settings["current_round"] = cur_round + 1
-	else:
-		# Ensure game progress also reflects current round for new saves
-		GameProgressManager.settings["current_round"] = 1
+	print_verbose("Choice confirmed: '%s', current_round: %d" % [stripped_text, cur_round])
+	GameProgressManager.settings["current_round"] = int(transition["next_round"])
+	GameProgressManager.settings["current_uuid"] = str(transition["target_uuid"])
+	SceneDataManager.scene_data = transition["parent_scene"]
+	SceneDataManager.save()
 
-	var entry: Dictionary = choices[choice_index] as Dictionary
-	var existing_id: String = str(entry.get("uuid", "")).strip_edges()
-	if not existing_id.is_empty():
-		GameProgressManager.settings["current_uuid"] = existing_id
+	if transition["reused"]:
 		GameProgressManager.settings["game_status"] = "running"
 	else:
-		var uuid := _generate_uuid()
-		var prev_uuid := str(SceneDataManager.scene_data.get("uuid", ""))
-		entry["uuid"] = uuid
-		choices[choice_index] = entry
-		SceneDataManager.scene_data["choices"] = choices
-		SceneDataManager.scene_data["end"] = false
-		SceneDataManager.save()
-
 		GameProgressManager.settings["game_status"] = "new_scene"
 		GameProgressManager.settings["player_input"] = stripped_text
-		GameProgressManager.settings["current_uuid"] = uuid
-
-		# create new scene data using the new uuid
-		SceneDataManager.scene_data["uuid"] = uuid
-		SceneDataManager.scene_data["prev_uuid"] = prev_uuid
-		SceneDataManager.scene_data["image_filenames"] = []
-		SceneDataManager.scene_data["current_image_index"] = 0
-		SceneDataManager.scene_data["image_prompt"] = ""
-		SceneDataManager.scene_data["instruction"] = []
-		SceneDataManager.scene_data["interactions"] = []
-		SceneDataManager.scene_data["language"] = I18n.current_lang
-		SceneDataManager.scene_data["summary"] = ""
-		SceneDataManager.scene_data["version"] = CURRENT_VERSION
-		SceneDataManager.scene_data["current_round"] = cur_round + 1
-		SceneDataManager.scene_data["player_input"] = stripped_text
-		SceneDataManager.scene_data["game_status"] = "new_scene"
-
-		SceneDataManager.scene_data["choices"] = []
+		SceneDataManager.scene_data = transition["target_scene"]
 		SceneDataManager.save()
-
-	
-	
-
-
-
 	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
@@ -1842,28 +1642,6 @@ func _is_story_end() -> bool:
 
 func _story_end_message() -> String:
 	return I18n.translate("story_end_message")
-
-
-func _generate_uuid() -> String:
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	var bytes: Array = []
-	for i in 16:
-		bytes.append(rng.randi_range(0, 255))
-	# UUID v4: set version and variant bits
-	bytes[6] = (bytes[6] & 0x0F) | 0x40
-	bytes[8] = (bytes[8] & 0x3F) | 0x80
-	return "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x" % [
-		bytes[0], bytes[1], bytes[2], bytes[3],
-		bytes[4], bytes[5],
-		bytes[6], bytes[7],
-		bytes[8], bytes[9],
-		bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]
-	]
-
-
-func _advance_with_choice(choice_text: String) -> void:
-	pass
 
 
 # ------------------------------------------------------------------

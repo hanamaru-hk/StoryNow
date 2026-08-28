@@ -38,6 +38,7 @@ Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions
 | **LLMManager** | `scripts/llm_manager.gd:1` | llama-server lifecycle (`status` → `user://llm_status.json`), prompt assembly (`data/llm/<lang>/{random,enhance,story,scene}` + `common/`), `_request_completion` (120s timeout), repair of malformed `image_prompt` JSON. |
 | **ImageServerManager** | `scripts/image_server_manager.gd:1` | ComfyUI lifecycle (`user://image_server_status.json`), workflow templating (`data/comfyui/workflow_template.json`), `generate_scene_image` (queue → poll history → download to `user://saves/<uuid>/images/`). |
 | **SceneDataManager** | `scripts/scene_data_manager.gd:1` | Per-scene persistence (`SAVE_DIR = user://saves`): `save()` / `load_data(uuid)` for `scene_data` JSON. Aliases `load(uuid)` for compatibility. |
+| **GameplaySceneService** | `scripts/gameplay_scene_service.gd:1` | Pure gameplay-domain rules: parse/repair generated scene JSON, merge it without losing local navigation metadata, construct new or reused choice-branch transitions, and generate UUIDs. It has no scene-tree or persistence dependency. |
 | **GameProgressManager** | `scripts/game_progress_manager.gd:1` | Global progress (`user://game_progress.json`): `current_uuid`, `current_round`, `expected_rounds`, tunables (`minimum_dialogues_per_scene`, etc.), `game_status` state machine. |
 | **TTSManager** | `scripts/tts_manager.gd:1` | Queue-based native Sherpa synthesis, model selection by `language`/`sex`, `sound_filename` attachment + `tts_generated` signal for auto-play. |
 | **I18n / GameSettingsManager** | `scripts/i18n.gd:1`, `scripts/game_settings_manager.gd:1` | i18n (en, zh_CN, zh_TW, yue) + display/TTS settings (`user://game_settings.json`, `safe_mode` / `free_mode` file flag). |
@@ -47,6 +48,6 @@ Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions
 
 1. Brainstorm or Choice overlay sets `GameProgressManager.settings["game_status"] = "new_story"|"new_scene"` and `current_uuid`/`player_input`.
 2. `Gameplay._ready` branches on `game_status` → `_execute_new_story_flow` / `_execute_new_scene_flow` (`scripts/gameplay.gd:113-152`).
-3. LLM request → JSON parse with `_repair_llm_json_text` → merge into `SceneDataManager.scene_data` → `save()`.
+3. LLM request → `GameplaySceneService.parse_generation_result()` → metadata-safe merge → `SceneDataManager.save()`.
 4. `generate_scene_image` → save to `user://saves/<uuid>/images/` → update `image_filenames[]` / `current_image_index`.
 5. `TTSManager.generate_all_for_scene` → per-interaction WAV into `…/sounds/tts_<idx>_<hash>.wav` + `sound_filename`.

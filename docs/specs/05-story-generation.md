@@ -59,7 +59,7 @@ Persisted per scene: `user://saves/<uuid>/scene_data.json` (includes both LLM fi
 
 - After a scene loads, `_populate_dynamic_choice_buttons` renders `choices[]` as buttons above `%CustomInput` (`scripts/gameplay.gd:287`). Previously-selected choices (those with non-empty `plot` + `uuid`) render as a highlighted `PanelContainer`.
 - Each row has a **Delete** button that removes the choice from `scene_data["choices"]` and saves.
-- **Next Scene** → opens `ChoiceOverlay` (custom input + choice list). Confirm sets `player_input`, marks selected choice's `uuid = current_uuid` (to flag it as visited), creates `next_uuid`, writes `next_scene_data` with `prev_uuid = current_uuid`, increments `current_round`, sets `game_status="new_scene"`, and reloads `gameplay.tscn` to trigger `request_new_scene`.
+- **Next Scene** → opens `ChoiceOverlay` (custom input + choice list). Confirm delegates branch construction to `GameplaySceneService.build_choice_transition()`. A visited choice reuses its saved child UUID; a new choice atomically produces the updated parent link and a clean child scene with `prev_uuid`, incremented round, and `game_status="new_scene"` before gameplay reloads.
 
 ## 5.5 LLM Prompt Assembly
 
