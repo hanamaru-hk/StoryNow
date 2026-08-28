@@ -138,6 +138,9 @@ func _ready() -> void:
 						show_error(I18n.translate("error_failed_load_scene_data") % uuid_running)
 			else:
 				_scene_data = SceneDataManager.scene_data
+			var recovered_empty_interactions := await _recover_empty_running_interactions()
+			if recovered_empty_interactions:
+				return
 			# Restore dialogue index from GameProgressManager
 			current_dialogue_index = int(GameProgressManager.settings.get("current_dialogue", 0))
 			_current_dialog_idx = current_dialogue_index
@@ -147,7 +150,7 @@ func _ready() -> void:
 			# _update_total_dialogue may clamp index; sync back to local/manager
 			_current_dialog_idx = current_dialogue_index
 			_show_current_dialogue()
-			_load_current_scene_image(uuid_running)
+			var has_running_image := _load_current_scene_image(uuid_running)
 			# Enable side buttons by eligibility and update labels
 			_enable_all_side_buttons_by_eligibility()
 			_update_labels()
@@ -160,7 +163,8 @@ func _ready() -> void:
 					%TitleLabel.text = _format_title_with_round(title_text)
 			%ChoiceOverlay.visible = false
 			# Auto-play current dialogue wav if exists (prev_scene rule)
-			_try_autoplay_current()	
+			_try_autoplay_current()
+			await _recover_missing_running_assets(has_running_image)
 		_:
 			pass
 
@@ -432,6 +436,66 @@ func _current_dialogue_wav_exists() -> bool:
 		return false
 	var path_user: String = "user://saves/%s/sounds/%s" % [uuid, fname]
 	return FileAccess.file_exists(path_user)
+
+
+func _all_voice_dialogues_have_sound_file() -> bool:
+	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
+	if not interactions is Array:
+		return true
+	var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
+	if uuid.is_empty():
+		return true
+	for entry in interactions:
+		if not entry is Dictionary:
+			continue
+		var data: Dictionary = entry as Dictionary
+		var dialogue := str(data.get("dialogue", "")).strip_edges()
+		if dialogue.is_empty():
+			continue
+		var fname := str(data.get("sound_filename", data.get("sound_file", ""))).strip_edges()
+		if fname.is_empty():
+			return false
+		if not FileAccess.file_exists("user://saves/%s/sounds/%s" % [uuid, fname]):
+			return false
+	return true
+
+
+func _running_interactions_are_empty() -> bool:
+	var interactions: Variant = SceneDataManager.scene_data.get("interactions", [])
+	if not interactions is Array:
+		return true
+	return (interactions as Array).is_empty()
+
+
+func _recover_empty_running_interactions() -> bool:
+	if _current_game_status() != "running" or not _running_interactions_are_empty():
+		return false
+	if _is_prev_scene_exist():
+		_set_game_status("new_scene")
+		await _execute_new_scene_flow()
+	else:
+		_set_game_status("new_story")
+		await _execute_new_story_flow()
+	return true
+
+
+func _recover_missing_running_assets(has_image: bool) -> void:
+	if _current_game_status() != "running":
+		return
+	var started_voice := false
+	if not _all_voice_dialogues_have_sound_file():
+		started_voice = _begin_voice_generation(SceneDataManager.scene_data)
+	if not has_image:
+		_begin_image_generation()
+		_update_button_eligibility()
+		var comfy_ok := await _generate_comfyui_image()
+		if not comfy_ok:
+			return
+		_finish_image_generation()
+	if started_voice:
+		_update_button_eligibility()
+	else:
+		_enable_all_side_buttons_by_eligibility()
 
 
 func is_prev_scene_exist() -> bool:
