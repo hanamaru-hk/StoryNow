@@ -11,7 +11,7 @@ signal image_state_changed(state: ServerState)
 signal chrome_visibility_changed(is_visible: bool)
 signal request_queue_changed(queue: Array)
 
-const HEARTBEAT_NOT_CONNECTED_INTERVAL := 1.0
+const HEARTBEAT_NOT_CONNECTED_INTERVAL := 2.0
 const HEARTBEAT_CONNECTED_INTERVAL := 10.0
 const INITIAL_CHECK_DELAY := 2.0
 

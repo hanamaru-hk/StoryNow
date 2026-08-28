@@ -3,7 +3,7 @@ extends Control
 const CURRENT_VERSION := "1.0"
 const CANTONESE_MALE_PITCH_SCALE := 0.7
 const TTS_VOICE_BUS := "TTSVoice"
-const GENERATING_IMAGE_PATH := "res://assets/images/generating.jpg"
+const GENERATING_VIDEO_PATH := "res://assets/videos/3.ogv"
 
 var _scene_data: Dictionary = {}
 var _current_dialog_idx: int = 0
@@ -78,6 +78,8 @@ func _ready() -> void:
 	if has_node("%ImageOverlay"):
 		%ImageOverlay.closed.connect(_on_image_overlay_closed)
 		%ImageOverlay.image_generated.connect(_on_image_generated)
+	if has_node("%BackgroundVideo") and %BackgroundVideo.has_signal("finished") and not %BackgroundVideo.finished.is_connected(_on_background_video_finished):
+		%BackgroundVideo.finished.connect(_on_background_video_finished)
 
 	# --- PlotOverlay ---
 	if has_node("%PlotOverlay"):
@@ -242,13 +244,13 @@ func _finish_voice_generation() -> void:
 
 func _load_default_background() -> void:
 	_set_no_image_label_visible(false)
-	_load_placeholder_background(GENERATING_IMAGE_PATH, 0.5)
+	_show_generating_background()
 
 
 func _load_missing_save_background() -> void:
 	%BackgroundImage.texture = null
 	%BackgroundImage.modulate = Color(1, 1, 1, 1)
-	_set_no_image_label_visible(true)
+	_show_generating_background()
 
 
 func _set_no_image_label_visible(is_visible: bool) -> void:
@@ -297,6 +299,7 @@ func _create_no_image_font() -> SystemFont:
 func _load_placeholder_background(res_path: String, alpha: float) -> void:
 	# Runtime load to avoid requiring .import (handles missing Texture2D loader error).
 	# Uses Image.load_from_file via globalized path, then ImageTexture.
+	_hide_generating_background()
 	var global_path := ProjectSettings.globalize_path(res_path)
 	var img := Image.new()
 	var err: Error = img.load(global_path)
@@ -319,6 +322,30 @@ func _load_placeholder_background(res_path: String, alpha: float) -> void:
 			push_warning("Failed to load placeholder background %s: %s" % [res_path, err])
 		# Keep modulate for placeholder / 50% opacity
 		%BackgroundImage.modulate = Color(1, 1, 1, alpha)
+
+
+func _show_generating_background() -> void:
+	if not has_node("%BackgroundVideo"):
+		_load_placeholder_background("res://assets/images/generating.jpg", 0.5)
+		return
+	_set_no_image_label_visible(false)
+	%BackgroundImage.texture = null
+	%BackgroundImage.modulate = Color(1, 1, 1, 1)
+	%BackgroundVideo.visible = true
+	%BackgroundVideo.stream = load(GENERATING_VIDEO_PATH)
+	if not %BackgroundVideo.is_playing():
+		%BackgroundVideo.play()
+
+
+func _hide_generating_background() -> void:
+	if has_node("%BackgroundVideo"):
+		%BackgroundVideo.stop()
+		%BackgroundVideo.visible = false
+
+
+func _on_background_video_finished() -> void:
+	if has_node("%BackgroundVideo") and %BackgroundVideo.visible:
+		%BackgroundVideo.play()
 
 
 func _load_image_from_file_access(img: Image, path: String) -> Error:
@@ -717,6 +744,7 @@ func _set_background_from_file(user_path: String) -> bool:
 		push_warning("Failed to load generated image %s: %s" % [user_path, error_string(err)])
 		_load_missing_save_background()
 		return false
+	_hide_generating_background()
 	var tex := ImageTexture.create_from_image(img)
 	%BackgroundImage.texture = tex
 	%BackgroundImage.modulate = Color(1, 1, 1, 1)
@@ -752,7 +780,7 @@ func _load_current_scene_image(uuid: String = "") -> bool:
 		resolved_uuid = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
 	var image_files := _get_scene_image_filenames(resolved_uuid)
 	if image_files.is_empty():
-		print_verbose("Gameplay running: no images found for %s, using no-image background" % resolved_uuid)
+		print_verbose("Gameplay running: no images found for %s, using video fallback" % resolved_uuid)
 		_load_missing_save_background()
 		return false
 	var current_index := int(SceneDataManager.scene_data.get("current_image_index", 0))
