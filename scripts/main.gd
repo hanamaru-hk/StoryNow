@@ -1,7 +1,13 @@
 extends Control
 
+const FADE_IN_SECONDS := 1.0
+const BLACK_PRELOAD_SECONDS := 0.1
+var _intro_video_should_resume := false
+
 
 func _ready() -> void:
+	modulate.a = 1.0
+	_start_hidden_menu_video()
 	print_verbose("")
 	print_verbose("user data dir: " + OS.get_user_data_dir())
 	%Start.pressed.connect(_on_start_pressed)
@@ -24,6 +30,7 @@ func _ready() -> void:
 	MusicManager.play_random_mood("others")
 	_update_labels()
 	_check_first_time_overlay()
+	_play_intro_sequence()
 
 
 func _on_start_pressed() -> void:
@@ -66,11 +73,16 @@ func _on_exit_pressed() -> void:
 
 func _check_first_time_overlay() -> void:
 	if bool(GameSettingsManager.settings.get("first_time", true)):
+		_intro_video_should_resume = true
+		_pause_intro_video()
 		%FirstTimeLanguageOverlay.open()
 
 
 func _on_first_time_language_selected(_lang: String) -> void:
 	_update_labels()
+	if _intro_video_should_resume:
+		_intro_video_should_resume = false
+		_resume_intro_video()
 
 
 func _update_labels() -> void:
@@ -82,5 +94,35 @@ func _update_labels() -> void:
 	%Exit.text = I18n.translate("btn_exit")
 
 
+func _start_hidden_menu_video() -> void:
+	%MenuVideo.visible = false
+	%MenuVideo.modulate.a = 0.0
+	%MenuVideo.stop()
+	%MenuVideo.stream_position = 0.0
+	%MenuVideo.play()
+
+
+func _play_intro_sequence() -> void:
+	await get_tree().create_timer(BLACK_PRELOAD_SECONDS).timeout
+	%MenuVideo.visible = true
+	var tween := create_tween()
+	tween.tween_property(%MenuVideo, "modulate:a", 1.0, FADE_IN_SECONDS)
+	tween.finished.connect(_on_intro_fade_finished)
+
+
+func _on_intro_fade_finished() -> void:
+	pass
+
+
 func _on_menu_video_finished() -> void:
 	%MenuVideo.paused = true
+
+
+func _pause_intro_video() -> void:
+	if %MenuVideo.is_playing():
+		%MenuVideo.paused = true
+
+
+func _resume_intro_video() -> void:
+	if %MenuVideo.stream != null:
+		%MenuVideo.paused = false
