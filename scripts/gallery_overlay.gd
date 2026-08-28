@@ -85,12 +85,16 @@ func _get_gallery_entries() -> Array[Dictionary]:
 		if dir.current_is_dir() and file_name != "." and file_name != "..":
 			var entry := _read_save_entry(file_name)
 			if not entry.is_empty():
-				entries.append(entry)
+				entries.append_array(_get_save_image_entries(entry))
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
 	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return str(a.get("timestamp", "")) > str(b.get("timestamp", ""))
+		var a_timestamp := str(a.get("timestamp", ""))
+		var b_timestamp := str(b.get("timestamp", ""))
+		if a_timestamp == b_timestamp:
+			return int(a.get("image_index", 0)) < int(b.get("image_index", 0))
+		return a_timestamp > b_timestamp
 	)
 	return entries
 
@@ -257,6 +261,7 @@ func _add_gallery_item(entry: Dictionary) -> void:
 	var grid: GridContainer = %GalleryGrid
 	var uuid: String = str(entry.get("uuid", ""))
 	var data: Dictionary = entry.get("data", {}) as Dictionary if entry.get("data", {}) is Dictionary else {}
+	var image_path: String = str(entry.get("image_path", ""))
 
 	var button := Button.new()
 	button.custom_minimum_size = Vector2(230, 180)
@@ -293,7 +298,7 @@ func _add_gallery_item(entry: Dictionary) -> void:
 	thumb.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	thumb.texture = _load_texture_from_user_path(_get_largest_image_path(uuid, data))
+	thumb.texture = _load_texture_from_user_path(image_path)
 	thumb.modulate = Color(0.32, 0.32, 0.38, 1) if thumb.texture == null else Color.WHITE
 	aspect.add_child(thumb)
 
@@ -308,39 +313,30 @@ func _add_gallery_item(entry: Dictionary) -> void:
 	stack.add_child(title)
 
 
-func _get_largest_image_path(uuid: String, data: Dictionary) -> String:
-	var candidates: Array[String] = []
+func _get_save_image_entries(entry: Dictionary) -> Array[Dictionary]:
+	var uuid: String = str(entry.get("uuid", "")).strip_edges()
+	var data: Dictionary = entry.get("data", {}) as Dictionary if entry.get("data", {}) is Dictionary else {}
+	var result: Array[Dictionary] = []
+	if uuid.is_empty():
+		return result
 	var arr: Variant = data.get("image_filenames", [])
-	if arr is Array:
-		for v in arr as Array:
-			var s: String = str(v).strip_edges()
-			if not s.is_empty():
-				candidates.append(s)
-	if not candidates.is_empty():
-		candidates.sort()
-		var largest: String = candidates[candidates.size() - 1]
-		var p: String = "user://saves/%s/images/%s" % [uuid, largest]
-		if FileAccess.file_exists(p):
-			return p
+	if not arr is Array:
+		return result
 
-	var images_dir: String = "user://saves/%s/images" % uuid
-	if not DirAccess.dir_exists_absolute(images_dir):
-		return ""
-	var dir := DirAccess.open(images_dir)
-	if dir == null:
-		return ""
-	dir.list_dir_begin()
-	var fname: String = dir.get_next()
-	var largest_file: String = ""
-	while fname != "":
-		if not dir.current_is_dir() and (fname.ends_with(".png") or fname.ends_with(".jpg") or fname.ends_with(".jpeg") or fname.ends_with(".webp")):
-			if largest_file.is_empty() or fname > largest_file:
-				largest_file = fname
-		fname = dir.get_next()
-	dir.list_dir_end()
-	if largest_file.is_empty():
-		return ""
-	return "%s/%s" % [images_dir, largest_file]
+	var filenames: Array = arr as Array
+	for i in range(filenames.size()):
+		var filename: String = str(filenames[i]).strip_edges()
+		if filename.is_empty():
+			continue
+		var image_path := "user://saves/%s/images/%s" % [uuid, filename]
+		if not FileAccess.file_exists(image_path):
+			continue
+		var image_entry: Dictionary = entry.duplicate(true)
+		image_entry["image_filename"] = filename
+		image_entry["image_index"] = i
+		image_entry["image_path"] = image_path
+		result.append(image_entry)
+	return result
 
 
 func _load_texture_from_user_path(user_path: String) -> Texture2D:
@@ -362,12 +358,34 @@ func _escape_bbcode(text: String) -> String:
 func _on_gallery_item_pressed(uuid: String, entry: Dictionary) -> void:
 	if uuid.strip_edges().is_empty():
 		return
+	var image_filename: String = str(entry.get("image_filename", "")).strip_edges()
+	var image_index: int = _get_image_filename_index(entry, image_filename)
+	if image_index < 0:
+		return
+	if not SceneDataManager.load_data(uuid):
+		return
+	SceneDataManager.scene_data["current_image_index"] = image_index
+	SceneDataManager.save()
 	GameProgressManager.settings["current_uuid"] = uuid
 	GameProgressManager.settings["game_status"] = "running"
 	GameProgressManager.settings["current_dialogue"] = 0
 	GameProgressManager.settings["current_round"] = _to_positive_int(entry.get("round", 1), 1)
 	GameProgressManager.save_settings()
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
+
+
+func _get_image_filename_index(entry: Dictionary, image_filename: String) -> int:
+	if image_filename.is_empty():
+		return -1
+	var data: Dictionary = entry.get("data", {}) as Dictionary if entry.get("data", {}) is Dictionary else {}
+	var arr: Variant = data.get("image_filenames", [])
+	if not arr is Array:
+		return -1
+	var filenames: Array = arr as Array
+	for i in range(filenames.size()):
+		if str(filenames[i]).strip_edges() == image_filename:
+			return i
+	return -1
 
 
 func _to_positive_int(value: Variant, fallback: int) -> int:

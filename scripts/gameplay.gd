@@ -476,17 +476,14 @@ func _get_scene_image_filenames(uuid: String = "") -> Array:
 		resolved_uuid = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
 	var images_dir := "user://saves/%s/images" % resolved_uuid
 	var image_files: Array = []
-	if DirAccess.dir_exists_absolute(images_dir):
-		var dir := DirAccess.open(images_dir)
-		if dir != null:
-			dir.list_dir_begin()
-			var file_name := dir.get_next()
-			while file_name != "":
-				if not dir.current_is_dir() and _is_image_filename(file_name):
-					image_files.append(file_name)
-				file_name = dir.get_next()
-			dir.list_dir_end()
-	image_files.sort()
+	var saved_filenames: Variant = SceneDataManager.scene_data.get("image_filenames", [])
+	if saved_filenames is Array:
+		for value in saved_filenames as Array:
+			var file_name := str(value).strip_edges()
+			if file_name.is_empty() or not _is_image_filename(file_name):
+				continue
+			if FileAccess.file_exists("%s/%s" % [images_dir, file_name]):
+				image_files.append(file_name)
 	return image_files
 
 
