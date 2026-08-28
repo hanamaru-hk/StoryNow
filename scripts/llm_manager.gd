@@ -18,6 +18,8 @@ const SCENE := "scene"
 const STORY_BACKGROUND_REQUIREMENT := "common/story_background_requirement"
 const OUTPUT_JSON_REQUIREMENT := "common/output_json_requirement"
 const OUTPUT_JSON_TEMPLATE := "common/output_template.json"
+const DEVELOPMENT_CHOICES := "common/choices"
+const DEVELOPMENT_ENDING := "common/ending"
 const SAFE_GUARDRAIL := "common/safe_guardrail"
 const SAFE_DANBOORU_GUARDRAIL := "common/safe_danbooru_guardrail"
 const FREE_GUARDRAIL := "common/free_guardrail"
@@ -303,6 +305,15 @@ func _replace_requirement_placeholders(text: String) -> String:
 	return result
 
 
+func _replace_scene_development_placeholder(text: String, current_round: int, expected_rounds: int) -> String:
+	var development := ""
+	if expected_rounds > 0 and current_round >= expected_rounds:
+		development = _load_prompt(DEVELOPMENT_ENDING)
+	else:
+		development = _load_prompt(DEVELOPMENT_CHOICES)
+	return text.replace("__DEVELOPMENT__", development)
+
+
 func request_new_story() -> Dictionary:
 	var lang := I18n.current_lang
 	var prompt_story := _load_prompt(STORY)
@@ -343,7 +354,6 @@ func request_new_scene() -> Dictionary:
 	var prompt_output_json_requirement := _load_prompt(OUTPUT_JSON_REQUIREMENT)
 	if prompt_output_json_requirement.is_empty():
 		return {"success": false, "error": "Failed to load prompt_json_requirement"}
-	prompt_output_json_requirement = _replace_requirement_placeholders(prompt_output_json_requirement)
 	var template_str := _load_template(lang)
 	if template_str.is_empty():
 		return {"success": false, "error": "Failed to load template.json"}
@@ -384,6 +394,8 @@ func request_new_scene() -> Dictionary:
 	var player_input: String = str(GameProgressManager.settings.get("player_input", ""))
 	var expected_rounds: int = int(GameProgressManager.settings.get("expected_rounds", 0))
 	var current_round: int = int(GameProgressManager.settings.get("current_round", 0))
+	prompt_output_json_requirement = _replace_scene_development_placeholder(prompt_output_json_requirement, current_round, expected_rounds)
+	prompt_output_json_requirement = _replace_requirement_placeholders(prompt_output_json_requirement)
 	prompt_scene = prompt_scene.replace("__STORY_BACKGROUND__", summary)
 	prompt_scene = prompt_scene.replace("__CURRENT_ROUND__", str(current_round))
 	prompt_scene = prompt_scene.replace("__EXPECTED_ROUNDS__", str(expected_rounds))

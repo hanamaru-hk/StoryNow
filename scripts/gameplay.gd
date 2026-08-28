@@ -1125,6 +1125,12 @@ func _apply_title_from_result(result_title: String, fallback_data: Dictionary = 
 	%TitleLabel.text = _format_title_with_round(t)
 
 
+func _should_force_story_end() -> bool:
+	var current_round := int(GameProgressManager.settings.get("current_round", SceneDataManager.scene_data.get("current_round", 0)))
+	var expected_rounds := int(GameProgressManager.settings.get("expected_rounds", SceneDataManager.scene_data.get("expected_rounds", 0)))
+	return expected_rounds > 0 and current_round >= expected_rounds
+
+
 func _handle_new_story() -> bool:
 	var result: Dictionary = await LLMManager.request_new_story()
 	print_verbose("LLM request_new_story result: %s" % str(result))
@@ -1175,6 +1181,8 @@ func _handle_new_story() -> bool:
 		SceneDataManager.scene_data["version"] = "1.0"
 	if not SceneDataManager.scene_data.has("current_image_index"):
 		SceneDataManager.scene_data["current_image_index"] = 0
+	if _should_force_story_end():
+		SceneDataManager.scene_data["end"] = true
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
 	# Apply title field to TitleLabel when request finishes
@@ -1239,6 +1247,8 @@ func _handle_new_scene() -> bool:
 		SceneDataManager.scene_data["current_image_index"] = 0
 	if not SceneDataManager.scene_data.has("id"):
 		SceneDataManager.scene_data["id"] = preserved_uuid
+	if _should_force_story_end():
+		SceneDataManager.scene_data["end"] = true
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
 	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
