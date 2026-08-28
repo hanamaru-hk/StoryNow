@@ -37,14 +37,14 @@ custom_minimum_size = Vector2(520, 400)
 
 [node name="HubMargin" type="MarginContainer" parent="HubCenter/HubPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
 
 [node name="HubVBox" type="VBoxContainer" parent="HubCenter/HubPanel/HubMargin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="Title" type="Label" parent="HubCenter/HubPanel/HubMargin/HubVBox"]
 unique_name_in_owner = true
@@ -118,14 +118,14 @@ custom_minimum_size = Vector2(720, 560)
 
 [node name="Margin" type="MarginContainer" parent="EditOverlay/CenterContainer/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
 
 [node name="VBox" type="VBoxContainer" parent="EditOverlay/CenterContainer/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="EditOverlayTitle" type="Label" parent="EditOverlay/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
@@ -150,13 +150,13 @@ theme_override_constants/separation = 8
 
 [node name="ButtonRow" type="HBoxContainer" parent="EditOverlay/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
-alignment = 2
-theme_override_constants/separation = 16
+alignment = 1
+theme_override_constants/separation = 24
 
 [node name="EditOverlayBack" type="Button" parent="EditOverlay/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 40)
+custom_minimum_size = Vector2(180, 48)
 text = "Back"
 
 [node name="AddOverlay" type="Control" parent="."]
@@ -192,14 +192,14 @@ custom_minimum_size = Vector2(640, 340)
 
 [node name="Margin" type="MarginContainer" parent="AddOverlay/CenterContainer/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
 
 [node name="VBox" type="VBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="AddOverlayTitle" type="Label" parent="AddOverlay/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
@@ -224,7 +224,7 @@ theme_override_constants/separation = 12
 [node name="RadioRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="AddBeforeRadio" type="CheckBox" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/RadioRow"]
 unique_name_in_owner = true
@@ -252,18 +252,18 @@ custom_minimum_size = Vector2(0, 40)
 [node name="DialogueConfirm" type="Button" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/DropdownRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 40)
+custom_minimum_size = Vector2(180, 48)
 text = "Confirm"
 
 [node name="ButtonRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
-alignment = 2
-theme_override_constants/separation = 16
+alignment = 1
+theme_override_constants/separation = 24
 
 [node name="AddOverlayBack" type="Button" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 40)
+custom_minimum_size = Vector2(180, 48)
 text = "Back"
 
 [node name="EditPopup" type="Control" parent="."]
@@ -295,18 +295,18 @@ grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="EditPopup/CenterContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(600, 380)
+custom_minimum_size = Vector2(680, 460)
 
 [node name="Margin" type="MarginContainer" parent="EditPopup/CenterContainer/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
 
 [node name="VBox" type="VBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="EditTitle" type="Label" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
@@ -332,18 +332,18 @@ wrap_mode = 1
 [node name="ButtonRow" type="HBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="EditBack" type="Button" parent="EditPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 40)
+custom_minimum_size = Vector2(180, 48)
 text = "Back"
 
 [node name="EditSave" type="Button" parent="EditPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 40)
+custom_minimum_size = Vector2(180, 48)
 text = "Save"
 
 [node name="RegenerateConfirmPopup" type="Control" parent="."]
@@ -375,18 +375,18 @@ grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="RegenerateConfirmPopup/CenterContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(520, 240)
+custom_minimum_size = Vector2(600, 300)
 
 [node name="Margin" type="MarginContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
 
 [node name="VBox" type="VBoxContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 28
 
 [node name="RegenerateConfirmLabel" type="Label" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
@@ -398,16 +398,16 @@ autowrap_mode = 3
 [node name="ButtonRow" type="HBoxContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="RegenerateCancel" type="Button" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 40)
+custom_minimum_size = Vector2(180, 48)
 text = "Cancel"
 
 [node name="RegenerateConfirm" type="Button" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 40)
+custom_minimum_size = Vector2(180, 48)
 text = "Confirm"

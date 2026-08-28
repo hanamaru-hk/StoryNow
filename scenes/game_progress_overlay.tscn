@@ -35,10 +35,10 @@ custom_minimum_size = Vector2(720, 0)
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
 layout_mode = 2
@@ -56,7 +56,7 @@ custom_minimum_size = Vector2(0, 8)
 
 [node name="ExpectedRoundRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="ExpectedRoundLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer/ExpectedRoundRow"]
 unique_name_in_owner = true
@@ -73,7 +73,7 @@ max_length = 4
 
 [node name="MinDialogueRoundsRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="MinDialogueRoundsLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer/MinDialogueRoundsRow"]
 unique_name_in_owner = true
@@ -89,7 +89,7 @@ placeholder_text = "10"
 
 [node name="MinSentencesRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="MinSentencesLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer/MinSentencesRow"]
 unique_name_in_owner = true
@@ -105,7 +105,7 @@ placeholder_text = "10"
 
 [node name="MaxPlotDirectionsRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="MaxPlotDirectionsLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer/MaxPlotDirectionsRow"]
 unique_name_in_owner = true
@@ -121,7 +121,7 @@ placeholder_text = "10"
 
 [node name="MinSummaryRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="MinSummaryLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer/MinSummaryRow"]
 unique_name_in_owner = true
@@ -142,25 +142,25 @@ custom_minimum_size = Vector2(0, 12)
 [node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
 [node name="Back" type="Button" parent="CenterContainer/Panel/Margin/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 48)
+custom_minimum_size = Vector2(180, 48)
 size_flags_horizontal = 4
 text = "Back"
 
 [node name="Reset" type="Button" parent="CenterContainer/Panel/Margin/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 48)
+custom_minimum_size = Vector2(180, 48)
 size_flags_horizontal = 4
 text = "Reset"
 
 [node name="Save" type="Button" parent="CenterContainer/Panel/Margin/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 48)
+custom_minimum_size = Vector2(180, 48)
 size_flags_horizontal = 4
 text = "Save"

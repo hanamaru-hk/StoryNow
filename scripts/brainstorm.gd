@@ -139,9 +139,23 @@ func _create_random_confirm_popup() -> void:
 
 
 func _center_popup_buttons(popup: AcceptDialog) -> void:
+	popup.min_size = Vector2i(520, 220)
+	var label := popup.get_label()
+	if label != null:
+		label.custom_minimum_size = Vector2(420, 84)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var ok_button := popup.get_ok_button()
-	if ok_button != null and ok_button.get_parent() is BoxContainer:
-		(ok_button.get_parent() as BoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER
+	if ok_button != null:
+		ok_button.custom_minimum_size = Vector2(180, 48)
+		if ok_button.get_parent() is BoxContainer:
+			var button_row := ok_button.get_parent() as BoxContainer
+			button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+			button_row.add_theme_constant_override("separation", 24)
+	if popup is ConfirmationDialog:
+		var cancel_button := (popup as ConfirmationDialog).get_cancel_button()
+		if cancel_button != null:
+			cancel_button.custom_minimum_size = Vector2(180, 48)
 
 
 func _on_random_confirmed() -> void:

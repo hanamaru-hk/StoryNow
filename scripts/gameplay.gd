@@ -1827,9 +1827,21 @@ func _setup_error_popup_retry() -> void:
 
 
 func _center_popup_buttons(popup: AcceptDialog) -> void:
+	popup.min_size = Vector2i(560, 240)
+	var label := popup.get_label()
+	if label != null:
+		label.custom_minimum_size = Vector2(460, 96)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var ok_button := popup.get_ok_button()
-	if ok_button != null and ok_button.get_parent() is BoxContainer:
-		(ok_button.get_parent() as BoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER
+	if ok_button != null:
+		ok_button.custom_minimum_size = Vector2(180, 48)
+		if ok_button.get_parent() is BoxContainer:
+			var button_row := ok_button.get_parent() as BoxContainer
+			button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+			button_row.add_theme_constant_override("separation", 24)
+	if _error_retry_button != null:
+		_error_retry_button.custom_minimum_size = Vector2(180, 48)
 
 
 func _update_error_popup_retry_visibility(allow_retry: bool) -> void:
