@@ -36,7 +36,7 @@ custom_minimum_size = Vector2(720, 0)
 [node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
 layout_mode = 2
 theme_override_constants/margin_left = 36
-theme_override_constants/margin_top = 36
+theme_override_constants/margin_top = 48
 theme_override_constants/margin_right = 36
 theme_override_constants/margin_bottom = 36
 

@@ -6,8 +6,6 @@ const PAGE_SIZE := 10
 var _all_entries: Array[Dictionary] = []
 var _current_page: int = 1
 var _total_pages: int = 1
-var _error_popup: AcceptDialog
-var _delete_confirm_popup: ConfirmationDialog
 var _pending_delete_uuid: String = ""
 
 func _ready() -> void:
@@ -15,8 +13,9 @@ func _ready() -> void:
 		%LoadCloseButton.pressed.connect(_on_close_pressed)
 	if has_node("%LoadBackground"):
 		%LoadBackground.gui_input.connect(_on_background_input)
-	_create_error_popup()
-	_create_delete_confirm_popup()
+	%LoadErrorOk.pressed.connect(_on_load_error_ok_pressed)
+	%LoadDeleteCancel.pressed.connect(_on_delete_canceled)
+	%LoadDeleteConfirm.pressed.connect(_on_delete_confirmed)
 	_update_labels()
 
 
@@ -48,12 +47,11 @@ func _update_labels() -> void:
 	if has_node("%LoadCloseButton"):
 		var b: String = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 		%LoadCloseButton.text = b
-	if _error_popup != null:
-		_error_popup.title = I18n.translate("error_dialog_title")
-	if _delete_confirm_popup != null:
-		_delete_confirm_popup.title = I18n.translate("confirm_dialog_title")
-		_delete_confirm_popup.ok_button_text = I18n.translate("btn_confirm")
-		_delete_confirm_popup.cancel_button_text = I18n.translate("btn_cancel")
+	%LoadErrorTitle.text = I18n.translate("error_dialog_title")
+	%LoadErrorOk.text = "OK"
+	%LoadDeleteConfirmTitle.text = I18n.translate("confirm_dialog_title")
+	%LoadDeleteConfirm.text = I18n.translate("btn_confirm")
+	%LoadDeleteCancel.text = I18n.translate("btn_cancel")
 
 
 func _refresh_list() -> void:
@@ -489,16 +487,15 @@ func _on_delete_save_pressed(uuid: String, title: String) -> void:
 	if _is_current_gameplay_save(clean_uuid):
 		return
 	_pending_delete_uuid = clean_uuid
-	if _delete_confirm_popup == null:
-		_create_delete_confirm_popup()
 	var template := I18n.translate("load_delete_confirm")
 	if template == "load_delete_confirm":
 		template = "Delete this save?\n%s"
-	_delete_confirm_popup.dialog_text = template % title
-	_delete_confirm_popup.popup_centered()
+	%LoadDeleteConfirmMessage.text = template % title
+	%LoadDeleteConfirmPopup.visible = true
 
 
 func _on_delete_confirmed() -> void:
+	%LoadDeleteConfirmPopup.visible = false
 	var uuid := _pending_delete_uuid.strip_edges()
 	_pending_delete_uuid = ""
 	if uuid.is_empty():
@@ -521,6 +518,7 @@ func _on_delete_confirmed() -> void:
 
 func _on_delete_canceled() -> void:
 	_pending_delete_uuid = ""
+	%LoadDeleteConfirmPopup.visible = false
 
 
 func _is_current_gameplay_save(uuid: String) -> bool:
@@ -571,44 +569,10 @@ func _are_story_servers_ready() -> bool:
 	return _is_llm_ready() and _is_image_server_ready()
 
 
-func _create_error_popup() -> void:
-	_error_popup = AcceptDialog.new()
-	_error_popup.name = "LoadErrorPopup"
-	add_child(_error_popup)
-	_center_popup_buttons(_error_popup)
-
-
-func _create_delete_confirm_popup() -> void:
-	_delete_confirm_popup = ConfirmationDialog.new()
-	_delete_confirm_popup.name = "LoadDeleteConfirmPopup"
-	_delete_confirm_popup.confirmed.connect(_on_delete_confirmed)
-	_delete_confirm_popup.canceled.connect(_on_delete_canceled)
-	add_child(_delete_confirm_popup)
-	_center_popup_buttons(_delete_confirm_popup)
-
-
-func _center_popup_buttons(popup: AcceptDialog) -> void:
-	popup.min_size = Vector2i(520, 220)
-	var label := popup.get_label()
-	if label != null:
-		label.custom_minimum_size = Vector2(420, 84)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var ok_button := popup.get_ok_button()
-	if ok_button != null:
-		ok_button.custom_minimum_size = Vector2(180, 48)
-		if ok_button.get_parent() is BoxContainer:
-			var button_row := ok_button.get_parent() as BoxContainer
-			button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-			button_row.add_theme_constant_override("separation", 24)
-	if popup is ConfirmationDialog:
-		var cancel_button := (popup as ConfirmationDialog).get_cancel_button()
-		if cancel_button != null:
-			cancel_button.custom_minimum_size = Vector2(180, 48)
-
-
 func _show_error_popup(message: String) -> void:
-	if _error_popup == null:
-		_create_error_popup()
-	_error_popup.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
-	_error_popup.popup_centered()
+	%LoadErrorMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%LoadErrorPopup.visible = true
+
+
+func _on_load_error_ok_pressed() -> void:
+	%LoadErrorPopup.visible = false

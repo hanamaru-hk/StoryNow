@@ -14,7 +14,6 @@ var total_dialogue: int = 1
 
 # Error dialog retry handling
 signal retry_requested
-var _error_retry_button: Button = null
 var _pending_retry_action: String = ""  # "new_story" or "new_scene"
 var _retry_in_progress: bool = false
 var _chrome_visible: bool = true
@@ -90,12 +89,8 @@ func _ready() -> void:
 		%DialogueOverlay.dialogue_updated.connect(_on_dialogue_updated)
 
 	# --- ErrorReturnPopup ---
-	%ErrorReturnPopup.confirmed.connect(_on_error_return)
-	%ErrorReturnPopup.canceled.connect(_on_error_return)
-	_center_popup_buttons(%ErrorReturnPopup)
-	# AcceptDialog close via X also triggers canceled
-	# Add Retry button for LLM JSON parse failures
-	_setup_error_popup_retry()
+	%ErrorReturnBack.pressed.connect(_on_error_return)
+	%ErrorReturnRetry.pressed.connect(_on_error_retry_pressed)
 
 	# Clicking on DialogArea advances dialogue (optional convenience)
 	if has_node("%DialogArea"):
@@ -1809,50 +1804,15 @@ func _advance_with_choice(choice_text: String) -> void:
 
 
 # ------------------------------------------------------------------
-# Error handling — common error return dialog for returning to main menu
+# Error handling — common error return popup for returning to main menu
 # ------------------------------------------------------------------
-func _setup_error_popup_retry() -> void:
-	# Add Retry button once (AcceptDialog.add_button stores custom action "retry")
-	if _error_retry_button != null:
-		return
-	# ok_button_text is "Return to Menu" – add Retry as custom action on the right
-	_error_retry_button = %ErrorReturnPopup.add_button(I18n.translate("btn_retry"), false, "retry")
-	if _error_retry_button:
-		_error_retry_button.pressed.connect(_on_error_retry_pressed)
-		_error_retry_button.visible = false
-	# Also listen for custom_action (some Godot versions emit this instead of Button.pressed)
-	if not %ErrorReturnPopup.custom_action.is_connected(_on_error_custom_action):
-		%ErrorReturnPopup.custom_action.connect(_on_error_custom_action)
-	_center_popup_buttons(%ErrorReturnPopup)
-
-
-func _center_popup_buttons(popup: AcceptDialog) -> void:
-	popup.min_size = Vector2i(560, 240)
-	var label := popup.get_label()
-	if label != null:
-		label.custom_minimum_size = Vector2(460, 96)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var ok_button := popup.get_ok_button()
-	if ok_button != null:
-		ok_button.custom_minimum_size = Vector2(180, 48)
-		if ok_button.get_parent() is BoxContainer:
-			var button_row := ok_button.get_parent() as BoxContainer
-			button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-			button_row.add_theme_constant_override("separation", 24)
-	if _error_retry_button != null:
-		_error_retry_button.custom_minimum_size = Vector2(180, 48)
-
-
 func _update_error_popup_retry_visibility(allow_retry: bool) -> void:
-	if _error_retry_button == null:
-		return
-	_error_retry_button.visible = allow_retry
-	_error_retry_button.disabled = not allow_retry or _retry_in_progress
+	%ErrorReturnRetry.visible = allow_retry
+	%ErrorReturnRetry.disabled = not allow_retry or _retry_in_progress
 	var retry_text: String = I18n.translate("btn_retry")
 	if retry_text == "btn_retry":
 		retry_text = "Retry"
-	_error_retry_button.text = retry_text
+	%ErrorReturnRetry.text = retry_text
 
 
 func show_error(message: String, allow_retry: bool = false, retry_action: String = "") -> void:
@@ -1862,14 +1822,9 @@ func show_error(message: String, allow_retry: bool = false, retry_action: String
 	if allow_retry and _pending_retry_action.is_empty():
 		allow_retry = false
 	_update_error_popup_retry_visibility(allow_retry and not _pending_retry_action.is_empty())
-	%ErrorReturnPopup.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
-	%ErrorReturnPopup.title = I18n.translate("error_dialog_title")
-	%ErrorReturnPopup.popup_centered()
-
-
-func _on_error_custom_action(action: String) -> void:
-	if action == "retry":
-		_on_error_retry_pressed()
+	%ErrorReturnMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%ErrorReturnTitle.text = I18n.translate("error_dialog_title")
+	%ErrorReturnPopup.visible = true
 
 
 func _on_error_retry_pressed() -> void:
@@ -1877,7 +1832,7 @@ func _on_error_retry_pressed() -> void:
 		return
 	_retry_in_progress = true
 	_update_error_popup_retry_visibility(false)
-	%ErrorReturnPopup.hide()
+	%ErrorReturnPopup.visible = false
 	# Emit signal for the retry loop in _execute_*_flow; loop will clear pending on next iteration
 	await get_tree().create_timer(0.05).timeout
 	_retry_in_progress = false
@@ -1888,6 +1843,7 @@ func _on_error_return() -> void:
 	_pending_retry_action = ""
 	_retry_in_progress = false
 	_update_error_popup_retry_visibility(false)
+	%ErrorReturnPopup.visible = false
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
@@ -1949,15 +1905,14 @@ func _update_labels() -> void:
 		%DialogueOverlay._update_labels()
 	if has_node("%GameplayMenuOverlay") and %GameplayMenuOverlay.has_method("_update_labels"):
 		%GameplayMenuOverlay._update_labels()
-	# Error dialog buttons
-	%ErrorReturnPopup.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnPopup") else ""
+	# Error popup buttons
 	if has_node("%ErrorReturnPopup"):
+		%ErrorReturnTitle.text = I18n.translate("error_dialog_title")
 		var t_ok: String = I18n.translate("btn_back_to_main_menu")
-		%ErrorReturnPopup.ok_button_text = t_ok if t_ok != "btn_back_to_main_menu" else "Return to Menu"
+		%ErrorReturnBack.text = t_ok if t_ok != "btn_back_to_main_menu" else "Return to Menu"
 		var t_dlg: String = I18n.translate("error_dialog_text")
 		# Only override fallback text if it matches the old hard-coded fallback
-		if %ErrorReturnPopup.dialog_text == "Something went wrong. Returning to main menu." or %ErrorReturnPopup.dialog_text == t_dlg:
-			%ErrorReturnPopup.dialog_text = t_dlg if t_dlg != "error_dialog_text" else "Something went wrong. Returning to main menu."
-	if _error_retry_button != null:
+		if %ErrorReturnMessage.text == "Something went wrong. Returning to main menu." or %ErrorReturnMessage.text == t_dlg:
+			%ErrorReturnMessage.text = t_dlg if t_dlg != "error_dialog_text" else "Something went wrong. Returning to main menu."
 		var retry_text: String = I18n.translate("btn_retry")
-		_error_retry_button.text = retry_text if retry_text != "btn_retry" else "Retry"
+		%ErrorReturnRetry.text = retry_text if retry_text != "btn_retry" else "Retry"

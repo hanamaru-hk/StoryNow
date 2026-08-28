@@ -1,7 +1,5 @@
 extends Control
 
-var _random_confirm_popup: ConfirmationDialog
-
 
 func _ready() -> void:
 	%Random.pressed.connect(_on_random_pressed)
@@ -9,8 +7,9 @@ func _ready() -> void:
 	%Advanced.pressed.connect(_on_advanced_pressed)
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
-	_create_random_confirm_popup()
-	_center_popup_buttons(%ErrorPopup)
+	%ErrorPopupOk.pressed.connect(_on_error_popup_ok_pressed)
+	%RandomConfirmCancel.pressed.connect(_on_random_confirm_canceled)
+	%RandomConfirmOk.pressed.connect(_on_random_confirmed)
 	_update_labels()
 
 
@@ -18,7 +17,7 @@ func _on_random_pressed() -> void:
 	if not _is_llm_ready():
 		_show_error_popup(I18n.translate("notice_wait_llm_ready"))
 		return
-	_random_confirm_popup.popup_centered()
+	%RandomConfirmPopup.visible = true
 
 
 func _request_random_text() -> void:
@@ -61,8 +60,12 @@ func _show_loading(is_visible: bool) -> void:
 
 
 func _show_error_popup(message: String) -> void:
-	%ErrorPopup.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
-	%ErrorPopup.popup_centered()
+	%ErrorPopupMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%ErrorPopup.visible = true
+
+
+func _on_error_popup_ok_pressed() -> void:
+	%ErrorPopup.visible = false
 
 
 func _on_start_pressed() -> void:
@@ -130,37 +133,14 @@ func _are_story_servers_ready() -> bool:
 	return _is_llm_ready() and _is_image_server_ready()
 
 
-func _create_random_confirm_popup() -> void:
-	_random_confirm_popup = ConfirmationDialog.new()
-	_random_confirm_popup.name = "RandomConfirmPopup"
-	_random_confirm_popup.confirmed.connect(_on_random_confirmed)
-	add_child(_random_confirm_popup)
-	_center_popup_buttons(_random_confirm_popup)
-
-
-func _center_popup_buttons(popup: AcceptDialog) -> void:
-	popup.min_size = Vector2i(520, 220)
-	var label := popup.get_label()
-	if label != null:
-		label.custom_minimum_size = Vector2(420, 84)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var ok_button := popup.get_ok_button()
-	if ok_button != null:
-		ok_button.custom_minimum_size = Vector2(180, 48)
-		if ok_button.get_parent() is BoxContainer:
-			var button_row := ok_button.get_parent() as BoxContainer
-			button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-			button_row.add_theme_constant_override("separation", 24)
-	if popup is ConfirmationDialog:
-		var cancel_button := (popup as ConfirmationDialog).get_cancel_button()
-		if cancel_button != null:
-			cancel_button.custom_minimum_size = Vector2(180, 48)
-
-
 func _on_random_confirmed() -> void:
+	%RandomConfirmPopup.visible = false
 	%BackgroundInput.text = ""
 	await _request_random_text()
+
+
+func _on_random_confirm_canceled() -> void:
+	%RandomConfirmPopup.visible = false
 
 
 func _update_labels() -> void:
@@ -173,6 +153,9 @@ func _update_labels() -> void:
 	%Start.text = I18n.translate("btn_start")
 	%Back.text = I18n.translate("btn_back")
 	%LoadingLabel.text = I18n.translate("loading_title")
-	%ErrorPopup.title = I18n.translate("error_dialog_title")
-	_random_confirm_popup.title = I18n.translate("confirm_dialog_title")
-	_random_confirm_popup.dialog_text = I18n.translate("confirm_random_clear_text")
+	%ErrorPopupTitle.text = I18n.translate("error_dialog_title")
+	%ErrorPopupOk.text = "OK"
+	%RandomConfirmTitle.text = I18n.translate("confirm_dialog_title")
+	%RandomConfirmMessage.text = I18n.translate("confirm_random_clear_text")
+	%RandomConfirmCancel.text = I18n.translate("btn_cancel")
+	%RandomConfirmOk.text = I18n.translate("btn_confirm")
