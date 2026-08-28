@@ -247,35 +247,32 @@ func _on_page_next() -> void:
 		_show_current_page()
 
 
-func _get_largest_image_path(uuid: String, data: Dictionary) -> String:
-	# Prefer image_filenames array largest filename, fallback to scanning images dir
-	var candidates: Array[String] = []
+func _get_current_image_path(uuid: String, data: Dictionary) -> String:
+	# Prefer image_filenames[current_image_index], fallback to scanning images dir.
 	var arr: Variant = data.get("image_filenames", [])
 	if arr is Array:
-		for v in arr as Array:
-			var s: String = str(v).strip_edges()
-			if not s.is_empty():
-				candidates.append(s)
-	if not candidates.is_empty():
-		candidates.sort()
-		var largest: String = candidates[candidates.size() - 1]
-		var p: String = "user://saves/%s/images/%s" % [uuid, largest]
-		if FileAccess.file_exists(p):
-			return p
-		# Also try globalized existence via DirAccess
-		var images_dir_check: String = "user://saves/%s/images" % uuid
-		if DirAccess.dir_exists_absolute(images_dir_check):
-			var d := DirAccess.open(images_dir_check)
-			if d != null:
-				d.list_dir_begin()
-				var fn := d.get_next()
-				while fn != "":
-					if fn == largest:
+		var filenames: Array = arr as Array
+		if not filenames.is_empty():
+			var current_index := clampi(int(data.get("current_image_index", 0)), 0, filenames.size() - 1)
+			var current_filename: String = str(filenames[current_index]).strip_edges()
+			if not current_filename.is_empty():
+				var p: String = "user://saves/%s/images/%s" % [uuid, current_filename]
+				if FileAccess.file_exists(p):
+					return p
+				# Also try globalized existence via DirAccess.
+				var images_dir_check: String = "user://saves/%s/images" % uuid
+				if DirAccess.dir_exists_absolute(images_dir_check):
+					var d := DirAccess.open(images_dir_check)
+					if d != null:
+						d.list_dir_begin()
+						var fn := d.get_next()
+						while fn != "":
+							if fn == current_filename:
+								d.list_dir_end()
+								return p
+							fn = d.get_next()
 						d.list_dir_end()
-						return p
-					fn = d.get_next()
-				d.list_dir_end()
-	# Fallback: scan images directory for largest filename
+	# Fallback: scan images directory for largest filename.
 	var images_dir: String = "user://saves/%s/images" % uuid
 	if not DirAccess.dir_exists_absolute(images_dir):
 		return ""
@@ -325,7 +322,7 @@ func _add_save_item(entry: Dictionary) -> void:
 	row.custom_minimum_size = Vector2(0, 120)
 
 	# Thumbnail
-	var thumb_path: String = _get_largest_image_path(uuid, data)
+	var thumb_path: String = _get_current_image_path(uuid, data)
 	var tex: Texture2D = _load_texture_from_user_path(thumb_path)
 	var thumb := TextureRect.new()
 	thumb.custom_minimum_size = Vector2(180, 112)
