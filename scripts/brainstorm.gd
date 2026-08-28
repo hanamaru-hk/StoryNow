@@ -1,6 +1,6 @@
 extends Control
 
-var _random_confirm_dialog: ConfirmationDialog
+var _random_confirm_popup: ConfirmationDialog
 
 
 func _ready() -> void:
@@ -9,15 +9,15 @@ func _ready() -> void:
 	%Advanced.pressed.connect(_on_advanced_pressed)
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
-	_create_random_confirm_dialog()
+	_create_random_confirm_popup()
 	_update_labels()
 
 
 func _on_random_pressed() -> void:
 	if not _is_llm_ready():
-		_show_error_dialog(I18n.translate("notice_wait_llm_ready"))
+		_show_error_popup(I18n.translate("notice_wait_llm_ready"))
 		return
-	_random_confirm_dialog.popup_centered()
+	_random_confirm_popup.popup_centered()
 
 
 func _request_random_text() -> void:
@@ -27,18 +27,18 @@ func _request_random_text() -> void:
 	_show_loading(false)
 	%Random.disabled = false
 	if not result.get("success", false):
-		_show_error_dialog(result.get("error", ""))
+		_show_error_popup(result.get("error", ""))
 	else:
 		%BackgroundInput.text = result["text"]
 
 
 func _on_enhance_pressed() -> void:
 	if not _is_llm_ready():
-		_show_error_dialog(I18n.translate("notice_wait_llm_ready"))
+		_show_error_popup(I18n.translate("notice_wait_llm_ready"))
 		return
 	var input: String = %BackgroundInput.text.strip_edges()
 	if input.is_empty():
-		_show_error_dialog(I18n.translate("notice_write_something_first"))
+		_show_error_popup(I18n.translate("notice_write_something_first"))
 		return
 	%Enhance.disabled = true
 	_show_loading(true)
@@ -46,7 +46,7 @@ func _on_enhance_pressed() -> void:
 	_show_loading(false)
 	%Enhance.disabled = false
 	if not result.get("success", false):
-		_show_error_dialog(result.get("error", ""))
+		_show_error_popup(result.get("error", ""))
 	else:
 		%BackgroundInput.text = result["text"]
 
@@ -59,18 +59,18 @@ func _show_loading(is_visible: bool) -> void:
 	%LoadingOverlay.visible = is_visible
 
 
-func _show_error_dialog(message: String) -> void:
-	%ErrorDialog.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
-	%ErrorDialog.popup_centered()
+func _show_error_popup(message: String) -> void:
+	%ErrorPopup.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%ErrorPopup.popup_centered()
 
 
 func _on_start_pressed() -> void:
 	if not _are_story_servers_ready():
-		_show_error_dialog(I18n.translate("notice_wait_llm_and_image_ready"))
+		_show_error_popup(I18n.translate("notice_wait_llm_and_image_ready"))
 		return
 	var input: String = %BackgroundInput.text.strip_edges()
 	if input.is_empty():
-		_show_error_dialog(I18n.translate("notice_write_something_first"))
+		_show_error_popup(I18n.translate("notice_write_something_first"))
 		return
 	var uuid := _generate_uuid()
 	SceneDataManager.scene_data = {
@@ -129,11 +129,11 @@ func _are_story_servers_ready() -> bool:
 	return _is_llm_ready() and _is_image_server_ready()
 
 
-func _create_random_confirm_dialog() -> void:
-	_random_confirm_dialog = ConfirmationDialog.new()
-	_random_confirm_dialog.name = "RandomConfirmDialog"
-	_random_confirm_dialog.confirmed.connect(_on_random_confirmed)
-	add_child(_random_confirm_dialog)
+func _create_random_confirm_popup() -> void:
+	_random_confirm_popup = ConfirmationDialog.new()
+	_random_confirm_popup.name = "RandomConfirmPopup"
+	_random_confirm_popup.confirmed.connect(_on_random_confirmed)
+	add_child(_random_confirm_popup)
 
 
 func _on_random_confirmed() -> void:
@@ -151,6 +151,6 @@ func _update_labels() -> void:
 	%Start.text = I18n.translate("btn_start")
 	%Back.text = I18n.translate("btn_back")
 	%LoadingLabel.text = I18n.translate("loading_title")
-	%ErrorDialog.title = I18n.translate("error_dialog_title")
-	_random_confirm_dialog.title = I18n.translate("confirm_dialog_title")
-	_random_confirm_dialog.dialog_text = I18n.translate("confirm_random_clear_text")
+	%ErrorPopup.title = I18n.translate("error_dialog_title")
+	_random_confirm_popup.title = I18n.translate("confirm_dialog_title")
+	_random_confirm_popup.dialog_text = I18n.translate("confirm_random_clear_text")

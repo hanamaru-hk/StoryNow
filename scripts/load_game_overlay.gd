@@ -6,8 +6,8 @@ const PAGE_SIZE := 10
 var _all_entries: Array[Dictionary] = []
 var _current_page: int = 1
 var _total_pages: int = 1
-var _error_dialog: AcceptDialog
-var _delete_confirm_dialog: ConfirmationDialog
+var _error_popup: AcceptDialog
+var _delete_confirm_popup: ConfirmationDialog
 var _pending_delete_uuid: String = ""
 
 func _ready() -> void:
@@ -15,8 +15,8 @@ func _ready() -> void:
 		%LoadCloseButton.pressed.connect(_on_close_pressed)
 	if has_node("%LoadBackground"):
 		%LoadBackground.gui_input.connect(_on_background_input)
-	_create_error_dialog()
-	_create_delete_confirm_dialog()
+	_create_error_popup()
+	_create_delete_confirm_popup()
 	_update_labels()
 
 
@@ -48,12 +48,12 @@ func _update_labels() -> void:
 	if has_node("%LoadCloseButton"):
 		var b: String = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 		%LoadCloseButton.text = b
-	if _error_dialog != null:
-		_error_dialog.title = I18n.translate("error_dialog_title")
-	if _delete_confirm_dialog != null:
-		_delete_confirm_dialog.title = I18n.translate("confirm_dialog_title")
-		_delete_confirm_dialog.ok_button_text = I18n.translate("btn_confirm")
-		_delete_confirm_dialog.cancel_button_text = I18n.translate("btn_cancel")
+	if _error_popup != null:
+		_error_popup.title = I18n.translate("error_dialog_title")
+	if _delete_confirm_popup != null:
+		_delete_confirm_popup.title = I18n.translate("confirm_dialog_title")
+		_delete_confirm_popup.ok_button_text = I18n.translate("btn_confirm")
+		_delete_confirm_popup.cancel_button_text = I18n.translate("btn_cancel")
 
 
 func _refresh_list() -> void:
@@ -452,7 +452,7 @@ func _on_save_pressed(uuid: String, entry: Dictionary) -> void:
 	if uuid.strip_edges().is_empty():
 		return
 	if not _are_story_servers_ready():
-		_show_error_dialog(I18n.translate("notice_wait_llm_and_image_ready"))
+		_show_error_popup(I18n.translate("notice_wait_llm_and_image_ready"))
 		return
 	if ServerRuntimeManager.has_generation_requests():
 		await ServerRuntimeManager.cancel_active_generation_tasks()
@@ -489,13 +489,13 @@ func _on_delete_save_pressed(uuid: String, title: String) -> void:
 	if _is_current_gameplay_save(clean_uuid):
 		return
 	_pending_delete_uuid = clean_uuid
-	if _delete_confirm_dialog == null:
-		_create_delete_confirm_dialog()
+	if _delete_confirm_popup == null:
+		_create_delete_confirm_popup()
 	var template := I18n.translate("load_delete_confirm")
 	if template == "load_delete_confirm":
 		template = "Delete this save?\n%s"
-	_delete_confirm_dialog.dialog_text = template % title
-	_delete_confirm_dialog.popup_centered()
+	_delete_confirm_popup.dialog_text = template % title
+	_delete_confirm_popup.popup_centered()
 
 
 func _on_delete_confirmed() -> void:
@@ -507,7 +507,7 @@ func _on_delete_confirmed() -> void:
 		return
 	var save_path := "%s/%s" % [SceneDataManager.SAVE_DIR, uuid]
 	if not _delete_directory_recursive(save_path):
-		_show_error_dialog(I18n.translate("error_dialog_text"))
+		_show_error_popup(I18n.translate("error_dialog_text"))
 		return
 	if str(GameProgressManager.settings.get("current_uuid", "")).strip_edges() == uuid:
 		GameProgressManager.settings["current_uuid"] = ""
@@ -571,22 +571,22 @@ func _are_story_servers_ready() -> bool:
 	return _is_llm_ready() and _is_image_server_ready()
 
 
-func _create_error_dialog() -> void:
-	_error_dialog = AcceptDialog.new()
-	_error_dialog.name = "LoadErrorDialog"
-	add_child(_error_dialog)
+func _create_error_popup() -> void:
+	_error_popup = AcceptDialog.new()
+	_error_popup.name = "LoadErrorPopup"
+	add_child(_error_popup)
 
 
-func _create_delete_confirm_dialog() -> void:
-	_delete_confirm_dialog = ConfirmationDialog.new()
-	_delete_confirm_dialog.name = "LoadDeleteConfirmDialog"
-	_delete_confirm_dialog.confirmed.connect(_on_delete_confirmed)
-	_delete_confirm_dialog.canceled.connect(_on_delete_canceled)
-	add_child(_delete_confirm_dialog)
+func _create_delete_confirm_popup() -> void:
+	_delete_confirm_popup = ConfirmationDialog.new()
+	_delete_confirm_popup.name = "LoadDeleteConfirmPopup"
+	_delete_confirm_popup.confirmed.connect(_on_delete_confirmed)
+	_delete_confirm_popup.canceled.connect(_on_delete_canceled)
+	add_child(_delete_confirm_popup)
 
 
-func _show_error_dialog(message: String) -> void:
-	if _error_dialog == null:
-		_create_error_dialog()
-	_error_dialog.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
-	_error_dialog.popup_centered()
+func _show_error_popup(message: String) -> void:
+	if _error_popup == null:
+		_create_error_popup()
+	_error_popup.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	_error_popup.popup_centered()

@@ -266,7 +266,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(160, 40)
 text = "Back"
 
-[node name="EditDialog" type="Control" parent="."]
+[node name="EditPopup" type="Control" parent="."]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -276,7 +276,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BackgroundDim2" type="ColorRect" parent="EditDialog"]
+[node name="BackgroundDim2" type="ColorRect" parent="EditPopup"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -285,7 +285,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.55)
 
-[node name="CenterContainer" type="CenterContainer" parent="EditDialog"]
+[node name="CenterContainer" type="CenterContainer" parent="EditPopup"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -293,34 +293,34 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="PanelContainer" parent="EditDialog/CenterContainer"]
+[node name="Panel" type="PanelContainer" parent="EditPopup/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(600, 380)
 
-[node name="Margin" type="MarginContainer" parent="EditDialog/CenterContainer/Panel"]
+[node name="Margin" type="MarginContainer" parent="EditPopup/CenterContainer/Panel"]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="VBox" type="VBoxContainer" parent="EditDialog/CenterContainer/Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="EditTitle" type="Label" parent="EditDialog/CenterContainer/Panel/Margin/VBox"]
+[node name="EditTitle" type="Label" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Edit Dialogue"
 horizontal_alignment = 1
 
-[node name="EditCharacter" type="LineEdit" parent="EditDialog/CenterContainer/Panel/Margin/VBox"]
+[node name="EditCharacter" type="LineEdit" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Character"
 
-[node name="EditDialogue" type="TextEdit" parent="EditDialog/CenterContainer/Panel/Margin/VBox"]
+[node name="EditDialogue" type="TextEdit" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -329,24 +329,24 @@ custom_minimum_size = Vector2(0, 140)
 placeholder_text = "Dialogue..."
 wrap_mode = 1
 
-[node name="ButtonRow" type="HBoxContainer" parent="EditDialog/CenterContainer/Panel/Margin/VBox"]
+[node name="ButtonRow" type="HBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
 alignment = 2
 theme_override_constants/separation = 16
 
-[node name="EditBack" type="Button" parent="EditDialog/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+[node name="EditBack" type="Button" parent="EditPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 40)
 text = "Back"
 
-[node name="EditSave" type="Button" parent="EditDialog/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+[node name="EditSave" type="Button" parent="EditPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 40)
 text = "Save"
 
-[node name="RegenerateConfirmDialog" type="Control" parent="."]
+[node name="RegenerateConfirmPopup" type="Control" parent="."]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -356,7 +356,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BackgroundDim3" type="ColorRect" parent="RegenerateConfirmDialog"]
+[node name="BackgroundDim3" type="ColorRect" parent="RegenerateConfirmPopup"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -365,7 +365,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.55)
 
-[node name="CenterContainer" type="CenterContainer" parent="RegenerateConfirmDialog"]
+[node name="CenterContainer" type="CenterContainer" parent="RegenerateConfirmPopup"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -373,40 +373,40 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="PanelContainer" parent="RegenerateConfirmDialog/CenterContainer"]
+[node name="Panel" type="PanelContainer" parent="RegenerateConfirmPopup/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(520, 240)
 
-[node name="Margin" type="MarginContainer" parent="RegenerateConfirmDialog/CenterContainer/Panel"]
+[node name="Margin" type="MarginContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel"]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="VBox" type="VBoxContainer" parent="RegenerateConfirmDialog/CenterContainer/Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="RegenerateConfirmLabel" type="Label" parent="RegenerateConfirmDialog/CenterContainer/Panel/Margin/VBox"]
+[node name="RegenerateConfirmLabel" type="Label" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Regenerate all dialogues? This will overwrite all current dialogues."
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="ButtonRow" type="HBoxContainer" parent="RegenerateConfirmDialog/CenterContainer/Panel/Margin/VBox"]
+[node name="ButtonRow" type="HBoxContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
 alignment = 2
 theme_override_constants/separation = 16
 
-[node name="RegenerateCancel" type="Button" parent="RegenerateConfirmDialog/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+[node name="RegenerateCancel" type="Button" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 40)
 text = "Cancel"
 
-[node name="RegenerateConfirm" type="Button" parent="RegenerateConfirmDialog/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+[node name="RegenerateConfirm" type="Button" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 40)

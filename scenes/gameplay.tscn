@@ -230,7 +230,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Menu"
 
-[node name="ErrorReturnDialog" type="AcceptDialog" parent="."]
+[node name="ErrorReturnPopup" type="AcceptDialog" parent="."]
 unique_name_in_owner = true
 title = "Error"
 ok_button_text = "Return to Menu"

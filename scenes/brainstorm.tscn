@@ -150,7 +150,7 @@ layout_mode = 2
 text = "Loading..."
 horizontal_alignment = 1
 
-[node name="ErrorDialog" type="AcceptDialog" parent="."]
+[node name="ErrorPopup" type="AcceptDialog" parent="."]
 unique_name_in_owner = true
 title = "Error"
 dialog_text = "Something went wrong. Please try again."

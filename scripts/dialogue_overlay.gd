@@ -36,10 +36,10 @@ func _ready() -> void:
 		%EditOverlay.visible = false
 	if has_node("%AddOverlay"):
 		%AddOverlay.visible = false
-	if has_node("%EditDialog"):
-		%EditDialog.visible = false
-	if has_node("%RegenerateConfirmDialog"):
-		%RegenerateConfirmDialog.visible = false
+	if has_node("%EditPopup"):
+		%EditPopup.visible = false
+	if has_node("%RegenerateConfirmPopup"):
+		%RegenerateConfirmPopup.visible = false
 	_update_labels()
 
 
@@ -49,10 +49,10 @@ func open() -> void:
 		%EditOverlay.visible = false
 	if has_node("%AddOverlay"):
 		%AddOverlay.visible = false
-	if has_node("%EditDialog"):
-		%EditDialog.visible = false
-	if has_node("%RegenerateConfirmDialog"):
-		%RegenerateConfirmDialog.visible = false
+	if has_node("%EditPopup"):
+		%EditPopup.visible = false
+	if has_node("%RegenerateConfirmPopup"):
+		%RegenerateConfirmPopup.visible = false
 	_editing_index = -1
 	_update_labels()
 	_update_regenerate_button_state()
@@ -147,8 +147,8 @@ func _on_hub_edit_pressed() -> void:
 		_update_labels()
 	if has_node("%AddOverlay"):
 		%AddOverlay.visible = false
-	if has_node("%EditDialog"):
-		%EditDialog.visible = false
+	if has_node("%EditPopup"):
+		%EditPopup.visible = false
 	_editing_index = -1
 
 
@@ -159,17 +159,17 @@ func _on_hub_add_pressed() -> void:
 		_update_labels()
 	if has_node("%EditOverlay"):
 		%EditOverlay.visible = false
-	if has_node("%EditDialog"):
-		%EditDialog.visible = false
+	if has_node("%EditPopup"):
+		%EditPopup.visible = false
 
 
 func _on_hub_back_pressed() -> void:
 	# Hub back closes the whole dialogue overlay (unless a sub-overlay is open, close it first)
-	if has_node("%RegenerateConfirmDialog") and %RegenerateConfirmDialog.visible:
-		%RegenerateConfirmDialog.visible = false
+	if has_node("%RegenerateConfirmPopup") and %RegenerateConfirmPopup.visible:
+		%RegenerateConfirmPopup.visible = false
 		return
-	if has_node("%EditDialog") and %EditDialog.visible:
-		%EditDialog.visible = false
+	if has_node("%EditPopup") and %EditPopup.visible:
+		%EditPopup.visible = false
 		_editing_index = -1
 		return
 	if has_node("%EditOverlay") and %EditOverlay.visible:
@@ -185,19 +185,19 @@ func _on_hub_back_pressed() -> void:
 func _on_regenerate_all_pressed() -> void:
 	if _is_regenerating:
 		return
-	if has_node("%RegenerateConfirmDialog"):
-		%RegenerateConfirmDialog.visible = true
+	if has_node("%RegenerateConfirmPopup"):
+		%RegenerateConfirmPopup.visible = true
 	_update_labels()
 
 
 func _on_regenerate_cancel_pressed() -> void:
-	if has_node("%RegenerateConfirmDialog"):
-		%RegenerateConfirmDialog.visible = false
+	if has_node("%RegenerateConfirmPopup"):
+		%RegenerateConfirmPopup.visible = false
 
 
 func _on_regenerate_confirm_pressed() -> void:
-	if has_node("%RegenerateConfirmDialog"):
-		%RegenerateConfirmDialog.visible = false
+	if has_node("%RegenerateConfirmPopup"):
+		%RegenerateConfirmPopup.visible = false
 	await _execute_regenerate_all()
 
 
@@ -398,8 +398,8 @@ func _execute_regenerate_all() -> void:
 
 
 func _on_edit_overlay_back_pressed() -> void:
-	if has_node("%EditDialog") and %EditDialog.visible:
-		%EditDialog.visible = false
+	if has_node("%EditPopup") and %EditPopup.visible:
+		%EditPopup.visible = false
 		_editing_index = -1
 		return
 	if has_node("%EditOverlay"):
@@ -424,14 +424,14 @@ func _on_item_pressed(index: int) -> void:
 		%EditCharacter.text = character_name
 	if has_node("%EditDialogue"):
 		%EditDialogue.text = dialogue_text
-	if has_node("%EditDialog"):
-		%EditDialog.visible = true
+	if has_node("%EditPopup"):
+		%EditPopup.visible = true
 	_update_labels()
 
 
 func _on_edit_back_pressed() -> void:
-	if has_node("%EditDialog"):
-		%EditDialog.visible = false
+	if has_node("%EditPopup"):
+		%EditPopup.visible = false
 	_editing_index = -1
 
 
@@ -461,8 +461,8 @@ func _on_edit_save_pressed() -> void:
 	var uuid_edit := str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
 	if not uuid_edit.is_empty() and not str(dialogue_text).strip_edges().is_empty():
 		TTSManager.generate_single_interaction(uuid_edit, saved_idx)
-	if has_node("%EditDialog"):
-		%EditDialog.visible = false
+	if has_node("%EditPopup"):
+		%EditPopup.visible = false
 	_editing_index = -1
 	_refresh_list()
 	_refresh_dropdown()

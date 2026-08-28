@@ -89,12 +89,12 @@ func _ready() -> void:
 		%DialogueOverlay.closed.connect(_on_dialogue_overlay_closed)
 		%DialogueOverlay.dialogue_updated.connect(_on_dialogue_updated)
 
-	# --- ErrorReturnDialog ---
-	%ErrorReturnDialog.confirmed.connect(_on_error_return)
-	%ErrorReturnDialog.canceled.connect(_on_error_return)
+	# --- ErrorReturnPopup ---
+	%ErrorReturnPopup.confirmed.connect(_on_error_return)
+	%ErrorReturnPopup.canceled.connect(_on_error_return)
 	# AcceptDialog close via X also triggers canceled
 	# Add Retry button for LLM JSON parse failures
-	_setup_error_dialog_retry()
+	_setup_error_popup_retry()
 
 	# Clicking on DialogArea advances dialogue (optional convenience)
 	if has_node("%DialogArea"):
@@ -831,7 +831,7 @@ func _has_blocking_overlay_visible() -> bool:
 		"ImageServerSettingsOverlay",
 		"LLMSettingsOverlay",
 		"GameProgressOverlay",
-		"ErrorReturnDialog",
+		"ErrorReturnPopup",
 	]
 	for overlay_name in overlay_names:
 		var overlay: Node = get_node_or_null(overlay_name)
@@ -1810,21 +1810,21 @@ func _advance_with_choice(choice_text: String) -> void:
 # ------------------------------------------------------------------
 # Error handling — common error return dialog for returning to main menu
 # ------------------------------------------------------------------
-func _setup_error_dialog_retry() -> void:
+func _setup_error_popup_retry() -> void:
 	# Add Retry button once (AcceptDialog.add_button stores custom action "retry")
 	if _error_retry_button != null:
 		return
 	# ok_button_text is "Return to Menu" – add Retry as custom action on the right
-	_error_retry_button = %ErrorReturnDialog.add_button(I18n.translate("btn_retry"), false, "retry")
+	_error_retry_button = %ErrorReturnPopup.add_button(I18n.translate("btn_retry"), false, "retry")
 	if _error_retry_button:
 		_error_retry_button.pressed.connect(_on_error_retry_pressed)
 		_error_retry_button.visible = false
 	# Also listen for custom_action (some Godot versions emit this instead of Button.pressed)
-	if not %ErrorReturnDialog.custom_action.is_connected(_on_error_custom_action):
-		%ErrorReturnDialog.custom_action.connect(_on_error_custom_action)
+	if not %ErrorReturnPopup.custom_action.is_connected(_on_error_custom_action):
+		%ErrorReturnPopup.custom_action.connect(_on_error_custom_action)
 
 
-func _update_error_dialog_retry_visibility(allow_retry: bool) -> void:
+func _update_error_popup_retry_visibility(allow_retry: bool) -> void:
 	if _error_retry_button == null:
 		return
 	_error_retry_button.visible = allow_retry
@@ -1841,10 +1841,10 @@ func show_error(message: String, allow_retry: bool = false, retry_action: String
 	# If retry is allowed but no pending action has been set, do not show retry
 	if allow_retry and _pending_retry_action.is_empty():
 		allow_retry = false
-	_update_error_dialog_retry_visibility(allow_retry and not _pending_retry_action.is_empty())
-	%ErrorReturnDialog.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
-	%ErrorReturnDialog.title = I18n.translate("error_dialog_title")
-	%ErrorReturnDialog.popup_centered()
+	_update_error_popup_retry_visibility(allow_retry and not _pending_retry_action.is_empty())
+	%ErrorReturnPopup.dialog_text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%ErrorReturnPopup.title = I18n.translate("error_dialog_title")
+	%ErrorReturnPopup.popup_centered()
 
 
 func _on_error_custom_action(action: String) -> void:
@@ -1856,8 +1856,8 @@ func _on_error_retry_pressed() -> void:
 	if _pending_retry_action.is_empty() or _retry_in_progress:
 		return
 	_retry_in_progress = true
-	_update_error_dialog_retry_visibility(false)
-	%ErrorReturnDialog.hide()
+	_update_error_popup_retry_visibility(false)
+	%ErrorReturnPopup.hide()
 	# Emit signal for the retry loop in _execute_*_flow; loop will clear pending on next iteration
 	await get_tree().create_timer(0.05).timeout
 	_retry_in_progress = false
@@ -1867,7 +1867,7 @@ func _on_error_retry_pressed() -> void:
 func _on_error_return() -> void:
 	_pending_retry_action = ""
 	_retry_in_progress = false
-	_update_error_dialog_retry_visibility(false)
+	_update_error_popup_retry_visibility(false)
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
@@ -1930,14 +1930,14 @@ func _update_labels() -> void:
 	if has_node("%GameplayMenuOverlay") and %GameplayMenuOverlay.has_method("_update_labels"):
 		%GameplayMenuOverlay._update_labels()
 	# Error dialog buttons
-	%ErrorReturnDialog.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnDialog") else ""
-	if has_node("%ErrorReturnDialog"):
+	%ErrorReturnPopup.title = I18n.translate("error_dialog_title") if has_node("%ErrorReturnPopup") else ""
+	if has_node("%ErrorReturnPopup"):
 		var t_ok: String = I18n.translate("btn_back_to_main_menu")
-		%ErrorReturnDialog.ok_button_text = t_ok if t_ok != "btn_back_to_main_menu" else "Return to Menu"
+		%ErrorReturnPopup.ok_button_text = t_ok if t_ok != "btn_back_to_main_menu" else "Return to Menu"
 		var t_dlg: String = I18n.translate("error_dialog_text")
 		# Only override fallback text if it matches the old hard-coded fallback
-		if %ErrorReturnDialog.dialog_text == "Something went wrong. Returning to main menu." or %ErrorReturnDialog.dialog_text == t_dlg:
-			%ErrorReturnDialog.dialog_text = t_dlg if t_dlg != "error_dialog_text" else "Something went wrong. Returning to main menu."
+		if %ErrorReturnPopup.dialog_text == "Something went wrong. Returning to main menu." or %ErrorReturnPopup.dialog_text == t_dlg:
+			%ErrorReturnPopup.dialog_text = t_dlg if t_dlg != "error_dialog_text" else "Something went wrong. Returning to main menu."
 	if _error_retry_button != null:
 		var retry_text: String = I18n.translate("btn_retry")
 		_error_retry_button.text = retry_text if retry_text != "btn_retry" else "Retry"
