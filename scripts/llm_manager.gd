@@ -391,9 +391,9 @@ func request_new_scene() -> Dictionary:
 	if json.parse(previous_json_str) == OK and json.data is Dictionary:
 		summary = json.data.get("summary", "")
 
-	var player_input: String = str(GameProgressManager.settings.get("player_input", ""))
-	var expected_rounds: int = int(GameProgressManager.settings.get("expected_rounds", 0))
-	var current_round: int = int(GameProgressManager.settings.get("current_round", 0))
+	var player_input: String = str(SceneDataManager.scene_data.get("player_input", GameProgressManager.settings.get("player_input", "")))
+	var expected_rounds: int = int(SceneDataManager.scene_data.get("expected_rounds", GameProgressManager.settings.get("expected_rounds", 0)))
+	var current_round: int = int(SceneDataManager.scene_data.get("current_round", GameProgressManager.settings.get("current_round", 0)))
 	prompt_output_json_requirement = _replace_scene_development_placeholder(prompt_output_json_requirement, current_round, expected_rounds)
 	prompt_output_json_requirement = _replace_requirement_placeholders(prompt_output_json_requirement)
 	prompt_scene = prompt_scene.replace("__STORY_BACKGROUND__", summary)
