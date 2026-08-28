@@ -11,6 +11,7 @@ const LLM_HOST := "127.0.0.1"
 const CHAT_ENDPOINT := "/v1/chat/completions"
 const PROMPT_DIR := "data/llm"
 const RANDOM := "random"
+const THEMES := "themes"
 const ENHANCE := "enhance"
 const STORY := "story"
 const SCENE := "scene"
@@ -184,6 +185,9 @@ func request_random() -> Dictionary:
 	var prompt := _load_prompt(prompt_file)
 	if prompt.is_empty():
 		return {"success": false, "error": "Failed to load prompt template"}
+	var theme := _load_random_theme()
+	if theme.is_empty():
+		return {"success": false, "error": "Failed to load themes"}
 	var requirement := _load_prompt(STORY_BACKGROUND_REQUIREMENT)
 	if requirement.is_empty():
 		return {"success": false, "error": "Failed to load requirement template"}
@@ -196,6 +200,7 @@ func request_random() -> Dictionary:
 		print_verbose("Safe mode: using safe guardrail")
 		var guardrail := _load_prompt(SAFE_GUARDRAIL)
 		prompt = prompt.replace("__GUARDRAIL__", guardrail)
+	prompt = prompt.replace("__THEME__", theme)
 	prompt = prompt.replace("__STORY_BACKGROUND_REQUIREMENT__", requirement)
 	prompt = prompt.replace("__MINIMUM_SENTENCES_IN_SUMMARY__", str(GameProgressManager.settings.get("minimum_sentences_in_summary", 10)))
 	print_verbose("")
@@ -237,6 +242,22 @@ func _load_prompt(file_name: String) -> String:
 	var content := file.get_as_text()
 	file.close()
 	return content
+
+
+func _load_random_theme() -> String:
+	var themes_text := _load_prompt(THEMES)
+	if themes_text.is_empty():
+		return ""
+	var themes := PackedStringArray()
+	for line in themes_text.split("\n"):
+		var theme := str(line).strip_edges()
+		if not theme.is_empty():
+			themes.append(theme)
+	if themes.is_empty():
+		return ""
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	return themes[rng.randi_range(0, themes.size() - 1)]
 
 
 func _load_template(lang: String) -> String:
