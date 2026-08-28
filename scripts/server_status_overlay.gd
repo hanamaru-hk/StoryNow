@@ -19,6 +19,8 @@ func _ready() -> void:
 	ServerRuntimeManager.request_queue_changed.connect(_on_request_queue_changed)
 	if I18n.has_signal("language_changed"):
 		I18n.language_changed.connect(_on_language_changed)
+	%LLMLoader.set_spinner_kind("llm")
+	%ImageLoader.set_spinner_kind("image")
 	_apply_llm(ServerRuntimeManager.llm_state)
 	_apply_image(ServerRuntimeManager.image_state)
 	_on_chrome_visibility_changed(ServerRuntimeManager.chrome_visible)
@@ -59,10 +61,14 @@ func _on_request_queue_changed(queue: Array) -> void:
 
 func _apply_llm(state: ServerRuntimeManager.ServerState) -> void:
 	%LLMDot.color = _color_for(state)
+	%LLMLoader.visible = state == ServerRuntimeManager.ServerState.UNHEALTHY
+	_update_llm_label(state)
 
 
 func _apply_image(state: ServerRuntimeManager.ServerState) -> void:
 	%ImageDot.color = _color_for(state)
+	%ImageLoader.visible = state == ServerRuntimeManager.ServerState.UNHEALTHY
+	_update_image_label(state)
 
 
 func _make_queue_row(item: Dictionary) -> Control:
@@ -157,8 +163,35 @@ func _color_for(state: ServerRuntimeManager.ServerState) -> Color:
 
 func _update_labels() -> void:
 	if has_node("%LLMLabel"):
-		var t_llm: String = I18n.translate("server_llm")
-		%LLMLabel.text = t_llm if t_llm != "server_llm" else "LLM Engine"
+		_update_llm_label(ServerRuntimeManager.llm_state)
 	if has_node("%ImageLabel"):
-		var t_img: String = I18n.translate("server_image")
-		%ImageLabel.text = t_img if t_img != "server_image" else "Image Engine"
+		_update_image_label(ServerRuntimeManager.image_state)
+
+
+func _update_llm_label(state: ServerRuntimeManager.ServerState) -> void:
+	var label_text: String = _translated_label("server_llm", "LLM Engine")
+	%LLMLabel.text = _state_label(label_text, state)
+
+
+func _update_image_label(state: ServerRuntimeManager.ServerState) -> void:
+	var label_text: String = _translated_label("server_image", "Image Engine")
+	%ImageLabel.text = _state_label(label_text, state)
+
+
+func _state_label(label_text: String, state: ServerRuntimeManager.ServerState) -> String:
+	match state:
+		ServerRuntimeManager.ServerState.HEALTHY:
+			return _translated_label("server_running", "%s running") % label_text
+		ServerRuntimeManager.ServerState.UNHEALTHY:
+			return _starting_label(label_text)
+		_:
+			return label_text
+
+
+func _starting_label(label_text: String) -> String:
+	return _translated_label("server_starting", "%s starting...") % label_text
+
+
+func _translated_label(key: String, fallback: String) -> String:
+	var translated: String = I18n.translate(key)
+	return translated if translated != key else fallback

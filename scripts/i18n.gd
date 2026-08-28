@@ -123,6 +123,8 @@ var _translations := {
 		"image_action_change": "Change",
 		"server_llm": "LLM Engine",
 		"server_image": "Image Engine",
+		"server_running": "%s running",
+		"server_starting": "%s starting...",
 		"gallery_empty": "No saves found",
 	},
 	"zh_CN": {
@@ -240,6 +242,8 @@ var _translations := {
 		"image_action_change": "更换",
 		"server_llm": "LLM引擎",
 		"server_image": "图像引擎",
+		"server_running": "%s运行中",
+		"server_starting": "%s启动中...",
 		"gallery_empty": "没有存档",
 	},
 	"zh_TW": {
@@ -357,6 +361,8 @@ var _translations := {
 		"image_action_change": "更換",
 		"server_llm": "LLM引擎",
 		"server_image": "圖像引擎",
+		"server_running": "%s運行中",
+		"server_starting": "%s啟動中...",
 		"gallery_empty": "冇存檔",
 	},
 	"yue": {
@@ -474,6 +480,8 @@ var _translations := {
 		"image_action_change": "更換",
 		"server_llm": "LLM引擎",
 		"server_image": "圖像引擎",
+		"server_running": "%s運行緊",
+		"server_starting": "%s啟動緊...",
 		"gallery_empty": "冇存檔",
 	},
 }

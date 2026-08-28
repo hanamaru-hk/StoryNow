@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://server_status_overlay"]
+[gd_scene load_steps=4 format=3 uid="uid://server_status_overlay"]
 
 [ext_resource type="Script" path="res://scripts/server_status_overlay.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/request_timeout_circle.gd" id="2_timeout"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_queue_panel"]
 
@@ -29,6 +30,13 @@ layout_mode = 2
 custom_minimum_size = Vector2(12, 12)
 color = Color(0.5, 0.5, 0.5, 1)
 
+[node name="LLMLoader" type="Control" parent="StatusPanel/LLMIndicator"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(18, 18)
+script = ExtResource("2_timeout")
+
 [node name="LLMLabel" type="Label" parent="StatusPanel/LLMIndicator"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -43,6 +51,13 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(12, 12)
 color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="ImageLoader" type="Control" parent="StatusPanel/ImageIndicator"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(18, 18)
+script = ExtResource("2_timeout")
 
 [node name="ImageLabel" type="Label" parent="StatusPanel/ImageIndicator"]
 unique_name_in_owner = true
