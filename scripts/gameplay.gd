@@ -1438,6 +1438,7 @@ func _on_choice_confirm() -> void:
 		entry["uuid"] = uuid
 		choices[choice_index] = entry
 		SceneDataManager.scene_data["choices"] = choices
+		SceneDataManager.scene_data["end"] = false
 		SceneDataManager.save()
 
 		GameProgressManager.settings["game_status"] = "new_scene"
