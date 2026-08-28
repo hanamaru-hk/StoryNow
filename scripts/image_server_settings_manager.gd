@@ -5,6 +5,7 @@ const DEFAULT_SETTINGS_PATH := "data/default_image_server_settings.json"
 
 var settings := {
 	"port": 56321,
+	"timeout": 120,
 }
 
 
