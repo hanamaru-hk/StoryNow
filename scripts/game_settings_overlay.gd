@@ -40,6 +40,7 @@ func _on_reset_pressed() -> void:
 
 
 func _on_save_pressed() -> void:
+	_update_hidden_screen_fields_for_save()
 	GameSettingsManager.settings = _pending.duplicate(true)
 	GameSettingsManager._apply_language()
 	GameSettingsManager._apply_screen_size()
@@ -60,6 +61,32 @@ func _on_screen_size_selected(index: int) -> void:
 			_pending["screen_size"] = "full"
 		1:
 			_pending["screen_size"] = "1344x768"
+		2:
+			_pending["screen_size"] = "1600x900"
+
+
+func _update_hidden_screen_fields_for_save() -> void:
+	var next_size := str(_pending.get("screen_size", "full"))
+	var previous_size := str(GameSettingsManager.settings.get("screen_size", "full"))
+	if _is_window_resolution(next_size):
+		_pending["last_windows_resolution"] = next_size
+	elif _is_window_resolution(previous_size):
+		_pending["last_windows_resolution"] = previous_size
+	elif not _pending.has("last_windows_resolution"):
+		_pending["last_windows_resolution"] = "1344x768"
+	_pending["last_aspect_ratio"] = _aspect_ratio_for_resolution(str(_pending["last_windows_resolution"]))
+
+
+func _is_window_resolution(size: String) -> bool:
+	return size == "1344x768" or size == "1600x900"
+
+
+func _aspect_ratio_for_resolution(size: String) -> String:
+	match size:
+		"1344x768", "1600x900":
+			return "16:9"
+		_:
+			return "16:9"
 
 
 func _on_autoplay_toggled(pressed: bool) -> void:
@@ -78,7 +105,12 @@ func _sync_ui_to_settings() -> void:
 	var lang_index: int = I18n.LANGUAGES.find(_pending["language"])
 	if lang_index >= 0:
 		%LanguageOption.selected = lang_index
-	var size_index: int = 0 if _pending["screen_size"] == "full" else 1
+	var size_index: int = 0
+	match str(_pending["screen_size"]):
+		"1344x768":
+			size_index = 1
+		"1600x900":
+			size_index = 2
 	%ScreenSizeOption.selected = size_index
 	if has_node("%AutoplayCheck"):
 		%AutoplayCheck.button_pressed = bool(_pending.get("autoplay_tts", true))
@@ -110,3 +142,6 @@ func _update_labels() -> void:
 		%LanguageOption.set_item_text(i, I18n.translate("lang_%s" % lang_code.to_lower()))
 	%ScreenSizeOption.set_item_text(0, I18n.translate("settings_screen_full"))
 	%ScreenSizeOption.set_item_text(1, I18n.translate("settings_screen_1344"))
+	while %ScreenSizeOption.item_count < 3:
+		%ScreenSizeOption.add_item("")
+	%ScreenSizeOption.set_item_text(2, I18n.translate("settings_screen_1600"))

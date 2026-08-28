@@ -2,6 +2,8 @@
 	"first_time": true,
 	"language": "en",
 	"screen_size": "full",
+	"last_windows_resolution": "1344x768",
+	"last_aspect_ratio": "16:9",
 	"safe_mode": false,
 	"tried_free_mode_yet": false,
 	"image_width": "1344",

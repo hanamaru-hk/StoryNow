@@ -77,10 +77,11 @@ text = "Screen Size"
 [node name="ScreenSizeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/ScreenSizeRow"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(200, 40)
-item_count = 2
+custom_minimum_size = Vector2(240, 40)
+item_count = 3
 popup/item_0 = "Full"
 popup/item_1 = "1344 x 768"
+popup/item_2 = "1600 x 900"
 
 [node name="AutoplayRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
