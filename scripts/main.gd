@@ -2,12 +2,16 @@ extends Control
 
 const FADE_IN_SECONDS := 1.0
 const BLACK_PRELOAD_SECONDS := 0.1
+const GRADIENT_REVEAL_DELAY := 1.5
+const BUTTON_REVEAL_DELAY := 2.5
+const OVERLAY_REVEAL_SECONDS := 0.8
 var _intro_video_should_resume := false
 
 
 func _ready() -> void:
 	modulate.a = 1.0
 	_start_hidden_menu_video()
+	_hide_menu_overlay()
 	print_verbose("")
 	print_verbose("user data dir: " + OS.get_user_data_dir())
 	%Start.pressed.connect(_on_start_pressed)
@@ -27,7 +31,6 @@ func _ready() -> void:
 		%LoadGameOverlay.closed.connect(_on_settings_closed)
 	if has_node("%GalleryOverlay"):
 		%GalleryOverlay.closed.connect(_on_settings_closed)
-	MusicManager.play_random_mood("others")
 	_update_labels()
 	_check_first_time_overlay()
 	_play_intro_sequence()
@@ -108,6 +111,7 @@ func _play_intro_sequence() -> void:
 	var tween := create_tween()
 	tween.tween_property(%MenuVideo, "modulate:a", 1.0, FADE_IN_SECONDS)
 	tween.finished.connect(_on_intro_fade_finished)
+	_reveal_menu_overlay_after_delays()
 
 
 func _on_intro_fade_finished() -> void:
@@ -126,3 +130,24 @@ func _pause_intro_video() -> void:
 func _resume_intro_video() -> void:
 	if %MenuVideo.stream != null:
 		%MenuVideo.paused = false
+
+
+func _hide_menu_overlay() -> void:
+	for node in [%LeftGradient, %RightGradient, %PrimaryButtonGroup, %SecondaryButtonGroup]:
+		node.visible = true
+		node.modulate.a = 0.0
+
+
+func _reveal_menu_overlay_after_delays() -> void:
+	await get_tree().create_timer(GRADIENT_REVEAL_DELAY).timeout
+	_reveal_nodes([%LeftGradient, %RightGradient])
+	await get_tree().create_timer(BUTTON_REVEAL_DELAY - GRADIENT_REVEAL_DELAY).timeout
+	_reveal_nodes([%PrimaryButtonGroup, %SecondaryButtonGroup])
+
+
+func _reveal_nodes(nodes: Array) -> void:
+	var tween := create_tween()
+	tween.set_parallel(true)
+	for node in nodes:
+		node.visible = true
+		tween.tween_property(node, "modulate:a", 1.0, OVERLAY_REVEAL_SECONDS)

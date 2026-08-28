@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://main_menu"]
+[gd_scene load_steps=14 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2"]
@@ -15,12 +15,23 @@
 code = "shader_type canvas_item;
 
 void fragment() {
-	COLOR = vec4(0.0, 0.0, 0.0, UV.x);
+	COLOR = vec4(0.0, 0.0, 0.0, COLOR.a * (1.0 - UV.x));
 }
 "
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_left_black_fade"]
 shader = SubResource("Shader_left_black_fade")
+
+[sub_resource type="Shader" id="Shader_right_black_fade"]
+code = "shader_type canvas_item;
+
+void fragment() {
+	COLOR = vec4(0.0, 0.0, 0.0, COLOR.a * UV.x);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_right_black_fade"]
+shader = SubResource("Shader_right_black_fade")
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -43,120 +54,212 @@ color = Color(0, 0, 0, 1)
 [node name="MenuVideo" type="VideoStreamPlayer" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 0
-anchor_top = 0.0
-offset_right = 1440.0
-offset_bottom = 1080.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 stream = ExtResource("9")
 expand = true
 
-[node name="LeftBlackFade" type="ColorRect" parent="."]
+[node name="LeftGradient" type="ColorRect" parent="."]
+unique_name_in_owner = true
+z_index = 1
 layout_mode = 1
-anchors_preset = 13
-anchor_left = 1.0
+anchors_preset = 11
+anchor_left = 0.0
 anchor_top = 0.0
-anchor_right = 1.0
+anchor_right = 0.0
 anchor_bottom = 1.0
-offset_left = -780.0
-offset_right = -480.0
-grow_horizontal = 0
+offset_left = 0.0
+offset_right = 300.0
+offset_top = 0.0
+offset_bottom = 0.0
+grow_horizontal = 1
 grow_vertical = 2
 material = SubResource("ShaderMaterial_left_black_fade")
 color = Color(1, 1, 1, 1)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="RightGradient" type="ColorRect" parent="."]
+unique_name_in_owner = true
+z_index = 1
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 12
+anchor_left = 1.0
+anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 800.0
-offset_right = 800.0
-grow_horizontal = 2
+offset_left = -300.0
+offset_right = 0.0
+offset_top = 0.0
+offset_bottom = 0.0
+grow_horizontal = 0
 grow_vertical = 2
+material = SubResource("ShaderMaterial_right_black_fade")
+color = Color(1, 1, 1, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+[node name="PrimaryButtonGroup" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+z_index = 2
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 150.0
+offset_right = 900.0
+offset_top = 0.0
+offset_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 500
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="PrimaryButtons" type="VBoxContainer" parent="PrimaryButtonGroup"]
 layout_mode = 2
-theme_override_constants/separation = 16
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 0
 
-[node name="Start" type="LinkButton" parent="CenterContainer/VBoxContainer"]
+[node name="Start" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(480, 96)
-size_flags_horizontal = 4
+custom_minimum_size = Vector2(750, 180)
+size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 80
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 text = "Start"
-underline = 1
+alignment = 0
+flat = true
 
-[node name="Load" type="LinkButton" parent="CenterContainer/VBoxContainer"]
+[node name="Load" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(480, 96)
-size_flags_horizontal = 4
+custom_minimum_size = Vector2(750, 180)
+size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 80
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 text = "Load"
-underline = 1
+alignment = 0
+flat = true
 
-[node name="Gallery" type="LinkButton" parent="CenterContainer/VBoxContainer"]
+[node name="Gallery" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(480, 96)
-size_flags_horizontal = 4
+custom_minimum_size = Vector2(750, 180)
+size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 80
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 text = "Gallery"
-underline = 1
+alignment = 0
+flat = true
 
-[node name="Setting" type="LinkButton" parent="CenterContainer/VBoxContainer"]
+[node name="SecondaryButtonGroup" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+z_index = 2
+layout_mode = 1
+anchors_preset = 12
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -900.0
+offset_right = -150.0
+offset_top = 0.0
+offset_bottom = 0.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 500
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="SecondaryButtons" type="VBoxContainer" parent="SecondaryButtonGroup"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 0
+
+[node name="Setting" type="Button" parent="SecondaryButtonGroup/SecondaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(480, 96)
-size_flags_horizontal = 4
+custom_minimum_size = Vector2(750, 180)
+size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 80
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 text = "Setting"
-underline = 1
+alignment = 2
+flat = true
 
-[node name="AdvancedSetting" type="LinkButton" parent="CenterContainer/VBoxContainer"]
+[node name="AdvancedSetting" type="Button" parent="SecondaryButtonGroup/SecondaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(480, 96)
-size_flags_horizontal = 4
+custom_minimum_size = Vector2(750, 180)
+size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 80
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 text = "Advanced Setting"
-underline = 1
+alignment = 2
+flat = true
 
-[node name="Exit" type="LinkButton" parent="CenterContainer/VBoxContainer"]
+[node name="Exit" type="Button" parent="SecondaryButtonGroup/SecondaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(480, 96)
-size_flags_horizontal = 4
+custom_minimum_size = Vector2(750, 180)
+size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 80
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 text = "Exit"
-underline = 1
+alignment = 2
+flat = true
 
 [node name="GameSettingsOverlay" parent="." instance=ExtResource("2")]
 unique_name_in_owner = true
+z_index = 10
 
 [node name="ImageServerSettingsOverlay" parent="." instance=ExtResource("3")]
 unique_name_in_owner = true
+z_index = 10
 
 [node name="LLMSettingsOverlay" parent="." instance=ExtResource("4")]
 unique_name_in_owner = true
+z_index = 10
 
 [node name="AdvancedSettingsOverlay" parent="." instance=ExtResource("8")]
 unique_name_in_owner = true
+z_index = 10
 
 [node name="FirstTimeLanguageOverlay" parent="." instance=ExtResource("5")]
 unique_name_in_owner = true
+z_index = 10
 
 [node name="LoadGameOverlay" parent="." instance=ExtResource("6")]
 unique_name_in_owner = true
+z_index = 10
 
 [node name="GalleryOverlay" parent="." instance=ExtResource("7")]
 unique_name_in_owner = true
+z_index = 10
 
 [connection signal="finished" from="MenuVideo" to="." method="_on_menu_video_finished"]
