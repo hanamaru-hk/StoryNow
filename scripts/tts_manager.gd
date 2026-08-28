@@ -29,6 +29,7 @@ var _shutting_down: bool = false
 var _sound_request_id := -1
 var _sound_request_total := 0
 var _sound_request_generated := 0
+var _cancel_requested := false
 
 
 func _ready() -> void:
@@ -104,6 +105,7 @@ func _is_sherpa_ready(model: Dictionary) -> bool:
 func generate_all_for_scene(scene_data: Dictionary) -> void:
 	if _shutting_down:
 		return
+	_cancel_requested = false
 	if scene_data.is_empty():
 		return
 	var uuid := str(scene_data.get("uuid", "")).strip_edges()
@@ -134,6 +136,7 @@ func generate_all_for_scene(scene_data: Dictionary) -> void:
 func generate_single_interaction(uuid: String, idx: int) -> void:
 	if _shutting_down:
 		return
+	_cancel_requested = false
 	var u := uuid.strip_edges()
 	if u.is_empty():
 		u = str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
@@ -159,6 +162,7 @@ func generate_single_interaction(uuid: String, idx: int) -> void:
 func generate_for_interaction(uuid: String, idx: int, dialogue: String, sex: String) -> void:
 	if _shutting_down:
 		return
+	_cancel_requested = false
 	var d2 := dialogue.strip_edges()
 	if d2.is_empty():
 		return
@@ -216,6 +220,13 @@ func _finish_sound_request() -> void:
 	_sound_request_generated = 0
 
 
+func cancel_generation() -> void:
+	_cancel_requested = true
+	_queue.clear()
+	_current_task = {}
+	_finish_sound_request()
+
+
 func _process_queue_deferred() -> void:
 	if _shutting_down or _generating:
 		return
@@ -228,7 +239,7 @@ func _process_queue() -> void:
 	if _queue.is_empty():
 		return
 	_generating = true
-	while not _shutting_down and not _queue.is_empty():
+	while not _shutting_down and not _cancel_requested and not _queue.is_empty():
 		var task: Dictionary = _queue.pop_front()
 		_current_task = task
 		var uuid: String = str(task.get("uuid", ""))
@@ -251,7 +262,10 @@ func _process_queue() -> void:
 				push_warning("TTSManager: failed to create sounds dir %s" % sounds_dir)
 				continue
 		var exit_code := await _synthesize(dialogue, out_path, model)
-		if _shutting_down:
+		if _shutting_down or _cancel_requested:
+			_generating = false
+			_current_task = {}
+			_finish_sound_request()
 			return
 		if exit_code != 0:
 			push_warning("TTSManager: synthesize failed idx %d exit %d" % [idx, exit_code])
@@ -267,7 +281,7 @@ func _process_queue() -> void:
 	var batch_uuid := str(_current_task.get("uuid", ""))
 	_current_task = {}
 	_generating = false
-	if not batch_uuid.is_empty():
+	if not _cancel_requested and not batch_uuid.is_empty():
 		batch_completed.emit(batch_uuid)
 	if _queue.is_empty():
 		_finish_sound_request()
@@ -341,7 +355,7 @@ func _has_native_tts() -> bool:
 
 
 func _synthesize_native(text: String, output_global_path: String, model: Dictionary) -> int:
-	if _shutting_down:
+	if _shutting_down or _cancel_requested:
 		return -1
 	var tts_text := _normalize_tts_punctuation(text)
 	print_verbose("TTSManager: native text after punctuation normalization: %s" % tts_text)
@@ -358,7 +372,7 @@ func _synthesize_native(text: String, output_global_path: String, model: Diction
 		return -1
 	var result = _native_thread.wait_to_finish()
 	_native_thread = null
-	if _shutting_down:
+	if _shutting_down or _cancel_requested:
 		return -1
 	if result is Dictionary and bool(result.get("ok", false)) and FileAccess.file_exists(output_global_path):
 		return 0

@@ -33,6 +33,8 @@ var status := {
 	"running": false,
 	"healthy": false,
 }
+var _cancel_requested := false
+var _active_http: HTTPClient = null
 
 
 func _ready() -> void:
@@ -180,6 +182,12 @@ func load_status() -> void:
 		file.close()
 		if error == OK and json.data is Dictionary:
 			status = json.data
+
+
+func cancel_active_request() -> void:
+	_cancel_requested = true
+	if _active_http != null:
+		_active_http.close()
 
 
 func request_random() -> Dictionary:
@@ -408,6 +416,7 @@ func request_new_scene() -> Dictionary:
 
 
 func _request_completion(prompt: String) -> Dictionary:
+	_cancel_requested = false
 	var request_timeout: float = float(LLMSettingsManager.settings.get("timeout", DEFAULT_BRAINSTORM_TIMEOUT))
 	var queue_id := ServerRuntimeManager.push_request("llm", I18n.translate("request_generating_gameplay"), request_timeout)
 	var port: int = LLMSettingsManager.settings["port"]
@@ -447,21 +456,29 @@ func _request_completion(prompt: String) -> Dictionary:
 
 func _request_completion_stream(port: int, body: String, queue_id: int, request_timeout: float) -> Dictionary:
 	var http := HTTPClient.new()
+	_active_http = http
 	var error := http.connect_to_host(LLM_HOST, port)
 	if error != OK:
+		_active_http = null
 		return {"success": false, "error": "Failed to connect"}
 
 	var started_at_msec := Time.get_ticks_msec()
 	var deadline_msec := started_at_msec + int(request_timeout * 1000.0)
 	while http.get_status() == HTTPClient.STATUS_CONNECTING or http.get_status() == HTTPClient.STATUS_RESOLVING:
+		if _cancel_requested:
+			http.close()
+			_active_http = null
+			return {"success": false, "error": "Cancelled"}
 		http.poll()
 		if Time.get_ticks_msec() > deadline_msec:
 			http.close()
+			_active_http = null
 			return {"success": false, "error": "Request timed out"}
 		await get_tree().process_frame
 
 	if http.get_status() != HTTPClient.STATUS_CONNECTED:
 		http.close()
+		_active_http = null
 		return {"success": false, "error": "Failed to connect"}
 
 	var headers := PackedStringArray([
@@ -471,22 +488,30 @@ func _request_completion_stream(port: int, body: String, queue_id: int, request_
 	error = http.request(HTTPClient.METHOD_POST, CHAT_ENDPOINT, headers, body)
 	if error != OK:
 		http.close()
+		_active_http = null
 		return {"success": false, "error": "Failed to send request"}
 
 	while http.get_status() == HTTPClient.STATUS_REQUESTING:
+		if _cancel_requested:
+			http.close()
+			_active_http = null
+			return {"success": false, "error": "Cancelled"}
 		http.poll()
 		if Time.get_ticks_msec() > deadline_msec:
 			http.close()
+			_active_http = null
 			return {"success": false, "error": "Request timed out"}
 		await get_tree().process_frame
 
 	if not http.has_response():
 		http.close()
+		_active_http = null
 		return {"success": false, "error": "No response"}
 
 	var response_code := http.get_response_code()
 	if response_code < 200 or response_code >= 300:
 		http.close()
+		_active_http = null
 		return {"success": false, "error": "HTTP %d" % response_code}
 
 	var content := ""
@@ -496,11 +521,16 @@ func _request_completion_stream(port: int, body: String, queue_id: int, request_
 	var stream_preview := ""
 	var show_streaming := bool(GameSettingsManager.settings.get("show_streaming", true))
 	while http.get_status() == HTTPClient.STATUS_BODY:
+		if _cancel_requested:
+			http.close()
+			_active_http = null
+			return {"success": false, "error": "Cancelled"}
 		http.poll()
 		var chunk := http.read_response_body_chunk()
 		if chunk.is_empty():
 			if Time.get_ticks_msec() > deadline_msec:
 				http.close()
+				_active_http = null
 				return {"success": false, "error": "Request timed out"}
 			await get_tree().process_frame
 			continue
@@ -524,6 +554,7 @@ func _request_completion_stream(port: int, body: String, queue_id: int, request_
 			ServerRuntimeManager.update_request(queue_id, update)
 
 	http.close()
+	_active_http = null
 	return {"success": true, "content": content}
 
 

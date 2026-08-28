@@ -186,6 +186,24 @@ func update_request(request_id: int, patch: Dictionary) -> void:
 			return
 
 
+func clear_requests_by_kinds(kinds: Array[String]) -> void:
+	var changed := false
+	for index in range(request_queue.size() - 1, -1, -1):
+		var item: Dictionary = request_queue[index]
+		if kinds.has(str(item.get("kind", ""))):
+			request_queue.remove_at(index)
+			changed = true
+	if changed:
+		request_queue_changed.emit(request_queue.duplicate(true))
+
+
+func cancel_active_generation_tasks() -> void:
+	LLMManager.cancel_active_request()
+	await ImageServerManager.interrupt_active_generation()
+	TTSManager.cancel_generation()
+	clear_requests_by_kinds(["llm", "image", "sound"])
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		get_tree().quit()

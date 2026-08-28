@@ -1053,6 +1053,8 @@ func _on_llm_setting_requested() -> void:
 
 
 func _on_back_to_main_menu_requested() -> void:
+	if _current_game_status() != "running":
+		await ServerRuntimeManager.cancel_active_generation_tasks()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
