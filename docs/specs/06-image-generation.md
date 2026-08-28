@@ -45,7 +45,7 @@ On success, `Gameplay` appends `filename` to `scene_data["image_filenames"]`, se
 
 ## 6.4 Image Display
 
-- `%BackgroundImage` (`TextureRect`) shows the active image; default placeholder is `res://assets/images/loading.png` at 50% opacity (`scripts/gameplay.gd:155`).
+- `%BackgroundImage` (`TextureRect`) shows the active image; default placeholder is `res://assets/images/generating.jpg` at 50% opacity. If a saved scene has no usable image file, it shows a black background with white `NO IMAGE` text using Arial Black when available, falling back to outlined Arial.
 - `_load_current_scene_image` scans `user://saves/<uuid>/images/` sorted filenames, clamps `current_image_index`, loads via `Image.load(global_path)` → `ImageTexture`.
 - **Image carousel:** `ImageActionOverlay` (New / Change) → `ImageChangeOverlay` with Prev/Next/Save shows `user://saves/<uuid>/images/` browsing; `current_image_index` persisted on Save (`scripts/gameplay.gd:703-775`).
 

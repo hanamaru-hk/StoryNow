@@ -84,7 +84,7 @@ story-now/
 │   │   └── yue/… (same)
 │   └── translations/translations.csv
 ├── assets/
-│   └── images/loading.png               # Placeholder background (50% opacity)
+│   └── images/generating.jpg            # Generating placeholder background (50% opacity)
 ├── saves/                               # Runtime saves mirror (dev); real saves in user://saves/
 ├── server/                              # AI server binaries (gitignored: server/, .godot/, *.uid/import)
 │   ├── llama/llama-server.exe

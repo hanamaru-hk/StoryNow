@@ -302,8 +302,26 @@ func _load_texture_from_user_path(user_path: String) -> Texture2D:
 	if err != OK:
 		err = img.load(user_path)
 	if err != OK:
+		err = _load_image_from_file_access(img, user_path)
+	if err != OK:
 		return null
 	return ImageTexture.create_from_image(img)
+
+
+func _load_image_from_file_access(img: Image, path: String) -> Error:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return FileAccess.get_open_error()
+	var bytes := file.get_buffer(file.get_length())
+	file.close()
+	var lower_path := path.to_lower()
+	if lower_path.ends_with(".png"):
+		return img.load_png_from_buffer(bytes)
+	if lower_path.ends_with(".jpg") or lower_path.ends_with(".jpeg"):
+		return img.load_jpg_from_buffer(bytes)
+	if lower_path.ends_with(".webp"):
+		return img.load_webp_from_buffer(bytes)
+	return ERR_FILE_UNRECOGNIZED
 
 
 func _add_save_item(entry: Dictionary) -> void:
@@ -324,18 +342,16 @@ func _add_save_item(entry: Dictionary) -> void:
 	# Thumbnail
 	var thumb_path: String = _get_current_image_path(uuid, data)
 	var tex: Texture2D = _load_texture_from_user_path(thumb_path)
-	var thumb := TextureRect.new()
-	thumb.custom_minimum_size = Vector2(180, 112)
-	thumb.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	thumb.texture = tex
 	if tex == null:
-		# Placeholder color when no image
-		thumb.modulate = Color(0.3, 0.3, 0.35, 1)
+		row.add_child(_create_no_image_thumbnail())
 	else:
-		thumb.modulate = Color(1, 1, 1, 1)
-	row.add_child(thumb)
+		var thumb := TextureRect.new()
+		thumb.custom_minimum_size = Vector2(180, 112)
+		thumb.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		thumb.texture = tex
+		row.add_child(thumb)
 
 	# Timestamp + title vertical stack
 	var vbox := VBoxContainer.new()
@@ -372,6 +388,37 @@ func _add_save_item(entry: Dictionary) -> void:
 	sep.custom_minimum_size = Vector2(0, 4)
 	sep.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container.add_child(sep)
+
+
+func _create_no_image_thumbnail() -> Control:
+	var holder := Control.new()
+	holder.custom_minimum_size = Vector2(180, 112)
+	holder.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+
+	var bg := ColorRect.new()
+	bg.color = Color.BLACK
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(bg)
+
+	var label := Label.new()
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_color_override("font_color", Color.WHITE)
+	label.add_theme_color_override("font_outline_color", Color.WHITE)
+	label.add_theme_constant_override("outline_size", 1)
+	label.add_theme_font_override("font", _create_no_image_font())
+	label.text = "NO IMAGE"
+	holder.add_child(label)
+	return holder
+
+
+func _create_no_image_font() -> SystemFont:
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray(["Arial Black", "Arial"])
+	return font
 
 
 func _on_save_pressed(uuid: String, entry: Dictionary) -> void:

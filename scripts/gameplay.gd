@@ -3,6 +3,7 @@ extends Control
 const CURRENT_VERSION := "1.0"
 const CANTONESE_MALE_PITCH_SCALE := 0.7
 const TTS_VOICE_BUS := "TTSVoice"
+const GENERATING_IMAGE_PATH := "res://assets/images/generating.jpg"
 
 var _scene_data: Dictionary = {}
 var _current_dialog_idx: int = 0
@@ -153,28 +154,100 @@ func _ready() -> void:
 
 
 func _load_default_background() -> void:
+	_set_no_image_label_visible(false)
+	_load_placeholder_background(GENERATING_IMAGE_PATH, 0.5)
+
+
+func _load_missing_save_background() -> void:
+	%BackgroundImage.texture = null
+	%BackgroundImage.modulate = Color(1, 1, 1, 1)
+	_set_no_image_label_visible(true)
+
+
+func _set_no_image_label_visible(is_visible: bool) -> void:
+	var placeholder := _get_no_image_placeholder()
+	placeholder.visible = is_visible
+
+
+func _get_no_image_placeholder() -> Control:
+	var placeholder: Control = null
+	if %BackgroundImage.has_node("NoImagePlaceholder"):
+		placeholder = %BackgroundImage.get_node("NoImagePlaceholder") as Control
+	else:
+		placeholder = CenterContainer.new()
+		placeholder.name = "NoImagePlaceholder"
+		placeholder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		placeholder.set_anchors_preset(Control.PRESET_FULL_RECT)
+		%BackgroundImage.add_child(placeholder)
+
+		var bg := ColorRect.new()
+		bg.color = Color.BLACK
+		bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+		placeholder.add_child(bg)
+
+		var label := Label.new()
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.set_anchors_preset(Control.PRESET_FULL_RECT)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", 72)
+		label.add_theme_color_override("font_color", Color.WHITE)
+		label.add_theme_color_override("font_outline_color", Color.WHITE)
+		label.add_theme_constant_override("outline_size", 2)
+		label.add_theme_font_override("font", _create_no_image_font())
+		label.text = "NO IMAGE"
+		placeholder.add_child(label)
+	return placeholder
+
+
+func _create_no_image_font() -> SystemFont:
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray(["Arial Black", "Arial"])
+	return font
+
+
+func _load_placeholder_background(res_path: String, alpha: float) -> void:
 	# Runtime load to avoid requiring .import (handles missing Texture2D loader error).
 	# Uses Image.load_from_file via globalized path, then ImageTexture.
-	var res_path := "res://assets/images/loading.png"
 	var global_path := ProjectSettings.globalize_path(res_path)
 	var img := Image.new()
 	var err: Error = img.load(global_path)
 	if err != OK:
 		# Fallback: try direct res:// path (works if file is imported elsewhere)
 		err = img.load(res_path)
+	if err != OK:
+		err = _load_image_from_file_access(img, res_path)
 	if err == OK:
 		var tex := ImageTexture.create_from_image(img)
 		%BackgroundImage.texture = tex
-		%BackgroundImage.modulate = Color(1, 1, 1, 0.5)
+		%BackgroundImage.modulate = Color(1, 1, 1, alpha)
+		_set_no_image_label_visible(false)
 	else:
 		# Final fallback: try ResourceLoader (requires import)
 		var res_tex: Resource = load(res_path)
 		if res_tex is Texture2D:
 			%BackgroundImage.texture = res_tex
 		else:
-			push_warning("Failed to load default background %s: %s" % [res_path, err])
+			push_warning("Failed to load placeholder background %s: %s" % [res_path, err])
 		# Keep modulate for placeholder / 50% opacity
-		%BackgroundImage.modulate = Color(1, 1, 1, 0.5)
+		%BackgroundImage.modulate = Color(1, 1, 1, alpha)
+
+
+func _load_image_from_file_access(img: Image, path: String) -> Error:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return FileAccess.get_open_error()
+	var bytes := file.get_buffer(file.get_length())
+	file.close()
+	var lower_path := path.to_lower()
+	if lower_path.ends_with(".png"):
+		return img.load_png_from_buffer(bytes)
+	if lower_path.ends_with(".jpg") or lower_path.ends_with(".jpeg"):
+		return img.load_jpg_from_buffer(bytes)
+	if lower_path.ends_with(".webp"):
+		return img.load_webp_from_buffer(bytes)
+	return ERR_FILE_UNRECOGNIZED
 
 # ------------------------------------------------------------------
 # Dialogue helpers — current/total tracking and UI update
@@ -449,7 +522,7 @@ func _generate_comfyui_image() -> bool:
 	return false
 
 
-func _set_background_from_file(user_path: String) -> void:
+func _set_background_from_file(user_path: String) -> bool:
 	# user_path is like user://saves/.../images/SN_00001_.png
 	var global_path := ProjectSettings.globalize_path(user_path)
 	var img := Image.new()
@@ -458,11 +531,16 @@ func _set_background_from_file(user_path: String) -> void:
 		# try direct user:// path (Godot 4 may load user:// directly)
 		err = img.load(user_path)
 	if err != OK:
+		err = _load_image_from_file_access(img, user_path)
+	if err != OK:
 		push_warning("Failed to load generated image %s: %s" % [user_path, error_string(err)])
-		return
+		_load_missing_save_background()
+		return false
 	var tex := ImageTexture.create_from_image(img)
 	%BackgroundImage.texture = tex
 	%BackgroundImage.modulate = Color(1, 1, 1, 1)
+	_set_no_image_label_visible(false)
+	return true
 
 
 func _is_image_filename(file_name: String) -> bool:
@@ -493,13 +571,13 @@ func _load_current_scene_image(uuid: String = "") -> bool:
 		resolved_uuid = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
 	var image_files := _get_scene_image_filenames(resolved_uuid)
 	if image_files.is_empty():
-		print_verbose("Gameplay running: no images found for %s, keeping default background" % resolved_uuid)
+		print_verbose("Gameplay running: no images found for %s, using no-image background" % resolved_uuid)
+		_load_missing_save_background()
 		return false
 	var current_index := int(SceneDataManager.scene_data.get("current_image_index", 0))
 	current_index = clampi(current_index, 0, image_files.size() - 1)
 	SceneDataManager.scene_data["current_image_index"] = current_index
-	_set_background_from_file("user://saves/%s/images/%s" % [resolved_uuid, str(image_files[current_index])])
-	return true
+	return _set_background_from_file("user://saves/%s/images/%s" % [resolved_uuid, str(image_files[current_index])])
 
 # ------------------------------------------------------------------
 # Input handlers
