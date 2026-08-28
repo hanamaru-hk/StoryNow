@@ -117,7 +117,7 @@ func _ready() -> void:
 			await _execute_new_story_flow()
 		"new_scene":
 			await _execute_new_scene_flow()
-		"generating_image", "generate_image":
+		"generating_image":
 			await _execute_generating_image_flow()
 		"running":
 			var uuid_running: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))

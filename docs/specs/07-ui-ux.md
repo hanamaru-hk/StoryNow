@@ -88,5 +88,5 @@ All follow **open → edit `_pending` → Save/Reset/Back** pattern; Save merges
 ## 7.11 Loading States
 
 - `Brainstorm` uses `%LoadingOverlay` during Random/Enhance.
-- `Gameplay` uses `game_status` transitions (`generate_image` / `running`) and disables Next/Choice buttons until image/TTS ready.
+- `Gameplay` uses `game_status` transitions (`generating_image` / `running`) and disables Next/Choice buttons until image/TTS ready.
 - Server status dots provide ambient loading feedback; explicit "Generating illustration..." spinner not yet added (placeholder background at 50% opacity indicates pending).

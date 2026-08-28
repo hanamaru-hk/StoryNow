@@ -47,7 +47,7 @@ user://
 |-------|---------|
 | `new_story` | Brainstorm just created seed; Gameplay should call `request_new_story` |
 | `new_scene` | Choice confirmed; next scene needs `request_new_scene` |
-| `generate_image` | LLM done, ComfyUI in progress (transient) |
+| `generating_image` | LLM done, ComfyUI in progress (transient) |
 | `running` | Scene fully loaded and playable |
 | `""` | Idle / main menu |
 
