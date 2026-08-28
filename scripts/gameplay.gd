@@ -417,6 +417,23 @@ func _can_use_scene_navigation() -> bool:
 	return _current_game_status() == "running"
 
 
+func _current_dialogue_wav_exists() -> bool:
+	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
+	if interactions.is_empty():
+		return false
+	if current_dialogue_index < 0 or current_dialogue_index >= interactions.size():
+		return false
+	var entry: Dictionary = interactions[current_dialogue_index] if interactions[current_dialogue_index] is Dictionary else {}
+	var fname: String = str(entry.get("sound_filename", "")).strip_edges()
+	if fname.is_empty():
+		return false
+	var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
+	if uuid.is_empty():
+		return false
+	var path_user: String = "user://saves/%s/sounds/%s" % [uuid, fname]
+	return FileAccess.file_exists(path_user)
+
+
 func is_prev_scene_exist() -> bool:
 	return _is_prev_scene_exist()
 
@@ -443,7 +460,7 @@ func _update_button_eligibility() -> void:
 	%DialogButton.disabled = not is_running
 	%ImageButton.disabled = not is_running
 	%PlotButton.disabled = not is_running
-	%PlayAudioButton.disabled = not is_running
+	%PlayAudioButton.disabled = not _current_dialogue_wav_exists()
 	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
 	%NextDialogButton.disabled = not is_running and _is_at_choice_dialogue()
 	%PrevSceneButton.disabled = not is_running or not _is_prev_scene_exist()
@@ -1044,25 +1061,15 @@ func _on_quit_game_requested() -> void:
 
 
 func _on_play_audio_pressed() -> void:
+	if not _current_dialogue_wav_exists():
+		_update_button_eligibility()
+		return
 	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
-	if interactions.is_empty():
-		return
-	if current_dialogue_index < 0 or current_dialogue_index >= interactions.size():
-		return
 	var entry: Dictionary = interactions[current_dialogue_index] if interactions[current_dialogue_index] is Dictionary else {}
 	var fname: String = str(entry.get("sound_filename", "")).strip_edges()
 	var uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
-	if fname.is_empty() or uuid.is_empty():
-		# On-demand generate
-		if not uuid.is_empty():
-			TTSManager.generate_single_interaction(uuid, current_dialogue_index)
-		return
 	var path_user: String = "user://saves/%s/sounds/%s" % [uuid, fname]
-	if FileAccess.file_exists(path_user):
-		_play_wav(ProjectSettings.globalize_path(path_user))
-	else:
-		# File missing -> regenerate
-		TTSManager.generate_single_interaction(uuid, current_dialogue_index)
+	_play_wav(ProjectSettings.globalize_path(path_user))
 
 
 func _get_tts_player() -> AudioStreamPlayer:
@@ -1216,12 +1223,13 @@ func _try_autoplay_current() -> void:
 
 
 func _on_tts_generated(uuid: String, idx: int, sound_filename: String, save_path: String) -> void:
-	if not bool(GameSettingsManager.settings.get("autoplay_tts", true)):
-		return
 	var cur_uuid: String = str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
 	if cur_uuid != uuid:
 		return
 	if idx != current_dialogue_index:
+		return
+	_update_button_eligibility()
+	if not bool(GameSettingsManager.settings.get("autoplay_tts", true)):
 		return
 	# Ensure file exists before play
 	if not FileAccess.file_exists(save_path):
