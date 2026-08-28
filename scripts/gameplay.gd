@@ -186,6 +186,8 @@ func _set_game_status(status: String, save_now: bool = true) -> void:
 	if save_now:
 		GameProgressManager.save_settings()
 	_set_scene_game_status(status, save_now)
+	if is_inside_tree() and has_node("%NextSceneButton"):
+		_update_button_eligibility()
 
 
 func _current_game_status() -> String:
@@ -403,8 +405,16 @@ func _is_prev_dialogue_exist() -> bool:
 	return current_dialogue_index != 0
 
 
+func _is_at_choice_dialogue() -> bool:
+	return current_dialogue_index >= total_dialogue - 1
+
+
 func _can_open_choice_overlay() -> bool:
-	return _current_game_status() == "running" and current_dialogue_index >= total_dialogue - 1
+	return _current_game_status() == "running" and _is_at_choice_dialogue()
+
+
+func _can_use_scene_navigation() -> bool:
+	return _current_game_status() == "running"
 
 
 func is_prev_scene_exist() -> bool:
@@ -429,17 +439,18 @@ func _set_all_side_buttons_disabled_except_settings_back() -> void:
 
 
 func _update_button_eligibility() -> void:
+	var is_running := _can_use_scene_navigation()
+	%DialogButton.disabled = not is_running
+	%ImageButton.disabled = not is_running
+	%PlotButton.disabled = not is_running
+	%PlayAudioButton.disabled = not is_running
 	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
-	%PrevSceneButton.disabled = not _is_prev_scene_exist()
-	%NextSceneButton.disabled = not _can_open_choice_overlay()
+	%NextDialogButton.disabled = not is_running and _is_at_choice_dialogue()
+	%PrevSceneButton.disabled = not is_running or not _is_prev_scene_exist()
+	%NextSceneButton.disabled = not is_running
 
 
 func _enable_all_side_buttons_by_eligibility() -> void:
-	%DialogButton.disabled = false
-	%ImageButton.disabled = false
-	%PlotButton.disabled = false
-	%PlayAudioButton.disabled = false
-	%NextDialogButton.disabled = false
 	# Prev buttons depend on eligibility
 	_update_button_eligibility()
 
@@ -804,6 +815,8 @@ func _on_next_dialog_pressed() -> void:
 
 
 func _on_prev_scene_pressed() -> void:
+	if not _can_use_scene_navigation():
+		return
 	if not _is_prev_scene_exist():
 		return
 	var prev_uuid: String = str(SceneDataManager.scene_data.get("prev_uuid", "")).strip_edges()
@@ -818,7 +831,7 @@ func _on_prev_scene_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 func _on_next_scene_pressed() -> void:
-	if not _can_open_choice_overlay():
+	if not _can_use_scene_navigation():
 		return
 	_show_choice_overlay()
 
@@ -1462,11 +1475,7 @@ func _execute_new_story_flow() -> void:
 	_begin_image_generation()
 	_update_total_dialogue()
 	_show_current_dialogue()
-	# Enable Next Dialogue and Dialogue buttons
-	%NextDialogButton.disabled = false
-	%DialogButton.disabled = false
-	# Check prev dialogue eligibility
-	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+	_update_button_eligibility()
 	var comfy_ok: bool = await _generate_comfyui_image()
 	if not comfy_ok:
 		return
@@ -1501,11 +1510,7 @@ func _execute_new_scene_flow() -> void:
 	_begin_image_generation()
 	_update_total_dialogue()
 	_show_current_dialogue()
-	# Enable Next Dialogue and Dialogue buttons
-	%NextDialogButton.disabled = false
-	%DialogButton.disabled = false
-	# Check prev dialogue eligibility
-	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+	_update_button_eligibility()
 	var comfy_ok2: bool = await _generate_comfyui_image()
 	if not comfy_ok2:
 		return
@@ -1528,9 +1533,7 @@ func _prepare_generating_resume_flow(load_image: bool = false) -> String:
 	if load_image:
 		_load_current_scene_image(uuid)
 	else:
-		%NextDialogButton.disabled = false
-		%DialogButton.disabled = false
-		%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+		_update_button_eligibility()
 	return uuid
 
 
