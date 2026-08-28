@@ -83,7 +83,7 @@ func _apply_screen_size() -> void:
 		"1344x768":
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 			DisplayServer.window_set_size(Vector2i(1344, 768))
-			DisplayServer.window_set_title("Instant Visual Novel")
+			DisplayServer.window_set_title("StoryNow")
 			var screen_size := DisplayServer.screen_get_size()
 			var centered := (screen_size - Vector2i(1344, 768)) / 2
 			DisplayServer.window_set_position(centered)

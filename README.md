@@ -1,4 +1,4 @@
-# Instant Visual Novel
+# StoryNow
 
 AI-generated visual novel — Godot client that drives local **llama.cpp**, **ComfyUI**, and native **Sherpa-ONNX** TTS. Player enters a story background (or random), then plays round-by-round with LLM-generated dialogue/choices, SDXL illustrations, and per-line TTS.
 

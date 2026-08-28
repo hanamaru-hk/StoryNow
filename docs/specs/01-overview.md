@@ -1,6 +1,6 @@
 # 1. Overview
 
-**Title:** Instant Visual Novel
+**Title:** StoryNow
 **Engine:** Godot 4.3 (GDScript 2.x, .tscn scenes, `gl_compatibility` renderer)
 **Platform:** Desktop (Windows primary; Linux/macOS via same Godot export)
 **Resolution:** 1920×1080 viewport, `canvas_items` stretch; windowed 1344×768 or fullscreen toggle via `GameSettingsManager`

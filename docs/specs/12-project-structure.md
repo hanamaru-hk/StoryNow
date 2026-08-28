@@ -1,7 +1,7 @@
 # 12. Project Structure (Current)
 
 ```
-instant-visual-novel/
+story-now/
 ├── docs/
 │   └── specs/
 │       ├── index.md

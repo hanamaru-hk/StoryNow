@@ -1,5 +1,5 @@
 {
-  "client_id": "instant-visual-novel",
+  "client_id": "story-now",
   "prompt": {
     "1": {
       "class_type": "CheckpointLoaderSimple",

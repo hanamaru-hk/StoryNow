@@ -1,4 +1,4 @@
-# Instant Visual Novel - Game Specifications
+# StoryNow - Game Specifications
 
 ## Table of Contents
 

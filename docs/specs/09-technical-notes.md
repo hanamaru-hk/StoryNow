@@ -21,7 +21,7 @@
 
 ```json
 {
-  "client_id": "instant-visual-novel",
+  "client_id": "story-now",
   "prompt": { "1": {...}, "2": {...}, ... },
   "extra_data": {}
 }
