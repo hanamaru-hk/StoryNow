@@ -319,7 +319,7 @@ func _execute_regenerate_all() -> void:
 					json_str = repaired
 			if err != OK or not json.data is Dictionary:
 				var gameplay2 = get_parent()
-				var msg2: String = "LLM returned invalid JSON: " + raw_text.substr(0, 300)
+				var msg2: String = I18n.translate("error_llm_invalid_json")
 				if gameplay2 and gameplay2.has_method("show_error"):
 					gameplay2.show_error(msg2, true, "regenerate_all")
 					if gameplay2.has_signal("retry_requested"):
