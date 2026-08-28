@@ -1,6 +1,5 @@
 - Write `image_prompt` in English as comma-separated Danbooru tags describing the visual scene (e.g., "1girl, solo, classroom, sunlight, detailed background"). It MUST NOT be empty. __DANBOORU_GUARDRAIL__
 - Write natural dialogue and/or narration for the scene in at least __MINIMUM_DIALOGUES_PER_SCENE__ rounds with at least __MINIMUM_SENTENCES_PER_DIALOGUE__ in each dialogue.
-- Include __MAXIMUM_PLOT_DIRECTIONS__ meaningful choices, with each choice leading the story in a distinct plot direction.
+- __DEVELOPMENT__
 - Set `language` to `en`.
 - `summary` will contain no more than __MINIMUM_SENTENCES_IN_SUMMARY__ sentences, use simple clauses, and have no more than two clauses per sentence.
-- If current_round is greater than or equal to expected_rounds, try your best to set JSON property `end` to true, and end your story.
