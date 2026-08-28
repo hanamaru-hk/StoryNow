@@ -17,6 +17,7 @@ signal retry_requested
 var _pending_retry_action: String = ""  # "new_story" or "new_scene"
 var _retry_in_progress: bool = false
 var _chrome_visible: bool = true
+var _continue_indicator_tween: Tween
 
 func _ready() -> void:
 	_set_chrome_visible(true)
@@ -97,6 +98,7 @@ func _ready() -> void:
 	# Clicking on DialogArea advances dialogue (optional convenience)
 	if has_node("%DialogArea"):
 		%DialogArea.gui_input.connect(_on_dialog_area_input)
+	_start_continue_indicator_flash()
 
 	_resize_choice_overlay_panel()
 
@@ -556,6 +558,23 @@ func _update_button_eligibility() -> void:
 	%NextLineButton.disabled = not is_running and _is_at_choice_dialogue()
 	%PrevSceneButton.disabled = not is_running or not _is_prev_scene_exist()
 	%NextSceneButton.disabled = not is_running
+	_update_continue_indicator()
+
+
+func _start_continue_indicator_flash() -> void:
+	if not has_node("%ContinueIndicator"):
+		return
+	if is_instance_valid(_continue_indicator_tween):
+		_continue_indicator_tween.kill()
+	_continue_indicator_tween = create_tween().set_loops()
+	_continue_indicator_tween.tween_property(%ContinueIndicator, "modulate:a", 0.25, 0.55)
+	_continue_indicator_tween.tween_property(%ContinueIndicator, "modulate:a", 1.0, 0.55)
+
+
+func _update_continue_indicator() -> void:
+	if has_node("%ContinueIndicator"):
+		# Match Next Scene: a dialogue click can only advance while the game is running.
+		%ContinueIndicator.visible = _can_use_scene_navigation()
 
 
 func _enable_all_side_buttons_by_eligibility() -> void:
@@ -884,7 +903,16 @@ func _resize_choice_overlay_panel() -> void:
 
 
 func _on_dialog_area_input(event: InputEvent) -> void:
-	pass
+	if not event is InputEventMouseButton:
+		return
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
+		return
+	# Keep the dialogue panel consistent with the Next Scene button's eligibility.
+	if not _can_use_scene_navigation():
+		return
+	_on_next_dialog_pressed()
+	get_viewport().set_input_as_handled()
 
 
 func _on_prev_dialog_pressed() -> void:

@@ -1,5 +1,7 @@
 extends Control
 
+var _brainstorm_request_active := false
+
 
 func _ready() -> void:
 	%Random.pressed.connect(_on_random_pressed)
@@ -14,25 +16,34 @@ func _ready() -> void:
 
 
 func _on_random_pressed() -> void:
+	if _brainstorm_request_active:
+		return
 	if not _is_llm_ready():
 		_show_error_popup(I18n.translate("notice_wait_llm_ready"))
+		return
+	if %BackgroundInput.text.strip_edges().is_empty():
+		await _request_random_text()
 		return
 	%RandomConfirmPopup.visible = true
 
 
 func _request_random_text() -> void:
-	%Random.disabled = true
-	_show_loading(true)
+	_set_brainstorm_request_active(true)
 	var result: Dictionary = await LLMManager.request_random()
-	_show_loading(false)
-	%Random.disabled = false
+	if not is_inside_tree():
+		return
+	_set_brainstorm_request_active(false)
 	if not result.get("success", false):
-		_show_error_popup(result.get("error", ""))
+		var error := str(result.get("error", ""))
+		if error != "Cancelled":
+			_show_error_popup(error)
 	else:
 		%BackgroundInput.text = result["text"]
 
 
 func _on_enhance_pressed() -> void:
+	if _brainstorm_request_active:
+		return
 	if not _is_llm_ready():
 		_show_error_popup(I18n.translate("notice_wait_llm_ready"))
 		return
@@ -40,13 +51,15 @@ func _on_enhance_pressed() -> void:
 	if input.is_empty():
 		_show_error_popup(I18n.translate("notice_write_something_first"))
 		return
-	%Enhance.disabled = true
-	_show_loading(true)
+	_set_brainstorm_request_active(true)
 	var result: Dictionary = await LLMManager.request_enhance(input)
-	_show_loading(false)
-	%Enhance.disabled = false
+	if not is_inside_tree():
+		return
+	_set_brainstorm_request_active(false)
 	if not result.get("success", false):
-		_show_error_popup(result.get("error", ""))
+		var error := str(result.get("error", ""))
+		if error != "Cancelled":
+			_show_error_popup(error)
 	else:
 		%BackgroundInput.text = result["text"]
 
@@ -57,6 +70,24 @@ func _on_advanced_pressed() -> void:
 
 func _show_loading(is_visible: bool) -> void:
 	%LoadingOverlay.visible = is_visible
+
+
+func _set_brainstorm_request_active(is_active: bool) -> void:
+	_brainstorm_request_active = is_active
+	_show_loading(false)
+	_set_child_buttons_disabled(self, is_active)
+	%Advanced.disabled = false
+	%Back.disabled = false
+
+
+func _set_child_buttons_disabled(root: Node, is_disabled: bool) -> void:
+	if root == %GameProgressOverlay:
+		return
+	for child in root.get_children():
+		var button := child as Button
+		if button != null:
+			button.disabled = is_disabled
+		_set_child_buttons_disabled(child, is_disabled)
 
 
 func _show_error_popup(message: String) -> void:
@@ -118,6 +149,8 @@ func _generate_uuid() -> String:
 
 
 func _on_back_pressed() -> void:
+	if _brainstorm_request_active:
+		LLMManager.cancel_active_request()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 

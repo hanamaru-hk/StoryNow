@@ -156,6 +156,7 @@ horizontal_alignment = 2
 [node name="DialogLabel" type="RichTextLabel" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_minimum_size = Vector2(0, 120)
@@ -164,6 +165,15 @@ text = "Generating the gameplay..."
 fit_content = false
 scroll_active = false
 autowrap_mode = 3
+
+[node name="ContinueIndicator" type="Label" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.98, 0.95)
+theme_override_font_sizes/font_size = 24
+text = "▼"
+horizontal_alignment = 2
 
 [node name="SidePanel" type="PanelContainer" parent="Dialogue/Margin/HBox"]
 layout_mode = 2
