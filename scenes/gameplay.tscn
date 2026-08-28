@@ -571,6 +571,11 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 bus = "Master"
 
+[node name="BGMPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+bus = "Master"
+volume_db = -10.0
+
 [node name="DialogueOverlay" parent="." instance=ExtResource("5_dialogue")]
 unique_name_in_owner = true
 

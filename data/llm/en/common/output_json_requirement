@@ -2,4 +2,5 @@
 - Write natural dialogue and/or narration for the scene in at least __MINIMUM_DIALOGUES_PER_SCENE__ rounds with at least __MINIMUM_SENTENCES_PER_DIALOGUE__ in each dialogue.
 - __DEVELOPMENT__
 - Set `language` to `en`.
+- `bgm_mood` will contain one of the following strings: `joyful`, `dangerous`, `mysterious`, `epic`, `peaceful`, `other`, `romantic`, `sad`, `funny`
 - `summary` will contain no more than __MINIMUM_SENTENCES_IN_SUMMARY__ sentences, use simple clauses, and have no more than two clauses per sentence.

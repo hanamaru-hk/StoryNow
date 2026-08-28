@@ -4,9 +4,11 @@ const CURRENT_VERSION := "1.0"
 const CANTONESE_MALE_PITCH_SCALE := 0.7
 const TTS_VOICE_BUS := "TTSVoice"
 const GENERATING_IMAGE_PATH := "res://assets/images/generating.jpg"
+const MUSIC_DIR := "data/music"
 
 var _scene_data: Dictionary = {}
 var _current_dialog_idx: int = 0
+var _current_bgm_path: String = ""
 
 # Requested public dialogue tracking vars
 var current_dialogue_index: int = 0
@@ -158,6 +160,7 @@ func _ready() -> void:
 				if not title_text.strip_edges().is_empty():
 					%TitleLabel.text = _format_title_with_round(title_text)
 			%ChoiceOverlay.visible = false
+			_play_scene_bgm()
 			# Auto-play current dialogue wav if exists (prev_scene rule)
 			_try_autoplay_current()
 			await _recover_missing_running_assets(has_running_image)
@@ -335,6 +338,77 @@ func _load_image_from_file_access(img: Image, path: String) -> Error:
 	if lower_path.ends_with(".webp"):
 		return img.load_webp_from_buffer(bytes)
 	return ERR_FILE_UNRECOGNIZED
+
+
+func _play_scene_bgm() -> void:
+	var mood: String = _scene_bgm_mood()
+	if mood.is_empty():
+		_stop_scene_bgm()
+		return
+	var music_path: String = _pick_random_music_path(mood)
+	if music_path.is_empty():
+		push_warning("No music found for bgm mood: %s" % mood)
+		_stop_scene_bgm()
+		return
+	if music_path == _current_bgm_path and _get_bgm_player().playing:
+		return
+	var stream: AudioStreamMP3 = AudioStreamMP3.load_from_file(music_path)
+	if stream == null:
+		push_warning("Failed to load bgm: %s" % music_path)
+		_stop_scene_bgm()
+		return
+	stream.loop = true
+	_current_bgm_path = music_path
+	var player := _get_bgm_player()
+	player.stream = stream
+	player.play()
+
+
+func _stop_scene_bgm() -> void:
+	if not has_node("%BGMPlayer"):
+		return
+	var player := _get_bgm_player()
+	player.stop()
+	player.stream = null
+	_current_bgm_path = ""
+
+
+func _scene_bgm_mood() -> String:
+	var mood: String = str(SceneDataManager.scene_data.get("bgm_mood", "")).strip_edges().to_lower()
+	if mood.is_empty():
+		mood = str(SceneDataManager.scene_data.get("music_mood", "")).strip_edges().to_lower()
+	return mood
+
+
+func _pick_random_music_path(mood: String) -> String:
+	var dir_path: String = AppPaths.external_path(MUSIC_DIR.path_join(mood))
+	var dir := DirAccess.open(dir_path)
+	if dir == null:
+		return ""
+	var candidates: PackedStringArray = []
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	while not file_name.is_empty():
+		if not dir.current_is_dir() and _is_supported_music_file(file_name):
+			candidates.append(dir_path.path_join(file_name))
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	if candidates.is_empty():
+		return ""
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	return candidates[rng.randi_range(0, candidates.size() - 1)]
+
+
+func _is_supported_music_file(file_name: String) -> bool:
+	var lower_name: String = file_name.to_lower()
+	return lower_name.ends_with(".mp3")
+
+
+func _get_bgm_player() -> AudioStreamPlayer:
+	if has_node("%BGMPlayer"):
+		return %BGMPlayer as AudioStreamPlayer
+	return $BGMPlayer as AudioStreamPlayer
 
 # ------------------------------------------------------------------
 # Dialogue helpers — current/total tracking and UI update
@@ -1444,6 +1518,7 @@ func _handle_new_story() -> bool:
 		SceneDataManager.scene_data["end"] = true
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
+	_play_scene_bgm()
 	# Apply title field to TitleLabel when request finishes
 	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
 	# Keep legacy progress status aligned while scene_data owns resumable status.
@@ -1507,6 +1582,7 @@ func _handle_new_scene() -> bool:
 		SceneDataManager.scene_data["end"] = true
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
+	_play_scene_bgm()
 	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
 	_begin_image_generation()
 	# Non-blocking TTS generation for all dialogues (scene)
@@ -1600,6 +1676,7 @@ func _prepare_generating_resume_flow(load_image: bool = false) -> String:
 	_populate_dynamic_choice_buttons()
 	_update_total_dialogue()
 	_show_current_dialogue()
+	_play_scene_bgm()
 	if load_image:
 		_load_current_scene_image(uuid)
 	else:

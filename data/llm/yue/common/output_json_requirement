@@ -2,4 +2,5 @@
 - 用廣東話／粵語口語為本幕編寫至少 __MINIMUM_DIALOGUES_PER_SCENE__ 輪自然的對話與／或旁白，每輪對話至少包含 __MINIMUM_SENTENCES_PER_DIALOGUE__ 句話，書寫使用繁體中文。
 - __DEVELOPMENT__
 - 將 `language` 設為 `yue`。
+- `bgm_mood` 必須係以下字串其中之一：`joyful`、`dangerous`、`mysterious`、`epic`、`peaceful`、`other`、`romantic`、`sad`、`funny`
 - `summary` 最多包含 __MINIMUM_SENTENCES_IN_SUMMARY__ 個句子，使用簡單分句，且每個句子最多包含兩個分句。

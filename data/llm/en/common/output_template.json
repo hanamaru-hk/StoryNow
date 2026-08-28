@@ -20,5 +20,6 @@
   "image_prompt": "man, mechanic",
   "summary": "John is a mechanic who often craves ice cream after a long day at the shop.",
   "language": "en",
-  "title": "John's Ice Cream Dilemma"
+  "title": "John's Ice Cream Dilemma",
+  "bgm_mood": "joyful"
 }
