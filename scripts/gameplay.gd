@@ -105,6 +105,8 @@ func _ready() -> void:
 	# --- TTS auto-play ---
 	if is_instance_valid(TTSManager) and TTSManager.has_signal("tts_generated") and not TTSManager.tts_generated.is_connected(_on_tts_generated):
 		TTSManager.tts_generated.connect(_on_tts_generated)
+	if is_instance_valid(TTSManager) and TTSManager.has_signal("batch_completed") and not TTSManager.batch_completed.is_connected(_on_tts_batch_completed):
+		TTSManager.batch_completed.connect(_on_tts_batch_completed)
 
 	_update_labels()
 	_load_default_background()
@@ -119,6 +121,10 @@ func _ready() -> void:
 			await _execute_new_scene_flow()
 		"generating_image":
 			await _execute_generating_image_flow()
+		"generating_voice":
+			_execute_generating_voice_flow()
+		"generating_both":
+			await _execute_generating_both_flow()
 		"running":
 			var uuid_running: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", "")))
 			if SceneDataManager.scene_data.is_empty():
@@ -173,6 +179,63 @@ func _set_scene_game_status(status: String, save_now: bool = true) -> void:
 	SceneDataManager.scene_data["game_status"] = status
 	if save_now:
 		SceneDataManager.save()
+
+
+func _set_game_status(status: String, save_now: bool = true) -> void:
+	GameProgressManager.settings["game_status"] = status
+	if save_now:
+		GameProgressManager.save_settings()
+	_set_scene_game_status(status, save_now)
+
+
+func _current_game_status() -> String:
+	var scene_status := str(SceneDataManager.scene_data.get("game_status", "")).strip_edges()
+	if not scene_status.is_empty():
+		return scene_status
+	return str(GameProgressManager.settings.get("game_status", "")).strip_edges()
+
+
+func _scene_has_voice_dialogue(scene_data: Dictionary) -> bool:
+	var interactions: Array = scene_data.get("interactions", [])
+	if not interactions is Array:
+		return false
+	for entry in interactions:
+		if entry is Dictionary and not str((entry as Dictionary).get("dialogue", "")).strip_edges().is_empty():
+			return true
+	return false
+
+
+func _begin_voice_generation(scene_data: Dictionary) -> bool:
+	if scene_data.is_empty() or not _scene_has_voice_dialogue(scene_data):
+		return false
+	var status := _current_game_status()
+	_set_game_status("generating_both" if status == "generating_image" else "generating_voice")
+	TTSManager.generate_all_for_scene(scene_data)
+	return true
+
+
+func _begin_image_generation() -> void:
+	var status := _current_game_status()
+	if status == "generating_voice" or status == "generating_both":
+		_set_game_status("generating_both")
+	else:
+		_set_game_status("generating_image")
+
+
+func _finish_image_generation() -> void:
+	var status := _current_game_status()
+	if status == "generating_both":
+		_set_game_status("generating_voice")
+	elif status == "generating_image":
+		_set_game_status("running")
+
+
+func _finish_voice_generation() -> void:
+	var status := _current_game_status()
+	if status == "generating_both":
+		_set_game_status("generating_image")
+	elif status == "generating_voice":
+		_set_game_status("running")
 
 
 func _load_default_background() -> void:
@@ -1145,6 +1208,14 @@ func _on_tts_generated(uuid: String, idx: int, sound_filename: String, save_path
 	_play_wav(ProjectSettings.globalize_path(save_path))
 
 
+func _on_tts_batch_completed(uuid: String) -> void:
+	var cur_uuid: String = str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
+	if cur_uuid != uuid:
+		return
+	_finish_voice_generation()
+	_enable_all_side_buttons_by_eligibility()
+
+
 func _on_settings_closed() -> void:
 	_update_labels()
 
@@ -1285,13 +1356,9 @@ func _handle_new_story() -> bool:
 	# Apply title field to TitleLabel when request finishes
 	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
 	# Keep legacy progress status aligned while scene_data owns resumable status.
-	GameProgressManager.settings["game_status"] = "generating_image"
-	GameProgressManager.save_settings()
-	_set_scene_game_status("generating_image")
+	_begin_image_generation()
 	# Non-blocking TTS generation for all dialogues
-	var tts_uuid_story := str(SceneDataManager.scene_data.get("uuid", ""))
-	if not tts_uuid_story.is_empty():
-		TTSManager.generate_all_for_scene(SceneDataManager.scene_data)
+	_begin_voice_generation(SceneDataManager.scene_data)
 	print_verbose("Final scene data: " + str(SceneDataManager.scene_data))
 	print_verbose("Final game progress settings: " + str(GameProgressManager.settings))
 	return true
@@ -1350,13 +1417,9 @@ func _handle_new_scene() -> bool:
 	SceneDataManager.save()
 	_scene_data = SceneDataManager.scene_data
 	_apply_title_from_result(str(llm_data.get("title", result.get("title", ""))), llm_data)
-	GameProgressManager.settings["game_status"] = "generating_image"
-	GameProgressManager.save_settings()
-	_set_scene_game_status("generating_image")
+	_begin_image_generation()
 	# Non-blocking TTS generation for all dialogues (scene)
-	var tts_uuid_scene := str(SceneDataManager.scene_data.get("uuid", ""))
-	if not tts_uuid_scene.is_empty():
-		TTSManager.generate_all_for_scene(SceneDataManager.scene_data)
+	_begin_voice_generation(SceneDataManager.scene_data)
 	print_verbose("Final scene data (scene): " + str(SceneDataManager.scene_data))
 	print_verbose("Final game progress settings (scene): " + str(GameProgressManager.settings))
 	return true
@@ -1388,9 +1451,7 @@ func _execute_new_story_flow() -> void:
 	# --- After new_story: populate dynamic choice buttons above CustomInput ---
 	_populate_dynamic_choice_buttons()
 	# --- After new_story: update dialogue tracking and trigger image generation ---
-	GameProgressManager.settings["game_status"] = "generating_image"
-	GameProgressManager.save_settings()
-	_set_scene_game_status("generating_image")
+	_begin_image_generation()
 	_update_total_dialogue()
 	_show_current_dialogue()
 	# Enable Next Dialogue and Dialogue buttons
@@ -1401,9 +1462,7 @@ func _execute_new_story_flow() -> void:
 	var comfy_ok: bool = await _generate_comfyui_image()
 	if not comfy_ok:
 		return
-	GameProgressManager.settings["game_status"] = "running"
-	GameProgressManager.save_settings()
-	_set_scene_game_status("running")
+	_finish_image_generation()
 	_enable_all_side_buttons_by_eligibility()
 	_pending_retry_action = ""
 
@@ -1431,9 +1490,7 @@ func _execute_new_scene_flow() -> void:
 	# --- After new_scene: populate dynamic choice buttons above CustomInput ---
 	_populate_dynamic_choice_buttons()
 	# --- After new_scene: update dialogue tracking and trigger image generation ---
-	GameProgressManager.settings["game_status"] = "generating_image"
-	GameProgressManager.save_settings()
-	_set_scene_game_status("generating_image")
+	_begin_image_generation()
 	_update_total_dialogue()
 	_show_current_dialogue()
 	# Enable Next Dialogue and Dialogue buttons
@@ -1444,39 +1501,66 @@ func _execute_new_scene_flow() -> void:
 	var comfy_ok2: bool = await _generate_comfyui_image()
 	if not comfy_ok2:
 		return
-	GameProgressManager.settings["game_status"] = "running"
-	GameProgressManager.save_settings()
-	_set_scene_game_status("running")
+	_finish_image_generation()
 	_enable_all_side_buttons_by_eligibility()
 	_pending_retry_action = ""
 
 
-func _execute_generating_image_flow() -> void:
+func _prepare_generating_resume_flow(load_image: bool = false) -> String:
 	var uuid := str(SceneDataManager.scene_data.get("uuid", GameProgressManager.settings.get("current_uuid", ""))).strip_edges()
 	if SceneDataManager.scene_data.is_empty() and not uuid.is_empty():
 		if SceneDataManager.load_data(uuid):
 			_scene_data = SceneDataManager.scene_data
 	if SceneDataManager.scene_data.is_empty():
 		show_error(I18n.translate("error_failed_load_scene_data") % uuid)
-		return
-	_set_scene_game_status("generating_image")
-	GameProgressManager.settings["game_status"] = "generating_image"
-	GameProgressManager.save_settings()
-	TTSManager.generate_all_for_scene(SceneDataManager.scene_data)
+		return ""
 	_populate_dynamic_choice_buttons()
 	_update_total_dialogue()
 	_show_current_dialogue()
-	%NextDialogButton.disabled = false
-	%DialogButton.disabled = false
-	%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+	if load_image:
+		_load_current_scene_image(uuid)
+	else:
+		%NextDialogButton.disabled = false
+		%DialogButton.disabled = false
+		%PrevDialogButton.disabled = not _is_prev_dialogue_exist()
+	return uuid
+
+
+func _execute_generating_image_flow() -> void:
+	var uuid := _prepare_generating_resume_flow()
+	if uuid.is_empty():
+		return
+	_begin_image_generation()
 	var comfy_ok := await _generate_comfyui_image()
 	if not comfy_ok:
 		return
-	GameProgressManager.settings["game_status"] = "running"
-	GameProgressManager.save_settings()
-	_set_scene_game_status("running")
+	_finish_image_generation()
 	_enable_all_side_buttons_by_eligibility()
 	_pending_retry_action = ""
+
+
+func _execute_generating_both_flow() -> void:
+	var uuid := _prepare_generating_resume_flow()
+	if uuid.is_empty():
+		return
+	_begin_image_generation()
+	_begin_voice_generation(SceneDataManager.scene_data)
+	var comfy_ok := await _generate_comfyui_image()
+	if not comfy_ok:
+		return
+	_finish_image_generation()
+	_enable_all_side_buttons_by_eligibility()
+	_pending_retry_action = ""
+
+
+func _execute_generating_voice_flow() -> void:
+	var uuid := _prepare_generating_resume_flow(true)
+	if uuid.is_empty():
+		return
+	_set_game_status("generating_voice")
+	if not _begin_voice_generation(SceneDataManager.scene_data):
+		_finish_voice_generation()
+	_enable_all_side_buttons_by_eligibility()
 
 
 # ------------------------------------------------------------------
