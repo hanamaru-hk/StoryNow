@@ -4,6 +4,7 @@ var _brainstorm_request_active := false
 
 
 func _ready() -> void:
+	ServerRuntimeManager.set_chrome_visible(true)
 	%Random.pressed.connect(_on_random_pressed)
 	%Enhance.pressed.connect(_on_enhance_pressed)
 	%Advanced.pressed.connect(_on_advanced_pressed)
@@ -177,9 +178,10 @@ func _on_random_confirm_canceled() -> void:
 
 
 func _update_labels() -> void:
-	$MarginContainer/VBoxContainer/Title.text = I18n.translate("prompt_title")
-	$MarginContainer/VBoxContainer/Description.text = I18n.translate("prompt_desc")
-	$MarginContainer/VBoxContainer/BackgroundInput.placeholder_text = I18n.translate("prompt_placeholder")
+	%TopBarTitle.text = I18n.translate("main_title")
+	$MarginContainer/ContentPanel/ContentMargin/VBoxContainer/Title.text = I18n.translate("prompt_title")
+	$MarginContainer/ContentPanel/ContentMargin/VBoxContainer/Description.text = I18n.translate("prompt_desc")
+	%BackgroundInput.placeholder_text = I18n.translate("prompt_placeholder")
 	%Random.text = I18n.translate("btn_random")
 	%Enhance.text = I18n.translate("btn_enhance")
 	%Advanced.text = I18n.translate("btn_advanced_setting")

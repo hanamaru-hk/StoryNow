@@ -1,8 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://prompt_page"]
+[gd_scene load_steps=5 format=3 uid="uid://prompt_page"]
 
 [ext_resource type="Script" path="res://scripts/brainstorm.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/game_progress_overlay.tscn" id="2"]
 [ext_resource type="Texture2D" path="res://assets/images/brainstorm_background.png" id="3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_content_panel"]
+bg_color = Color(0.055, 0.055, 0.07, 0.86)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="PromptPage" type="Control"]
 layout_mode = 3
@@ -24,6 +31,31 @@ texture = ExtResource("3")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="TopBar" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="Margin" type="MarginContainer" parent="TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="HBox" type="HBoxContainer" parent="TopBar/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TopBarTitle" type="Label" parent="TopBar/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "StoryNow"
+autowrap_mode = 3
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -31,34 +63,49 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="ContentPanel" type="PanelContainer" parent="MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_content_panel")
+
+[node name="ContentMargin" type="MarginContainer" parent="MarginContainer/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ContentPanel/ContentMargin"]
+layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer"]
 layout_mode = 2
 text = "Story Background"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer"]
+[node name="Spacer" type="Control" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 16)
 
-[node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Description" type="Label" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer"]
 layout_mode = 2
 text = "Describe the world, characters, and mood for your story. Leave blank and press Random to let the AI decide."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="Spacer2" type="Control" parent="MarginContainer/VBoxContainer"]
+[node name="Spacer2" type="Control" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 8)
 
-[node name="BackgroundInput" type="TextEdit" parent="MarginContainer/VBoxContainer"]
+[node name="BackgroundInput" type="TextEdit" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(640, 240)
@@ -67,44 +114,44 @@ size_flags_vertical = 4
 placeholder_text = "e.g. A dark fantasy world where magic is fading. The protagonist is a young mage discovering forbidden powers..."
 wrap_mode = 2
 
-[node name="Spacer3" type="Control" parent="MarginContainer/VBoxContainer"]
+[node name="Spacer3" type="Control" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ButtonRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="ButtonRow" type="HBoxContainer" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 16
 
-[node name="Random" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
+[node name="Random" type="Button" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 48)
 size_flags_horizontal = 4
 text = "Random"
 
-[node name="Enhance" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
+[node name="Enhance" type="Button" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 48)
 size_flags_horizontal = 4
 text = "Enhance"
 
-[node name="Advanced" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
+[node name="Advanced" type="Button" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 48)
 size_flags_horizontal = 4
 text = "Advanced"
 
-[node name="Start" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
+[node name="Start" type="Button" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 48)
 size_flags_horizontal = 4
 text = "Start"
 
-[node name="Back" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
+[node name="Back" type="Button" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(160, 48)

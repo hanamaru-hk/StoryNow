@@ -33,6 +33,8 @@ First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`.
 `scenes/brainstorm.tscn` / `scripts/brainstorm.gd:1`:
 
 - **Title/Description/Placeholder** via i18n.
+- **Top bar/server chrome:** gameplay-style top bar keeps the global LLM and image server status widget legible; entering the scene restores chrome hidden by the main menu.
+- **Readability panel:** an opaque dark panel backs the title, description, textarea, and button row over the illustrated background.
 - **Textarea** `%BackgroundInput` for story background.
 - **Button row:** Random, Enhance, Advanced (→ `GameProgressOverlay`), Start, Back.
 - **LoadingOverlay** + **ErrorDialog** + **RandomConfirmDialog** (clears text).
