@@ -2,6 +2,7 @@ extends Control
 
 signal closed
 signal dialogue_updated
+signal summary_requested
 
 const TRIM_LEN := 20
 
@@ -17,6 +18,8 @@ func _ready() -> void:
 		%HubAddButton.pressed.connect(_on_hub_add_pressed)
 	if has_node("%RegenerateAllButton"):
 		%RegenerateAllButton.pressed.connect(_on_regenerate_all_pressed)
+	if has_node("%SummaryButton"):
+		%SummaryButton.pressed.connect(_on_summary_pressed)
 	if has_node("%RegenerateCancel"):
 		%RegenerateCancel.pressed.connect(_on_regenerate_cancel_pressed)
 	if has_node("%RegenerateConfirm"):
@@ -163,6 +166,11 @@ func _on_hub_add_pressed() -> void:
 		%EditPopup.visible = false
 
 
+func _on_summary_pressed() -> void:
+	visible = false
+	summary_requested.emit()
+
+
 func _on_hub_back_pressed() -> void:
 	# Hub back closes the whole dialogue overlay (unless a sub-overlay is open, close it first)
 	if has_node("%RegenerateConfirmPopup") and %RegenerateConfirmPopup.visible:
@@ -226,6 +234,8 @@ func _update_regenerate_button_state() -> void:
 		%HubEditButton.disabled = disabled
 	if has_node("%HubAddButton"):
 		%HubAddButton.disabled = disabled
+	if has_node("%SummaryButton"):
+		%SummaryButton.disabled = disabled
 	if has_node("%DialogueBack"):
 		%DialogueBack.disabled = disabled
 
@@ -538,6 +548,8 @@ func _update_labels() -> void:
 		%HubAddButton.text = I18n.translate("dialogue_hub_add") if I18n.translate("dialogue_hub_add") != "dialogue_hub_add" else "Add"
 	if has_node("%RegenerateAllButton") and not _is_regenerating:
 		%RegenerateAllButton.text = I18n.translate("dialogue_hub_regenerate") if I18n.translate("dialogue_hub_regenerate") != "dialogue_hub_regenerate" else "Regenerate All"
+	if has_node("%SummaryButton"):
+		%SummaryButton.text = I18n.translate("btn_summary") if I18n.translate("btn_summary") != "btn_summary" else "Summary"
 	if has_node("%DialogueBack"):
 		%DialogueBack.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	if has_node("%RegenerateConfirmLabel"):

@@ -131,7 +131,7 @@ func recover_missing_assets(has_image: bool) -> void:
 
 
 func disable_buttons_for_loading() -> void:
-	for name in ["DialogButton", "ImageButton", "PlotButton", "PlayAudioButton", "PrevLineButton", "NextLineButton", "PrevSceneButton", "NextSceneButton"]:
+	for name in ["DialogButton", "ImageButton", "PlayAudioButton", "HelpButton", "PrevLineButton", "NextLineButton", "PrevSceneButton", "NextSceneButton"]:
 		var button := _node(name) as Button
 		if button:
 			button.disabled = true
@@ -144,8 +144,8 @@ func disable_buttons_for_loading() -> void:
 func update_button_eligibility() -> void:
 	_set_disabled("DialogButton", not can_navigate_scene())
 	_set_disabled("ImageButton", not can_navigate_scene())
-	_set_disabled("PlotButton", not can_navigate_scene())
 	_set_disabled("PlayAudioButton", not current_wav_exists())
+	_set_disabled("HelpButton", false)
 	_set_disabled("PrevLineButton", not has_previous_dialogue())
 	_set_disabled("NextLineButton", not can_navigate_scene() and is_at_choice())
 	_set_disabled("PrevSceneButton", not can_navigate_scene() or not has_previous_scene())

@@ -78,6 +78,13 @@ custom_minimum_size = Vector2(320, 48)
 size_flags_horizontal = 4
 text = "Regenerate All"
 
+[node name="SummaryButton" type="Button" parent="HubCenter/HubPanel/HubMargin/HubVBox/HubButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(320, 48)
+size_flags_horizontal = 4
+text = "Summary"
+
 [node name="DialogueBack" type="Button" parent="HubCenter/HubPanel/HubMargin/HubVBox/HubButtons"]
 unique_name_in_owner = true
 layout_mode = 2

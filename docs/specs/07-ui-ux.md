@@ -3,7 +3,7 @@
 ## 7.1 Visual Style
 
 - **Classic VN** — `%BackgroundImage` fills screen; bottom `Dialogue` panel with `NameLabel`, `DialogLabel`, `DialogProgressLabel`; top bar `TitleLabel`.
-- Dialogue advances by Prev/Next buttons and optional `DialogArea` click; side panel holds Dialog/Image/Plot/Setting/GameplayMenu buttons (`scripts/gameplay.gd:22`).
+- Dialogue advances by Prev/Next buttons and optional `DialogArea` click; the side panel includes Dialog, Image, Play, Help, navigation, Setting, and Menu buttons. Help is reserved and currently has no action (`scripts/gameplay.gd:22`).
 - No typewriter animation — text swaps instantly; pagination `"1 / N"` shown per dialogue.
 - Chrome can be hidden: right-click on background hides `TopBar`+`Dialogue` + `ServerStatusOverlay` (`ServerRuntimeManager.chrome_visible`), left-click restores (`scripts/gameplay.gd:503-541`).
 
@@ -43,7 +43,7 @@ First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`.
 
 All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `open()/closed` signal pattern:
 
-- **DialogueOverlay** (`scripts/dialogue_overlay.gd:1`) — hub (Edit/Add/Regenerate All/Back) → Edit list (indexed buttons) → Edit dialog (character/dialogue fields) → Add overlay (dropdown + before/after). Regenerate All calls LLM in retry loop, replaces only `interactions[]`, resets `current_dialogue=0`, triggers TTS.
+- **DialogueOverlay** (`scripts/dialogue_overlay.gd:1`) — hub (Edit/Add/Regenerate All/Summary/Back) → Edit list (indexed buttons) → Edit dialog (character/dialogue fields) → Add overlay (dropdown + before/after). Summary opens `PlotOverlay`; Regenerate All calls LLM in retry loop, replaces only `interactions[]`, resets `current_dialogue=0`, triggers TTS.
 - **PlotOverlay** (`scripts/plot_overlay.gd:1`) — shows `summary`; editable when free mode.
 - **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (free mode), **Produce** calls `ImageServerManager.generate_scene_image`.
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — New image vs carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).

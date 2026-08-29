@@ -28,7 +28,6 @@ func _ready() -> void:
 	_chrome_controller = GameplayChromeController.new(self)
 	_set_chrome_visible(true)
 	# --- Dialogue panel grid buttons ---
-	%PlotButton.pressed.connect(_on_plot_pressed)
 	%PlayAudioButton.pressed.connect(_on_play_audio_pressed)
 	%DialogButton.pressed.connect(_on_dialog_btn_pressed)
 	%ImageButton.pressed.connect(_on_image_btn_pressed)
@@ -96,6 +95,7 @@ func _ready() -> void:
 	if has_node("%DialogueOverlay"):
 		%DialogueOverlay.closed.connect(_on_dialogue_overlay_closed)
 		%DialogueOverlay.dialogue_updated.connect(_on_dialogue_updated)
+		%DialogueOverlay.summary_requested.connect(_on_summary_pressed)
 
 	# --- ErrorReturnPopup ---
 	%ErrorReturnBack.pressed.connect(_on_error_return)
@@ -400,7 +400,7 @@ func _on_image_generated(_save_path: String, _filename: String) -> void:
 	_image_controller.on_image_generated()
 
 
-func _on_plot_pressed() -> void:
+func _on_summary_pressed() -> void:
 	if has_node("%PlotOverlay"):
 		%PlotOverlay.open()
 
@@ -621,8 +621,8 @@ func _update_labels() -> void:
 			%DialogLabel.text = t_gen if t_gen != "generating_gameplay" else "Generating the gameplay..."
 	%DialogButton.text = I18n.translate("btn_dialog") if I18n.translate("btn_dialog") != "btn_dialog" else "Dialogue"
 	%ImageButton.text = I18n.translate("btn_image") if I18n.translate("btn_image") != "btn_image" else "Image"
-	%PlotButton.text = I18n.translate("btn_plot") if I18n.translate("btn_plot") != "btn_plot" else "Plot"
 	%PlayAudioButton.text = I18n.translate("btn_play_audio") if I18n.translate("btn_play_audio") != "btn_play_audio" else "Play"
+	%HelpButton.text = I18n.translate("btn_help") if I18n.translate("btn_help") != "btn_help" else "Help"
 	%PrevLineButton.text = I18n.translate("btn_prev_dialog") if I18n.translate("btn_prev_dialog") != "btn_prev_dialog" else "< Dialogue"
 	%NextLineButton.text = I18n.translate("btn_next_dialog") if I18n.translate("btn_next_dialog") != "btn_next_dialog" else "Dialogue >"
 	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "<< Scene"
