@@ -52,6 +52,7 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
 text = "Port"
 
 [node name="PortInput" type="LineEdit" parent="CenterContainer/VBoxContainer/PortRow"]
@@ -68,6 +69,7 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
 text = "Timeout"
 
 [node name="TimeoutInput" type="LineEdit" parent="CenterContainer/VBoxContainer/TimeoutRow"]

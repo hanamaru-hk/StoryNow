@@ -52,6 +52,7 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
 text = "Language"
 
 [node name="LanguageOption" type="OptionButton" parent="CenterContainer/VBoxContainer/LanguageRow"]
@@ -72,6 +73,7 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
 text = "Screen Size"
 
 [node name="ScreenSizeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/ScreenSizeRow"]
@@ -91,6 +93,7 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
 text = "Auto-play TTS"
 
 [node name="AutoplayCheck" type="CheckButton" parent="CenterContainer/VBoxContainer/AutoplayRow"]
@@ -106,6 +109,7 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
 text = "Show streaming"
 
 [node name="ShowStreamingCheck" type="CheckButton" parent="CenterContainer/VBoxContainer/ShowStreamingRow"]
@@ -121,6 +125,7 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
 text = "Music Volume"
 
 [node name="MusicVolumeSlider" type="HSlider" parent="CenterContainer/VBoxContainer/MusicVolumeRow"]
@@ -147,6 +152,7 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
 text = "Mute Music"
 
 [node name="MusicMuteCheck" type="CheckButton" parent="CenterContainer/VBoxContainer/MusicMuteRow"]

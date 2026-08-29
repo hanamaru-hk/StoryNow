@@ -62,6 +62,7 @@ theme_override_constants/separation = 24
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
+size_flags_horizontal = 3
 text = "Expected Round"
 
 [node name="ExpectedRoundInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/ExpectedRoundRow"]
@@ -79,6 +80,7 @@ theme_override_constants/separation = 24
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
+size_flags_horizontal = 3
 text = "Minimum Dialogue Rounds"
 
 [node name="MinDialogueRoundsInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/MinDialogueRoundsRow"]
@@ -95,6 +97,7 @@ theme_override_constants/separation = 24
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
+size_flags_horizontal = 3
 text = "Minimum Sentences per Dialogue"
 
 [node name="MinSentencesInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/MinSentencesRow"]
@@ -111,6 +114,7 @@ theme_override_constants/separation = 24
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
+size_flags_horizontal = 3
 text = "Maximum Plot Directions"
 
 [node name="MaxPlotDirectionsInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/MaxPlotDirectionsRow"]
@@ -127,6 +131,7 @@ theme_override_constants/separation = 24
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
+size_flags_horizontal = 3
 text = "Minimum Summary Sentences"
 
 [node name="MinSummaryInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/MinSummaryRow"]
