@@ -37,7 +37,13 @@ story-now/
 ├── scripts/
 │   ├── main.gd                          # Main menu logic
 │   ├── brainstorm.gd                    # Brainstorm / prompt entry
-│   ├── gameplay.gd                      # VN renderer, choice/image/dialogue orchestration
+│   ├── gameplay.gd                      # Gameplay scene coordinator and signal wiring
+│   ├── gameplay_flow_controller.gd      # Startup/generation state machine and retry
+│   ├── gameplay_dialogue_controller.gd  # Dialogue navigation, rendering, and TTS
+│   ├── gameplay_image_controller.gd     # Image generation, loading, and selection
+│   ├── gameplay_choice_controller.gd    # Choice UI and branch transitions
+│   ├── gameplay_chrome_controller.gd    # Chrome visibility and background input
+│   ├── gameplay_scene_service.gd        # Pure scene parsing, merge, and branch rules
 │   ├── i18n.gd                          # Internationalization (en, zh_CN, zh_TW, yue)
 │   ├── game_settings_manager.gd         # Game settings persistence & apply (language, display, TTS)
 │   ├── game_settings_overlay.gd
@@ -114,7 +120,7 @@ Registered in `project.godot:11-22`:
 
 ## Previously "Not Yet Implemented" — Now Implemented
 
-- `gameplay.gd` + `gameplay.tscn` — VN display, choice overlay, image carousel, error/retry
+- `gameplay.gd` + focused gameplay controllers — coordinated VN display, choices, images, dialogue/TTS, chrome, and resumable generation
 - `dialogue_overlay.gd` / `plot_overlay.gd` / `image_overlay.gd` — inspectors + edit/regenerate
 - `gallery_overlay.gd` / `load_game_overlay.gd` — paginated save browsing
 - `game_progress_manager.gd` / `scene_data_manager.gd` / `tts_manager.gd` — persistence & TTS

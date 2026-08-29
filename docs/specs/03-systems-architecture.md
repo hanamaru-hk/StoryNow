@@ -39,6 +39,11 @@ Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions
 | **ImageServerManager** | `scripts/image_server_manager.gd:1` | ComfyUI lifecycle (`user://image_server_status.json`), workflow templating (`data/comfyui/workflow_template.json`), `generate_scene_image` (queue → poll history → download to `user://saves/<uuid>/images/`). |
 | **SceneDataManager** | `scripts/scene_data_manager.gd:1` | Per-scene persistence (`SAVE_DIR = user://saves`): `save()` / `load_data(uuid)` for `scene_data` JSON. Aliases `load(uuid)` for compatibility. |
 | **GameplaySceneService** | `scripts/gameplay_scene_service.gd:1` | Pure gameplay-domain rules: parse/repair generated scene JSON, merge it without losing local navigation metadata, construct new or reused choice-branch transitions, and generate UUIDs. It has no scene-tree or persistence dependency. |
+| **GameplayFlowController** | `scripts/gameplay_flow_controller.gd:1` | Startup state machine, generation retries, running-scene restoration, and resumable image/voice transitions. |
+| **GameplayDialogueController** | `scripts/gameplay_dialogue_controller.gd:1` | Dialogue rendering/navigation, button eligibility, recovery, WAV loading, and TTS autoplay. |
+| **GameplayImageController** | `scripts/gameplay_image_controller.gd:1` | Generating backgrounds, ComfyUI retries, saved-image selection, previews, and loading. |
+| **GameplayChoiceController** | `scripts/gameplay_choice_controller.gd:1` | Choice rendering, visited branches, deletion, overlay state, and branch confirmation. |
+| **GameplayChromeController** | `scripts/gameplay_chrome_controller.gd:1` | Background input, chrome visibility, and blocking-overlay detection. |
 | **GameProgressManager** | `scripts/game_progress_manager.gd:1` | Global progress (`user://game_progress.json`): `current_uuid`, `current_round`, `expected_rounds`, tunables (`minimum_dialogues_per_scene`, etc.), `game_status` state machine. |
 | **TTSManager** | `scripts/tts_manager.gd:1` | Queue-based native Sherpa synthesis, model selection by `language`/`sex`, `sound_filename` attachment + `tts_generated` signal for auto-play. |
 | **I18n / GameSettingsManager** | `scripts/i18n.gd:1`, `scripts/game_settings_manager.gd:1` | i18n (en, zh_CN, zh_TW, yue) + display/TTS settings (`user://game_settings.json`, `safe_mode` / `free_mode` file flag). |
