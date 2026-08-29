@@ -73,7 +73,7 @@ All follow **open → edit `_pending` → Save/Reset/Back** pattern; Save merges
 
 ## 7.8 Gallery / Load Overlays
 
-- **LoadGameOverlay** (`scripts/load_game_overlay.gd:1`) — paginated `PAGE_SIZE=10` list of save dirs sorted by `timestamp` desc; each row shows thumbnail (largest image), timestamp + title, Load button. Pagination bar shows `1 2 3 … 9 10` style.
+- **LoadGameOverlay** (`scripts/load_game_overlay.gd:1`) — paginated `PAGE_SIZE=10` list of save dirs sorted by `timestamp` desc; each row shows thumbnail (largest image), timestamp + title, Delete and Load buttons. Loading requires confirmation. The list viewport clips part of the next row to make scrolling discoverable. Pagination bar shows `1 2 3 … 9 10` style.
 - **GalleryOverlay** (`scripts/gallery_overlay.gd:1`) — grid `PAGE_SIZE=16`, `GridContainer` thumbnails (230×180 buttons) with same sorting/thumbnail logic, click loads that save as `running`.
 
 ## 7.9 Internationalization

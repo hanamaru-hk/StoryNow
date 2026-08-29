@@ -405,7 +405,12 @@ func _on_image_overlay_closed() -> void:
 
 
 func _on_image_generation_requested() -> void:
-	await _image_controller.generate_scene_image()
+	_begin_image_generation()
+	_update_button_eligibility()
+	if await _image_controller.generate_scene_image():
+		_finish_image_generation()
+		_enable_all_side_buttons_by_eligibility()
+		_pending_retry_action = ""
 
 
 func _on_summary_pressed() -> void:

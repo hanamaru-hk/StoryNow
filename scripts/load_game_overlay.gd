@@ -7,6 +7,8 @@ var _all_entries: Array[Dictionary] = []
 var _current_page: int = 1
 var _total_pages: int = 1
 var _pending_delete_uuid: String = ""
+var _pending_load_uuid: String = ""
+var _pending_load_entry: Dictionary = {}
 
 func _ready() -> void:
 	if has_node("%LoadCloseButton"):
@@ -16,11 +18,18 @@ func _ready() -> void:
 	%LoadErrorOk.pressed.connect(_on_load_error_ok_pressed)
 	%LoadDeleteCancel.pressed.connect(_on_delete_canceled)
 	%LoadDeleteConfirm.pressed.connect(_on_delete_confirmed)
+	%LoadConfirmCancel.pressed.connect(_on_load_canceled)
+	%LoadConfirm.pressed.connect(_on_load_confirmed)
 	_update_labels()
 
 
 func open() -> void:
 	visible = true
+	%LoadErrorPopup.visible = false
+	%LoadDeleteConfirmPopup.visible = false
+	%LoadConfirmPopup.visible = false
+	_pending_delete_uuid = ""
+	_clear_pending_load()
 	_current_page = 1
 	_refresh_list()
 	_update_labels()
@@ -52,6 +61,9 @@ func _update_labels() -> void:
 	%LoadDeleteConfirmTitle.text = I18n.translate("confirm_dialog_title")
 	%LoadDeleteConfirm.text = I18n.translate("btn_confirm")
 	%LoadDeleteCancel.text = I18n.translate("btn_cancel")
+	%LoadConfirmTitle.text = I18n.translate("confirm_dialog_title")
+	%LoadConfirm.text = I18n.translate("btn_confirm")
+	%LoadConfirmCancel.text = I18n.translate("btn_cancel")
 
 
 func _refresh_list() -> void:
@@ -389,22 +401,28 @@ func _add_save_item(entry: Dictionary) -> void:
 
 	row.add_child(vbox)
 
+	var actions_margin := MarginContainer.new()
+	actions_margin.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	actions_margin.add_theme_constant_override("margin_right", 24)
+	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 18)
+	actions_margin.add_child(actions)
+
 	var delete_btn_text: String = I18n.translate("btn_delete") if I18n.translate("btn_delete") != "btn_delete" else "Delete"
 	var delete_btn := Button.new()
 	delete_btn.text = delete_btn_text
 	delete_btn.custom_minimum_size = Vector2(120, 44)
-	delete_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	delete_btn.disabled = _is_current_gameplay_save(uuid)
 	delete_btn.pressed.connect(_on_delete_save_pressed.bind(uuid, title))
-	row.add_child(delete_btn)
+	actions.add_child(delete_btn)
 
 	var load_btn_text: String = I18n.translate("btn_load") if I18n.translate("btn_load") != "btn_load" else "Load"
 	var load_btn := Button.new()
 	load_btn.text = load_btn_text
 	load_btn.custom_minimum_size = Vector2(120, 44)
-	load_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	load_btn.pressed.connect(_on_save_pressed.bind(uuid, entry))
-	row.add_child(load_btn)
+	actions.add_child(load_btn)
+	row.add_child(actions_margin)
 
 	container.add_child(row)
 
@@ -447,8 +465,41 @@ func _create_no_image_font() -> SystemFont:
 
 
 func _on_save_pressed(uuid: String, entry: Dictionary) -> void:
-	if uuid.strip_edges().is_empty():
+	var clean_uuid := uuid.strip_edges()
+	if clean_uuid.is_empty():
 		return
+	_pending_load_uuid = clean_uuid
+	_pending_load_entry = entry.duplicate(true)
+	var data: Dictionary = _pending_load_entry.get("data", {}) as Dictionary if _pending_load_entry.get("data", {}) is Dictionary else {}
+	var title := _get_save_title(clean_uuid, data)
+	var template := I18n.translate("load_confirm")
+	if template == "load_confirm":
+		template = "Load this save?\n%s"
+	%LoadConfirmMessage.text = template % title
+	%LoadConfirmPopup.visible = true
+
+
+func _on_load_confirmed() -> void:
+	%LoadConfirmPopup.visible = false
+	var uuid := _pending_load_uuid
+	var entry := _pending_load_entry
+	_clear_pending_load()
+	if uuid.is_empty():
+		return
+	await _load_save(uuid, entry)
+
+
+func _on_load_canceled() -> void:
+	%LoadConfirmPopup.visible = false
+	_clear_pending_load()
+
+
+func _clear_pending_load() -> void:
+	_pending_load_uuid = ""
+	_pending_load_entry = {}
+
+
+func _load_save(uuid: String, entry: Dictionary) -> void:
 	if not _are_story_servers_ready():
 		_show_error_popup(I18n.translate("notice_wait_llm_and_image_ready"))
 		return
