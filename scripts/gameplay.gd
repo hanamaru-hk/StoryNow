@@ -83,7 +83,7 @@ func _ready() -> void:
 	# --- ImageOverlay (extracted) ---
 	if has_node("%ImageOverlay"):
 		%ImageOverlay.closed.connect(_on_image_overlay_closed)
-		%ImageOverlay.image_generated.connect(_on_image_generated)
+		%ImageOverlay.generation_requested.connect(_on_image_generation_requested)
 	if has_node("%BackgroundVideo") and %BackgroundVideo.has_signal("finished") and not %BackgroundVideo.finished.is_connected(_on_background_video_finished):
 		%BackgroundVideo.finished.connect(_on_background_video_finished)
 
@@ -396,8 +396,8 @@ func _on_image_overlay_closed() -> void:
 	_update_labels()
 
 
-func _on_image_generated(_save_path: String, _filename: String) -> void:
-	_image_controller.on_image_generated()
+func _on_image_generation_requested() -> void:
+	await _image_controller.generate_scene_image()
 
 
 func _on_summary_pressed() -> void:

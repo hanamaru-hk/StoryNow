@@ -45,7 +45,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 
 - **DialogueOverlay** (`scripts/dialogue_overlay.gd:1`) — hub (Edit/Add/Regenerate All/Summary/Back) → Edit list (indexed buttons) → Edit dialog (character/dialogue fields) → Add overlay (dropdown + before/after). Summary opens `PlotOverlay`; Regenerate All calls LLM in retry loop, replaces only `interactions[]`, resets `current_dialogue=0`, triggers TTS.
 - **PlotOverlay** (`scripts/plot_overlay.gd:1`) — shows `summary`; editable when free mode.
-- **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (free mode), **Produce** calls `ImageServerManager.generate_scene_image`.
+- **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (free mode); **Produce** closes the overlay and requests generation through Gameplay's image controller.
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — New image vs carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).
 - **ChoiceOverlay** (`scripts/gameplay.gd:287`) — dynamic choice buttons + free-form `CustomInput` + Confirm/Cancel.
 - **GameplayMenuOverlay** — Menu hub (Load/Gallery/Game Settings/Advanced/Main Menu/Quit) bridging to other overlays.

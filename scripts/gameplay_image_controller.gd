@@ -211,11 +211,6 @@ func back_from_change() -> void:
 	show_action_overlay()
 
 
-func on_image_generated() -> void:
-	load_current_image()
-	_host.call("_update_labels")
-
-
 func _append_image(filename: String) -> void:
 	var raw_files: Variant = SceneDataManager.scene_data.get("image_filenames", [])
 	var files: Array = raw_files if raw_files is Array else []

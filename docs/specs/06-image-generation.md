@@ -4,7 +4,7 @@
 
 - **One image per scene** (plus user can generate more and cycle via carousel).
 - `Gameplay._execute_new_story_flow` / `_execute_new_scene_flow` calls `_generate_comfyui_image` → `ImageServerManager.generate_scene_image(image_prompt, uuid)` after LLM succeeds (`scripts/gameplay.gd:417`).
-- Image prompt also editable via `ImageOverlay` (free mode) and triggers a new generation.
+- Image prompt is also editable via `ImageOverlay` (free mode). Produce saves the prompt, closes the overlay immediately, and hands the asynchronous request to Gameplay's normal image-generation flow.
 
 ## 6.2 Workflow Template
 
@@ -41,7 +41,7 @@
 5. `_download_comfy_image` → `GET /view?filename=&subfolder=&type=` → save to `user://saves/<uuid>/images/<filename>` (creates dirs).
 6. Return `{success, save_path, filename, prompt, seed}`; `pop_request`.
 
-On success, `Gameplay` appends `filename` to `scene_data["image_filenames"]`, sets `current_image_index` to tail, `save()`, and `_set_background_from_file` (`scripts/gameplay.gd:441`). `ImageOverlay` duplicates this flow standalone.
+On success, `Gameplay` appends `filename` to `scene_data["image_filenames"]`, sets `current_image_index` to tail, saves, and updates the background. `ImageOverlay` emits `generation_requested` so manual generation uses this same flow without keeping its modal UI open.
 
 ## 6.4 Image Display
 
