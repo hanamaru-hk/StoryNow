@@ -10,6 +10,7 @@ var _intro_video_should_resume := false
 
 func _ready() -> void:
 	modulate.a = 1.0
+	ServerRuntimeManager.set_chrome_visible(false)
 	_start_hidden_menu_video()
 	_hide_menu_overlay()
 	print_verbose("")
@@ -43,11 +44,13 @@ func _on_start_pressed() -> void:
 func _on_load_pressed() -> void:
 	if has_node("%LoadGameOverlay"):
 		%LoadGameOverlay.open()
+		_update_main_menu_chrome_visibility()
 
 
 func _on_gallery_pressed() -> void:
 	if has_node("%GalleryOverlay"):
 		%GalleryOverlay.open()
+		_update_main_menu_chrome_visibility()
 
 
 func _on_setting_pressed() -> void:
@@ -68,6 +71,13 @@ func _on_llm_setting_pressed() -> void:
 
 func _on_settings_closed() -> void:
 	_update_labels()
+	_update_main_menu_chrome_visibility()
+
+
+func _update_main_menu_chrome_visibility() -> void:
+	var load_open: bool = has_node("%LoadGameOverlay") and %LoadGameOverlay.visible
+	var gallery_open: bool = has_node("%GalleryOverlay") and %GalleryOverlay.visible
+	ServerRuntimeManager.set_chrome_visible(load_open or gallery_open)
 
 
 func _on_exit_pressed() -> void:
