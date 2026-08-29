@@ -6,7 +6,7 @@ const BLOCKING_OVERLAYS: Array[String] = [
 	"SummaryOverlay", "PlotOverlay", "GameplayMenuOverlay", "LoadGameOverlay",
 	"GalleryOverlay", "GameSettingsOverlay", "AdvancedSettingsOverlay",
 	"ImageServerSettingsOverlay", "LLMSettingsOverlay", "GameProgressOverlay",
-	"ErrorReturnPopup",
+	"HelpOverlay", "ErrorReturnPopup",
 ]
 
 var _host: Control

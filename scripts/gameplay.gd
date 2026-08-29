@@ -31,6 +31,7 @@ func _ready() -> void:
 	%PlayAudioButton.pressed.connect(_on_play_audio_pressed)
 	%PlotButton.pressed.connect(_on_plot_btn_pressed)
 	%ImageButton.pressed.connect(_on_image_btn_pressed)
+	%HelpButton.pressed.connect(_on_help_pressed)
 	%PrevLineButton.pressed.connect(_on_prev_dialog_pressed)
 	%NextLineButton.pressed.connect(_on_next_dialog_pressed)
 	%PrevSceneButton.pressed.connect(_on_prev_scene_pressed)
@@ -79,6 +80,8 @@ func _ready() -> void:
 		%ImageServerSettingsOverlay.closed.connect(_on_settings_closed)
 	if has_node("%LLMSettingsOverlay"):
 		%LLMSettingsOverlay.closed.connect(_on_settings_closed)
+	if has_node("%HelpOverlay"):
+		%HelpOverlay.closed.connect(_on_settings_closed)
 
 	# --- ImageOverlay (extracted) ---
 	if has_node("%ImageOverlay"):
@@ -349,6 +352,11 @@ func _on_dialogue_updated() -> void:
 
 func _on_image_btn_pressed() -> void:
 	_image_controller.show_action_overlay()
+
+
+func _on_help_pressed() -> void:
+	if has_node("%HelpOverlay"):
+		%HelpOverlay.open()
 
 
 func _show_image_action_overlay() -> void:
@@ -665,6 +673,8 @@ func _update_labels() -> void:
 		%PlotOverlay._update_labels()
 	if has_node("%GameplayMenuOverlay") and %GameplayMenuOverlay.has_method("_update_labels"):
 		%GameplayMenuOverlay._update_labels()
+	if has_node("%HelpOverlay") and %HelpOverlay.has_method("_update_labels"):
+		%HelpOverlay._update_labels()
 	# Error popup buttons
 	if has_node("%ErrorReturnPopup"):
 		%ErrorReturnTitle.text = I18n.translate("error_dialog_title")

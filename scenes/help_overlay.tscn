@@ -1,0 +1,188 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/help_overlay.gd" id="1"]
+
+[node name="HelpOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.02, 0.035, 0.96)
+
+[node name="HubCenter" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="HubCenter"]
+layout_mode = 2
+custom_minimum_size = Vector2(760, 420)
+
+[node name="Margin" type="MarginContainer" parent="HubCenter/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 40
+
+[node name="VBox" type="VBoxContainer" parent="HubCenter/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="HelpTitle" type="Label" parent="HubCenter/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Help"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="HubCenter/Panel/Margin/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 12)
+
+[node name="TroubleshootingButton" type="Button" parent="HubCenter/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(640, 56)
+text = "LLM or Image Engine Keeps Starting"
+
+[node name="MinimumRequirementsButton" type="Button" parent="HubCenter/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(640, 56)
+text = "Minimum System Requirements"
+
+[node name="HelpBack" type="Button" parent="HubCenter/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+size_flags_horizontal = 4
+text = "Back"
+
+[node name="TroubleshootingOverlay" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="TroubleshootingOverlay"]
+layout_mode = 2
+custom_minimum_size = Vector2(960, 650)
+
+[node name="Margin" type="MarginContainer" parent="TroubleshootingOverlay/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 40
+
+[node name="VBox" type="VBoxContainer" parent="TroubleshootingOverlay/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="TroubleshootingTitle" type="Label" parent="TroubleshootingOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "LLM or Image Engine Keeps Starting"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="TroubleshootingStepOne" type="Label" parent="TroubleshootingOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+text = "1. Check that your PC meets the minimum system requirements."
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="TroubleshootingMinimumRequirementsButton" type="Button" parent="TroubleshootingOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(440, 52)
+size_flags_horizontal = 4
+text = "Minimum System Requirements"
+
+[node name="TroubleshootingStepTwo" type="Label" parent="TroubleshootingOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 130)
+size_flags_vertical = 3
+text = "2. StoryNow uses a significant amount of memory. Close your web browser and other applications to free up memory."
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="TroubleshootingBack" type="Button" parent="TroubleshootingOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+size_flags_horizontal = 4
+text = "Back"
+
+[node name="MinimumRequirementsOverlay" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="MinimumRequirementsOverlay"]
+layout_mode = 2
+custom_minimum_size = Vector2(820, 440)
+
+[node name="Margin" type="MarginContainer" parent="MinimumRequirementsOverlay/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 40
+
+[node name="VBox" type="VBoxContainer" parent="MinimumRequirementsOverlay/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="MinimumRequirementsTitle" type="Label" parent="MinimumRequirementsOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Minimum System Requirements"
+horizontal_alignment = 1
+
+[node name="MinimumRequirementsText" type="Label" parent="MinimumRequirementsOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 200)
+size_flags_vertical = 3
+text = "• NVIDIA GeForce RTX 3060 or newer, with more than 8 GB of VRAM\n• 32 GB of system RAM"
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="MinimumRequirementsBack" type="Button" parent="MinimumRequirementsOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+size_flags_horizontal = 4
+text = "Back"

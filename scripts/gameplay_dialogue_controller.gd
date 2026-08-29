@@ -131,11 +131,11 @@ func recover_missing_assets(has_image: bool) -> void:
 
 
 func disable_buttons_for_loading() -> void:
-	for name in ["PlotButton", "ImageButton", "PlayAudioButton", "HelpButton", "PrevLineButton", "NextLineButton", "PrevSceneButton", "NextSceneButton"]:
+	for name in ["PlotButton", "ImageButton", "PlayAudioButton", "PrevLineButton", "NextLineButton", "PrevSceneButton", "NextSceneButton"]:
 		var button := _node(name) as Button
 		if button:
 			button.disabled = true
-	for name in ["SettingButton", "GameplayMenuButton"]:
+	for name in ["HelpButton", "SettingButton", "GameplayMenuButton"]:
 		var button := _node(name) as Button
 		if button:
 			button.disabled = false

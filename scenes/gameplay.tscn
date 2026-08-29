@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://game_scene"]
+[gd_scene load_steps=15 format=3 uid="uid://game_scene"]
 
 [ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
 [ext_resource type="PackedScene" path="res://scenes/game_progress_overlay.tscn" id="2_m7w2a"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/advanced_settings_overlay.tscn" id="10_advanced"]
 [ext_resource type="PackedScene" path="res://scenes/image_server_settings_overlay.tscn" id="11_image_settings"]
 [ext_resource type="PackedScene" path="res://scenes/llm_settings_overlay.tscn" id="12_llm_settings"]
+[ext_resource type="PackedScene" path="res://scenes/help_overlay.tscn" id="13_help"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialogue_panel"]
 bg_color = Color(0.08, 0.08, 0.1, 0.75)
@@ -621,4 +622,7 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 
 [node name="LLMSettingsOverlay" parent="." instance=ExtResource("12_llm_settings")]
+unique_name_in_owner = true
+
+[node name="HelpOverlay" parent="." instance=ExtResource("13_help")]
 unique_name_in_owner = true
