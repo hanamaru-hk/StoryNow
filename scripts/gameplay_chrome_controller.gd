@@ -3,7 +3,7 @@ extends RefCounted
 
 const BLOCKING_OVERLAYS: Array[String] = [
 	"ChoiceOverlay", "ImageActionOverlay", "ImageChangeOverlay", "ImageOverlay",
-	"PlotOverlay", "DialogueOverlay", "GameplayMenuOverlay", "LoadGameOverlay",
+	"SummaryOverlay", "PlotOverlay", "GameplayMenuOverlay", "LoadGameOverlay",
 	"GalleryOverlay", "GameSettingsOverlay", "AdvancedSettingsOverlay",
 	"ImageServerSettingsOverlay", "LLMSettingsOverlay", "GameProgressOverlay",
 	"ErrorReturnPopup",

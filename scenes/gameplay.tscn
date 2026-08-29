@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
 [ext_resource type="PackedScene" path="res://scenes/game_progress_overlay.tscn" id="2_m7w2a"]
 [ext_resource type="PackedScene" path="res://scenes/image_overlay.tscn" id="3_image"]
-[ext_resource type="PackedScene" path="res://scenes/plot_overlay.tscn" id="4_plot"]
-[ext_resource type="PackedScene" path="res://scenes/dialogue_overlay.tscn" id="5_dialogue"]
+[ext_resource type="PackedScene" path="res://scenes/summary_overlay.tscn" id="4_summary"]
+[ext_resource type="PackedScene" path="res://scenes/plot_overlay.tscn" id="5_plot"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay_menu_overlay.tscn" id="6_menu"]
 [ext_resource type="PackedScene" path="res://scenes/load_game_overlay.tscn" id="7_load"]
 [ext_resource type="PackedScene" path="res://scenes/gallery_overlay.tscn" id="8_gallery"]
@@ -198,11 +198,11 @@ columns = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 
-[node name="DialogButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+[node name="PlotButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Dialogue"
+text = "Plot"
 
 [node name="ImageButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
@@ -592,14 +592,14 @@ unique_name_in_owner = true
 [node name="GameProgressOverlay" parent="." instance=ExtResource("2_m7w2a")]
 unique_name_in_owner = true
 
-[node name="PlotOverlay" parent="." instance=ExtResource("4_plot")]
+[node name="SummaryOverlay" parent="." instance=ExtResource("4_summary")]
 unique_name_in_owner = true
 
 [node name="TTSPlayer" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
 bus = "Master"
 
-[node name="DialogueOverlay" parent="." instance=ExtResource("5_dialogue")]
+[node name="PlotOverlay" parent="." instance=ExtResource("5_plot")]
 unique_name_in_owner = true
 
 [node name="GameplayMenuOverlay" parent="." instance=ExtResource("6_menu")]

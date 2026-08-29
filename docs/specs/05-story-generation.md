@@ -85,6 +85,6 @@ Response `choices[0].message.content` is returned as `text`; `title` is best-eff
 | Random prompt generation | ✅ Implemented (`LLMManager.request_random`) |
 | Prompt enhancement | ✅ Implemented (`LLMManager.request_enhance`) |
 | LLM API call for new story / new scene | ✅ Implemented (`LLMManager.request_new_story/scene` + Gameplay retry loops) |
-| JSON repair for malformed `image_prompt` | ✅ Implemented (`Gameplay._repair_llm_json_text`, `DialogueOverlay._repair_llm_json_text`) |
+| JSON repair for malformed `image_prompt` | ✅ Implemented (`Gameplay._repair_llm_json_text`, `PlotOverlay._repair_llm_json_text`) |
 | Branching / choice handling (incl. prev-selected, delete, custom input) | ✅ Implemented (`scripts/gameplay.gd:287-414`) |
-| Dialogue edit / add / regenerate all | ✅ Implemented (`scripts/dialogue_overlay.gd:1`) |
+| Dialogue edit / add / regenerate all | ✅ Implemented (`scripts/plot_overlay.gd:1`) |

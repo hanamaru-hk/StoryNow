@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/plot_overlay.gd" id="1"]
 
+[sub_resource type="ButtonGroup" id="ButtonGroup_AddPos"]
+
 [node name="PlotOverlay" type="Control"]
 visible = false
 layout_mode = 3
@@ -21,7 +23,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.72)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="HubCenter" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -29,49 +31,390 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+[node name="HubPanel" type="PanelContainer" parent="HubCenter"]
 layout_mode = 2
-custom_minimum_size = Vector2(720, 420)
+custom_minimum_size = Vector2(520, 400)
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+[node name="HubMargin" type="MarginContainer" parent="HubCenter/HubPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 48
 theme_override_constants/margin_right = 36
 theme_override_constants/margin_bottom = 36
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+[node name="HubVBox" type="VBoxContainer" parent="HubCenter/HubPanel/HubMargin"]
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="Title" type="Label" parent="HubCenter/HubPanel/HubMargin/HubVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Plot Summary"
+text = "Dialogues"
 horizontal_alignment = 1
 
-[node name="SummaryInput" type="TextEdit" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="HubButtons" type="VBoxContainer" parent="HubCenter/HubPanel/HubMargin/HubVBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="HubEditButton" type="Button" parent="HubCenter/HubPanel/HubMargin/HubVBox/HubButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(320, 48)
+size_flags_horizontal = 4
+text = "Edit"
+
+[node name="HubAddButton" type="Button" parent="HubCenter/HubPanel/HubMargin/HubVBox/HubButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(320, 48)
+size_flags_horizontal = 4
+text = "Add"
+
+[node name="RegenerateAllButton" type="Button" parent="HubCenter/HubPanel/HubMargin/HubVBox/HubButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(320, 48)
+size_flags_horizontal = 4
+text = "Regenerate All"
+
+[node name="SummaryButton" type="Button" parent="HubCenter/HubPanel/HubMargin/HubVBox/HubButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(320, 48)
+size_flags_horizontal = 4
+text = "Summary"
+
+[node name="DialogueBack" type="Button" parent="HubCenter/HubPanel/HubMargin/HubVBox/HubButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(320, 48)
+size_flags_horizontal = 4
+text = "Back"
+
+[node name="EditOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDimEdit" type="ColorRect" parent="EditOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="EditOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="EditOverlay/CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(720, 560)
+
+[node name="Margin" type="MarginContainer" parent="EditOverlay/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="EditOverlay/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="EditOverlayTitle" type="Label" parent="EditOverlay/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Edit Dialogue"
+horizontal_alignment = 1
+
+[node name="DialogueScroll" type="ScrollContainer" parent="EditOverlay/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_minimum_size = Vector2(0, 160)
-placeholder_text = "Summary..."
-wrap_mode = 1
+custom_minimum_size = Vector2(0, 360)
+horizontal_scroll_mode = 0
 
-[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="DialogueList" type="VBoxContainer" parent="EditOverlay/CenterContainer/Panel/Margin/VBox/DialogueScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="ButtonRow" type="HBoxContainer" parent="EditOverlay/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 24
 
-[node name="Back" type="Button" parent="CenterContainer/Panel/Margin/VBox/ButtonRow"]
+[node name="EditOverlayBack" type="Button" parent="EditOverlay/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(180, 48)
 text = "Back"
 
-[node name="Save" type="Button" parent="CenterContainer/Panel/Margin/VBox/ButtonRow"]
+[node name="AddOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDimAdd" type="ColorRect" parent="AddOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="AddOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="AddOverlay/CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(640, 340)
+
+[node name="Margin" type="MarginContainer" parent="AddOverlay/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="AddOverlayTitle" type="Label" parent="AddOverlay/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Add Dialogue"
+horizontal_alignment = 1
+
+[node name="AddGroup" type="PanelContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RadioRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="AddBeforeRadio" type="CheckBox" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/RadioRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Add before"
+button_group = SubResource("ButtonGroup_AddPos")
+
+[node name="AddAfterRadio" type="CheckBox" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/RadioRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Add after"
+button_pressed = true
+button_group = SubResource("ButtonGroup_AddPos")
+
+[node name="DropdownRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DialogueDropdown" type="OptionButton" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/DropdownRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 40)
+
+[node name="DialogueConfirm" type="Button" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/DropdownRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Confirm"
+
+[node name="ButtonRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="AddOverlayBack" type="Button" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Back"
+
+[node name="EditPopup" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDim2" type="ColorRect" parent="EditPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="EditPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="EditPopup/CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(680, 460)
+
+[node name="Margin" type="MarginContainer" parent="EditPopup/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="EditTitle" type="Label" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Edit Dialogue"
+horizontal_alignment = 1
+
+[node name="EditCharacter" type="LineEdit" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Character"
+
+[node name="EditDialogue" type="TextEdit" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 140)
+placeholder_text = "Dialogue..."
+wrap_mode = 1
+
+[node name="ButtonRow" type="HBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="EditBack" type="Button" parent="EditPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Back"
+
+[node name="EditSave" type="Button" parent="EditPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(180, 48)
 text = "Save"
+
+[node name="RegenerateConfirmPopup" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDim3" type="ColorRect" parent="RegenerateConfirmPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="RegenerateConfirmPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="RegenerateConfirmPopup/CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(600, 300)
+
+[node name="Margin" type="MarginContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="RegenerateConfirmLabel" type="Label" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Regenerate all dialogues? This will overwrite all current dialogues."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ButtonRow" type="HBoxContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="RegenerateCancel" type="Button" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Cancel"
+
+[node name="RegenerateConfirm" type="Button" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Confirm"

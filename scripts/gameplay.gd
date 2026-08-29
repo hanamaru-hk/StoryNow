@@ -29,7 +29,7 @@ func _ready() -> void:
 	_set_chrome_visible(true)
 	# --- Dialogue panel grid buttons ---
 	%PlayAudioButton.pressed.connect(_on_play_audio_pressed)
-	%DialogButton.pressed.connect(_on_dialog_btn_pressed)
+	%PlotButton.pressed.connect(_on_plot_btn_pressed)
 	%ImageButton.pressed.connect(_on_image_btn_pressed)
 	%PrevLineButton.pressed.connect(_on_prev_dialog_pressed)
 	%NextLineButton.pressed.connect(_on_next_dialog_pressed)
@@ -87,15 +87,15 @@ func _ready() -> void:
 	if has_node("%BackgroundVideo") and %BackgroundVideo.has_signal("finished") and not %BackgroundVideo.finished.is_connected(_on_background_video_finished):
 		%BackgroundVideo.finished.connect(_on_background_video_finished)
 
+	# --- SummaryOverlay ---
+	if has_node("%SummaryOverlay"):
+		%SummaryOverlay.closed.connect(_on_summary_overlay_closed)
+
 	# --- PlotOverlay ---
 	if has_node("%PlotOverlay"):
 		%PlotOverlay.closed.connect(_on_plot_overlay_closed)
-
-	# --- DialogueOverlay ---
-	if has_node("%DialogueOverlay"):
-		%DialogueOverlay.closed.connect(_on_dialogue_overlay_closed)
-		%DialogueOverlay.dialogue_updated.connect(_on_dialogue_updated)
-		%DialogueOverlay.summary_requested.connect(_on_summary_pressed)
+		%PlotOverlay.dialogue_updated.connect(_on_dialogue_updated)
+		%PlotOverlay.summary_requested.connect(_on_summary_pressed)
 
 	# --- ErrorReturnPopup ---
 	%ErrorReturnBack.pressed.connect(_on_error_return)
@@ -330,12 +330,12 @@ func _on_next_scene_pressed() -> void:
 		_choice_controller.show_overlay()
 
 
-func _on_dialog_btn_pressed() -> void:
-	if has_node("%DialogueOverlay"):
-		%DialogueOverlay.open()
+func _on_plot_btn_pressed() -> void:
+	if has_node("%PlotOverlay"):
+		%PlotOverlay.open()
 
 
-func _on_dialogue_overlay_closed() -> void:
+func _on_plot_overlay_closed() -> void:
 	_update_labels()
 
 
@@ -401,11 +401,11 @@ func _on_image_generation_requested() -> void:
 
 
 func _on_summary_pressed() -> void:
-	if has_node("%PlotOverlay"):
-		%PlotOverlay.open()
+	if has_node("%SummaryOverlay"):
+		%SummaryOverlay.open()
 
 
-func _on_plot_overlay_closed() -> void:
+func _on_summary_overlay_closed() -> void:
 	_update_labels()
 
 
@@ -619,7 +619,7 @@ func _update_labels() -> void:
 		if cur_dialog == "Generating the gameplay..." or cur_dialog == I18n.translate("generating_gameplay") or cur_dialog.is_empty():
 			var t_gen: String = I18n.translate("generating_gameplay")
 			%DialogLabel.text = t_gen if t_gen != "generating_gameplay" else "Generating the gameplay..."
-	%DialogButton.text = I18n.translate("btn_dialog") if I18n.translate("btn_dialog") != "btn_dialog" else "Dialogue"
+	%PlotButton.text = I18n.translate("btn_plot") if I18n.translate("btn_plot") != "btn_plot" else "Plot"
 	%ImageButton.text = I18n.translate("btn_image") if I18n.translate("btn_image") != "btn_image" else "Image"
 	%PlayAudioButton.text = I18n.translate("btn_play_audio") if I18n.translate("btn_play_audio") != "btn_play_audio" else "Play"
 	%HelpButton.text = I18n.translate("btn_help") if I18n.translate("btn_help") != "btn_help" else "Help"
@@ -659,10 +659,10 @@ func _update_labels() -> void:
 		%ImageChangeSave.text = t_ic_save if t_ic_save != "btn_save" else "Save"
 	if has_node("%ImageOverlay") and %ImageOverlay.has_method("_update_labels"):
 		%ImageOverlay._update_labels()
+	if has_node("%SummaryOverlay") and %SummaryOverlay.has_method("_update_labels"):
+		%SummaryOverlay._update_labels()
 	if has_node("%PlotOverlay") and %PlotOverlay.has_method("_update_labels"):
 		%PlotOverlay._update_labels()
-	if has_node("%DialogueOverlay") and %DialogueOverlay.has_method("_update_labels"):
-		%DialogueOverlay._update_labels()
 	if has_node("%GameplayMenuOverlay") and %GameplayMenuOverlay.has_method("_update_labels"):
 		%GameplayMenuOverlay._update_labels()
 	# Error popup buttons

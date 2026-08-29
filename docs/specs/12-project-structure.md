@@ -22,7 +22,7 @@ story-now/
 │   ├── brainstorm.tscn                  # Story prompt / brainstorm
 │   ├── gameplay.tscn                    # VN gameplay + all overlays instanced
 │   ├── advanced_settings_overlay.tscn
-│   ├── dialogue_overlay.tscn
+│   ├── plot_overlay.tscn
 │   ├── first_time_language_overlay.tscn
 │   ├── gallery_overlay.tscn
 │   ├── game_progress_overlay.tscn
@@ -32,7 +32,7 @@ story-now/
 │   ├── image_server_settings_overlay.tscn
 │   ├── llm_settings_overlay.tscn
 │   ├── load_game_overlay.tscn
-│   ├── plot_overlay.tscn
+│   ├── summary_overlay.tscn
 │   └── server_status_overlay.tscn
 ├── scripts/
 │   ├── main.gd                          # Main menu logic
@@ -51,8 +51,8 @@ story-now/
 │   ├── game_progress_manager.gd         # Global progress (uuid/round/status/tunables)
 │   ├── game_progress_overlay.gd
 │   ├── gameplay_menu_overlay.gd
-│   ├── dialogue_overlay.gd              # Edit/Add/Regenerate dialogue triage
-│   ├── plot_overlay.gd
+│   ├── plot_overlay.gd                  # Edit/Add/Regenerate plot dialogue triage
+│   ├── summary_overlay.gd
 │   ├── image_overlay.gd                 # Prompt view / produce image
 │   ├── gallery_overlay.gd
 │   ├── load_game_overlay.gd
@@ -121,7 +121,7 @@ Registered in `project.godot:11-22`:
 ## Previously "Not Yet Implemented" — Now Implemented
 
 - `gameplay.gd` + focused gameplay controllers — coordinated VN display, choices, images, dialogue/TTS, chrome, and resumable generation
-- `dialogue_overlay.gd` / `plot_overlay.gd` / `image_overlay.gd` — inspectors + edit/regenerate
+- `plot_overlay.gd` / `summary_overlay.gd` / `image_overlay.gd` — inspectors + edit/regenerate
 - `gallery_overlay.gd` / `load_game_overlay.gd` — paginated save browsing
 - `game_progress_manager.gd` / `scene_data_manager.gd` / `tts_manager.gd` — persistence & TTS
 - All LLM/ComfyUI HTTP flows — story/scene/image generation with retry
