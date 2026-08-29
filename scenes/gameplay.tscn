@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://game_scene"]
+[gd_scene load_steps=14 format=3 uid="uid://game_scene"]
 
 [ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
 [ext_resource type="PackedScene" path="res://scenes/game_progress_overlay.tscn" id="2_m7w2a"]
@@ -12,6 +12,9 @@
 [ext_resource type="PackedScene" path="res://scenes/advanced_settings_overlay.tscn" id="10_advanced"]
 [ext_resource type="PackedScene" path="res://scenes/image_server_settings_overlay.tscn" id="11_image_settings"]
 [ext_resource type="PackedScene" path="res://scenes/llm_settings_overlay.tscn" id="12_llm_settings"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialogue_panel"]
+bg_color = Color(0.08, 0.08, 0.1, 0.75)
 
 [node name="Gameplay" type="Control"]
 layout_mode = 3
@@ -101,7 +104,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.08, 0.1, 0.6)
+color = Color(0.08, 0.08, 0.1, 0)
 
 [node name="Margin" type="MarginContainer" parent="Dialogue"]
 layout_mode = 1
@@ -125,6 +128,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_minimum_size = Vector2(0, 220)
+theme_override_styles/panel = SubResource("StyleBoxFlat_dialogue_panel")
 
 [node name="Margin" type="MarginContainer" parent="Dialogue/Margin/HBox/DialogArea"]
 layout_mode = 2
@@ -179,6 +183,7 @@ horizontal_alignment = 2
 layout_mode = 2
 size_flags_vertical = 3
 custom_minimum_size = Vector2(380, 0)
+theme_override_styles/panel = SubResource("StyleBoxFlat_dialogue_panel")
 
 [node name="Margin" type="MarginContainer" parent="Dialogue/Margin/HBox/SidePanel"]
 layout_mode = 2
