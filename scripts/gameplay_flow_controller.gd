@@ -153,8 +153,10 @@ func prepare_resume(load_image: bool = false) -> String:
 
 
 func execute_generating_image() -> void:
-	if prepare_resume().is_empty():
+	var uuid := prepare_resume()
+	if uuid.is_empty():
 		return
+	_host.call("_load_current_scene_image", uuid)
 	begin_image_generation()
 	if await _host.call("_generate_comfyui_image"):
 		finish_image_generation()
