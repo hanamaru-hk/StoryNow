@@ -35,7 +35,7 @@ func _request_random_text() -> void:
 	_set_brainstorm_request_active(false)
 	if not result.get("success", false):
 		var error := str(result.get("error", ""))
-		if error != "Cancelled":
+		if not result.get("cancelled", false) and error != "Cancelled":
 			_show_error_popup(error)
 	else:
 		%BackgroundInput.text = result["text"]
@@ -58,7 +58,7 @@ func _on_enhance_pressed() -> void:
 	_set_brainstorm_request_active(false)
 	if not result.get("success", false):
 		var error := str(result.get("error", ""))
-		if error != "Cancelled":
+		if not result.get("cancelled", false) and error != "Cancelled":
 			_show_error_popup(error)
 	else:
 		%BackgroundInput.text = result["text"]

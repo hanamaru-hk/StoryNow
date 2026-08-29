@@ -18,6 +18,7 @@ signal retry_requested
 var _pending_retry_action: String = ""  # "new_story" or "new_scene"
 var _retry_in_progress: bool = false
 var _chrome_visible: bool = true
+var _is_leaving_scene: bool = false
 
 func _ready() -> void:
 	_choice_controller = GameplayChoiceController.new(self)
@@ -449,8 +450,14 @@ func _on_llm_setting_requested() -> void:
 
 
 func _on_back_to_main_menu_requested() -> void:
-	if _current_game_status() != "running":
+	if _is_leaving_scene:
+		return
+	_is_leaving_scene = true
+	%ErrorReturnPopup.visible = false
+	if ServerRuntimeManager.has_generation_requests():
 		await ServerRuntimeManager.cancel_active_generation_tasks()
+	if not is_inside_tree():
+		return
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
@@ -566,6 +573,8 @@ func _update_error_popup_retry_visibility(allow_retry: bool) -> void:
 
 
 func show_error(message: String, allow_retry: bool = false, retry_action: String = "") -> void:
+	if _is_leaving_scene:
+		return
 	if not retry_action.is_empty():
 		_pending_retry_action = retry_action
 	# If retry is allowed but no pending action has been set, do not show retry
@@ -590,6 +599,7 @@ func _on_error_retry_pressed() -> void:
 
 
 func _on_error_return() -> void:
+	_is_leaving_scene = true
 	_pending_retry_action = ""
 	_retry_in_progress = false
 	_update_error_popup_retry_visibility(false)

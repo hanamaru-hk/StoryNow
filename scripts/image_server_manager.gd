@@ -540,14 +540,14 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	if prompt_id.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		if _cancel_requested:
-			return {"success": false, "error": "Cancelled", "prompt": image_prompt}
+			return {"success": false, "cancelled": true, "error": "Cancelled", "prompt": image_prompt}
 		return {"success": false, "error": "Failed to queue ComfyUI prompt", "prompt": image_prompt}
 	ServerRuntimeManager.update_request(queue_id, {"status": "Queued", "progress": 0.1})
 	var image_info := await _poll_comfy_history(prompt_id, queue_id, request_timeout)
 	if image_info.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		if _cancel_requested:
-			return {"success": false, "error": "Cancelled", "prompt": image_prompt}
+			return {"success": false, "cancelled": true, "error": "Cancelled", "prompt": image_prompt}
 		return {"success": false, "error": "ComfyUI did not return image (timeout or error)", "prompt": image_prompt}
 	var filename: String = str(image_info.get("filename", ""))
 	var subfolder: String = str(image_info.get("subfolder", ""))
@@ -560,7 +560,7 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	if save_path.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		if _cancel_requested:
-			return {"success": false, "error": "Cancelled", "prompt": image_prompt}
+			return {"success": false, "cancelled": true, "error": "Cancelled", "prompt": image_prompt}
 		return {"success": false, "error": "Failed to download ComfyUI image", "prompt": image_prompt}
 	ServerRuntimeManager.update_request(queue_id, {"status": "Done", "progress": 1.0})
 	ServerRuntimeManager.pop_request(queue_id)

@@ -51,12 +51,14 @@ func _on_produce_pressed() -> void:
 		result = await ImageServerManager.generate_scene_image(prompt_text, uuid)
 		if result.get("success", false):
 			break
+		var parent_ctrl2 := get_parent()
+		if result.get("cancelled", false) or (parent_ctrl2 and bool(parent_ctrl2.get("_is_leaving_scene"))):
+			return
 		# Re-enable inputs so user can see overlay, but keep produce disabled until retry
 		%Produce.disabled = false
 		%Back.disabled = false
 		%ImagePromptInput.editable = GameSettingsManager.is_free_mode()
 		var err_msg: String = str(result.get("error", I18n.translate("error_failed_generate_image")))
-		var parent_ctrl2 := get_parent()
 		if parent_ctrl2 and parent_ctrl2.has_method("show_error"):
 			parent_ctrl2.show_error(err_msg, true, "comfyui_image")
 			# Wait for retry signal from parent (Gameplay)

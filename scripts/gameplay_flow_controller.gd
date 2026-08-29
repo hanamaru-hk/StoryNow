@@ -77,6 +77,8 @@ func finish_voice_generation() -> void:
 
 func handle_generated_scene(flow: String) -> bool:
 	var result: Dictionary = await LLMManager.request_new_story() if flow == "new_story" else await LLMManager.request_new_scene()
+	if result.get("cancelled", false) or _host_is_leaving():
+		return false
 	_host.call("_apply_title_from_result", str(result.get("title", "")))
 	var parsed := GameplaySceneService.parse_generation_result(result)
 	if not parsed.get("success", false):
@@ -115,6 +117,8 @@ func execute_generation(flow: String) -> void:
 		if await handle_generated_scene(flow):
 			_host.set("_pending_retry_action", "")
 			break
+		if _host_is_leaving():
+			return
 		await _host.retry_requested
 		await _host.get_tree().create_timer(0.1).timeout
 		if not is_instance_valid(_host) or not _host.is_inside_tree():
@@ -219,3 +223,7 @@ func _has_voice_dialogue(scene_data: Dictionary) -> bool:
 
 func _sync_scene_data() -> void:
 	_host.set("_scene_data", SceneDataManager.scene_data)
+
+
+func _host_is_leaving() -> bool:
+	return not is_instance_valid(_host) or bool(_host.get("_is_leaving_scene"))

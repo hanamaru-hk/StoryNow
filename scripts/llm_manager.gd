@@ -432,7 +432,12 @@ func _request_completion(prompt: String) -> Dictionary:
 	var stream_result := await _request_completion_stream(port, body, queue_id, request_timeout)
 	if not stream_result.get("success", false):
 		ServerRuntimeManager.pop_request(queue_id)
-		return {"success": false, "error": str(stream_result.get("error", "Request failed"))}
+		var was_cancelled := _cancel_requested or bool(stream_result.get("cancelled", false))
+		return {
+			"success": false,
+			"cancelled": was_cancelled,
+			"error": "Cancelled" if was_cancelled else str(stream_result.get("error", "Request failed")),
+		}
 	var content: String = str(stream_result.get("content", ""))
 	if content.strip_edges().is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
@@ -468,7 +473,7 @@ func _request_completion_stream(port: int, body: String, queue_id: int, request_
 		if _cancel_requested:
 			http.close()
 			_active_http = null
-			return {"success": false, "error": "Cancelled"}
+			return {"success": false, "cancelled": true, "error": "Cancelled"}
 		http.poll()
 		if Time.get_ticks_msec() > deadline_msec:
 			http.close()
@@ -495,7 +500,7 @@ func _request_completion_stream(port: int, body: String, queue_id: int, request_
 		if _cancel_requested:
 			http.close()
 			_active_http = null
-			return {"success": false, "error": "Cancelled"}
+			return {"success": false, "cancelled": true, "error": "Cancelled"}
 		http.poll()
 		if Time.get_ticks_msec() > deadline_msec:
 			http.close()
@@ -524,7 +529,7 @@ func _request_completion_stream(port: int, body: String, queue_id: int, request_
 		if _cancel_requested:
 			http.close()
 			_active_http = null
-			return {"success": false, "error": "Cancelled"}
+			return {"success": false, "cancelled": true, "error": "Cancelled"}
 		http.poll()
 		var chunk := http.read_response_body_chunk()
 		if chunk.is_empty():

@@ -67,6 +67,8 @@ func generate_scene_image() -> bool:
 			_host.set("_scene_data", SceneDataManager.scene_data)
 			_host.set("_pending_retry_action", "")
 			return true
+		if result.get("cancelled", false) or _host_is_leaving():
+			return false
 		_host.set("_pending_retry_action", "comfyui_image")
 		_host.show_error(str(result.get("error", I18n.translate("error_failed_generate_image"))), true, "comfyui_image")
 		await _host.retry_requested
@@ -76,6 +78,10 @@ func generate_scene_image() -> bool:
 		image_prompt = str(SceneDataManager.scene_data.get("image_prompt", image_prompt))
 		uuid = _current_uuid()
 	return false
+
+
+func _host_is_leaving() -> bool:
+	return not is_instance_valid(_host) or bool(_host.get("_is_leaving_scene"))
 
 
 func set_background_from_file(user_path: String) -> bool:

@@ -290,8 +290,11 @@ func _execute_regenerate_all() -> void:
 			result = await LLMManager.request_new_scene()
 		print_verbose("RegenerateAll round=%d is_first=%s result=%s" % [round_val, str(is_first), str(result)])
 		if not result.get("success", false):
-			var err_msg: String = str(result.get("error", "Failed to generate dialogue"))
 			var gameplay = get_parent()
+			if result.get("cancelled", false) or (gameplay and bool(gameplay.get("_is_leaving_scene"))):
+				_is_regenerating = false
+				return
+			var err_msg: String = str(result.get("error", "Failed to generate dialogue"))
 			if gameplay and gameplay.has_method("show_error"):
 				gameplay.show_error(err_msg, true, "regenerate_all")
 				if gameplay.has_signal("retry_requested"):
