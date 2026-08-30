@@ -92,4 +92,4 @@ All follow **open → edit `_pending` → Save/Reset/Back** pattern; Save merges
 
 - `Brainstorm` uses `%LoadingOverlay` during Random/Enhance.
 - `Gameplay` uses `game_status` transitions (`generating_image` / `running`) and disables Next/Choice buttons until image/TTS ready.
-- Server status dots provide ambient loading feedback; explicit "Generating illustration..." spinner not yet added (placeholder background at 50% opacity indicates pending).
+- While an illustration is being generated, the gameplay video displays a large localized Noto Serif Bold `Generating` label with a `.`, `..`, `...` animation. Server status dots continue to provide request-level loading feedback.

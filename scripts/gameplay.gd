@@ -89,6 +89,8 @@ func _ready() -> void:
 		%ImageOverlay.generation_requested.connect(_on_image_generation_requested)
 	if has_node("%BackgroundVideo") and %BackgroundVideo.has_signal("finished") and not %BackgroundVideo.finished.is_connected(_on_background_video_finished):
 		%BackgroundVideo.finished.connect(_on_background_video_finished)
+	if has_node("%GeneratingDotsTimer") and not %GeneratingDotsTimer.timeout.is_connected(_on_generating_dots_timeout):
+		%GeneratingDotsTimer.timeout.connect(_on_generating_dots_timeout)
 
 	# --- SummaryOverlay ---
 	if has_node("%SummaryOverlay"):
@@ -179,6 +181,10 @@ func _hide_generating_background() -> void:
 
 func _on_background_video_finished() -> void:
 	_image_controller.on_background_video_finished()
+
+
+func _on_generating_dots_timeout() -> void:
+	_image_controller.on_generating_dots_timeout()
 
 
 func _play_scene_bgm() -> void:

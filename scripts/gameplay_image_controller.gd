@@ -4,6 +4,7 @@ extends RefCounted
 const GENERATING_VIDEO_PATH := "res://assets/videos/3.ogv"
 
 var _host
+var _generating_dot_count := 1
 
 
 func _init(host: Control) -> void:
@@ -27,6 +28,7 @@ func set_no_image_visible(is_visible: bool) -> void:
 
 
 func show_generating_background() -> void:
+	_show_generating_text()
 	var video := _node("BackgroundVideo") as VideoStreamPlayer
 	if video == null:
 		_load_placeholder_background("res://assets/images/generating.jpg", 0.5)
@@ -42,16 +44,49 @@ func show_generating_background() -> void:
 
 
 func hide_generating_background() -> void:
+	var timer := _node("GeneratingDotsTimer") as Timer
+	if timer:
+		timer.stop()
+	var label := _node("GeneratingText") as Label
+	if label:
+		label.visible = false
 	var video := _node("BackgroundVideo") as VideoStreamPlayer
 	if video:
 		video.stop()
 		video.visible = false
 
 
+func on_generating_dots_timeout() -> void:
+	var label := _node("GeneratingText") as Label
+	if label == null or not label.visible:
+		return
+	_generating_dot_count = _generating_dot_count % 3 + 1
+	_update_generating_text(label)
+
+
 func on_background_video_finished() -> void:
 	var video := _node("BackgroundVideo") as VideoStreamPlayer
 	if video and video.visible:
 		video.play()
+
+
+func _show_generating_text() -> void:
+	var label := _node("GeneratingText") as Label
+	if label == null:
+		return
+	_generating_dot_count = 1
+	_update_generating_text(label)
+	label.visible = true
+	var timer := _node("GeneratingDotsTimer") as Timer
+	if timer:
+		timer.start()
+
+
+func _update_generating_text(label: Label) -> void:
+	var generating_text := I18n.translate("generating")
+	if generating_text == "generating":
+		generating_text = "Generating"
+	label.text = generating_text + ".".repeat(_generating_dot_count)
 
 
 func generate_scene_image() -> bool:
