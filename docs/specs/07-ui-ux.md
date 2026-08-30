@@ -37,6 +37,7 @@ First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`.
 - **Readability panel:** an opaque dark panel backs the title, description, textarea, and button row over the illustrated background.
 - **Textarea** `%BackgroundInput` for story background.
 - **Button row:** Random, Enhance, Advanced (→ `GameProgressOverlay`), Start, Back.
+- **Save/generation notice:** localized guidance below the button row explains that every chapter is saved automatically and generation time depends on the user's computer.
 - **LoadingOverlay** + **ErrorDialog** + **RandomConfirmDialog** (clears text).
 
 ## 7.5 Gameplay Overlays

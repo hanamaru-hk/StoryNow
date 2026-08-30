@@ -187,6 +187,7 @@ func _update_labels() -> void:
 	%Advanced.text = I18n.translate("btn_advanced_setting")
 	%Start.text = I18n.translate("btn_start")
 	%Back.text = I18n.translate("btn_back")
+	%SaveNotice.text = I18n.translate("prompt_save_notice")
 	%LoadingLabel.text = I18n.translate("loading_title")
 	%ErrorPopupTitle.text = I18n.translate("error_dialog_title")
 	%ErrorPopupOk.text = "OK"

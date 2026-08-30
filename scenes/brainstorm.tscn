@@ -158,6 +158,17 @@ custom_minimum_size = Vector2(160, 48)
 size_flags_horizontal = 4
 text = "Back"
 
+[node name="SaveNotice" type="RichTextLabel" parent="MarginContainer/ContentPanel/ContentMargin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 96)
+size_flags_horizontal = 3
+theme_override_font_sizes/normal_font_size = 22
+bbcode_enabled = true
+text = "[left][indent]Please note[/indent]\n[ol]Saving: This game (or visual novel generator) automatically saves every chapter, so there is no Save button.\nGeneration speed: It varies depending on your computer, but generation will take some time regardless.[/ol][/left]"
+fit_content = true
+scroll_active = false
+
 [node name="LoadingOverlay" type="Control" parent="."]
 unique_name_in_owner = true
 visible = false
