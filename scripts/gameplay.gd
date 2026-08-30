@@ -644,9 +644,9 @@ func _update_labels() -> void:
 			%TitleLabel.text = t_title if t_title != "generating_title" else "Generating Title..."
 	if has_node("%DialogLabel"):
 		var cur_dialog: String = %DialogLabel.text.strip_edges()
-		if cur_dialog == "Generating the gameplay..." or cur_dialog == I18n.translate("generating_gameplay") or cur_dialog.is_empty():
+		if cur_dialog == "Generating gameplay..." or cur_dialog == I18n.translate("generating_gameplay") or cur_dialog.is_empty():
 			var t_gen: String = I18n.translate("generating_gameplay")
-			%DialogLabel.text = t_gen if t_gen != "generating_gameplay" else "Generating the gameplay..."
+			%DialogLabel.text = t_gen if t_gen != "generating_gameplay" else "Generating gameplay..."
 	%PlotButton.text = I18n.translate("btn_plot") if I18n.translate("btn_plot") != "btn_plot" else "Plot"
 	%ImageButton.text = I18n.translate("btn_image") if I18n.translate("btn_image") != "btn_image" else "Image"
 	%PlayAudioButton.text = I18n.translate("btn_play_audio") if I18n.translate("btn_play_audio") != "btn_play_audio" else "Play"
@@ -669,6 +669,9 @@ func _update_labels() -> void:
 	%ChoiceConfirm.text = I18n.translate("btn_confirm") if I18n.translate("btn_confirm") != "btn_confirm" else "Confirm"
 	%CustomInput.placeholder_text = I18n.translate("choice_custom_placeholder") if I18n.translate("choice_custom_placeholder") != "choice_custom_placeholder" else "Or write what you want to do..."
 	# Image action overlay
+	if has_node("%ImageActionTitle"):
+		var t_image_title: String = I18n.translate("image_change_title")
+		%ImageActionTitle.text = t_image_title if t_image_title != "image_change_title" else "Image"
 	if has_node("%ImageActionNew"):
 		var t_new: String = I18n.translate("image_action_new")
 		%ImageActionNew.text = t_new if t_new != "image_action_new" else "New"

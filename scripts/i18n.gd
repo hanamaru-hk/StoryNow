@@ -145,7 +145,7 @@ var _translations := {
 		"story_end_message": "The story has ended. To continue, write what you want to happen next.",
 		"generating": "Generating",
 		"generating_title": "Generating Title...",
-		"generating_gameplay": "Generating the gameplay...",
+		"generating_gameplay": "Generating gameplay...",
 		"image_action_new": "New",
 		"image_action_change": "Change",
 		"server_llm": "LLM Engine",
