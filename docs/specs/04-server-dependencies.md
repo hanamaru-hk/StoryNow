@@ -69,7 +69,7 @@ TTS uses the native `SherpaOfflineTTS` GDExtension. The extension links to Sherp
 
 ### Free vs Safe Mode
 
-`GameSettingsManager.is_free_mode()` (`scripts/game_settings_manager.gd:80`) returns `true` when `safe_mode == false` and file `res://data/free_mode` exists. This switches:
+`GameSettingsManager.is_free_mode()` returns `true` when `safe_mode == false` and `data/builder` contains at least one file. This switches:
 
 - LLM guardrail: `data/llm/<lang>/common/free_guardrail` vs `safe_guardrail`
 - Danbooru guardrail: `free_danbooru_guardrail` vs `safe_danbooru_guardrail`

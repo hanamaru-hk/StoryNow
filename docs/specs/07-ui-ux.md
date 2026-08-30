@@ -62,7 +62,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 | **Game Settings** (`game_settings_overlay.gd`) | Language (en/zh_CN/zh_TW/yue), Screen size (Full/1344×768), Autoplay TTS | `user://game_settings.json` |
 | **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
 | **LLM Settings** (`llm_settings_overlay.gd`) | Port (default 48763) | `user://llm_settings.json` |
-| **Image Server Settings** (`image_server_settings_overlay.gd`) | Port, timeout, and editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
+| **Image Server Settings** (`image_server_settings_overlay.gd`) | Port, timeout, and free-mode-only editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
 
 All follow **open → edit `_pending` → Save/Reset/Back** pattern; Save merges into manager singleton and calls `save_settings()`; Reset reloads defaults.
 

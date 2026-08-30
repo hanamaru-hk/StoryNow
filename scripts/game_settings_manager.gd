@@ -192,4 +192,4 @@ func _aspect_ratio_for_resolution(size: String) -> String:
 
 
 func is_free_mode() -> bool:
-	return not settings.get("safe_mode", false) and FileAccess.file_exists(AppPaths.external_path("data/free_mode"))
+	return not settings.get("safe_mode", false) and not DirAccess.get_files_at(AppPaths.external_path("data/builder")).is_empty()

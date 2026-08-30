@@ -21,5 +21,5 @@
 - [ ] Music / sound design beyond TTS
 - [ ] Pagination UX polish for very large save collections (100+ saves → current `pages_set` + ellipsis handles up to ~tens, may need virtualized list)
 - [ ] Windows-only `taskkill` / PowerShell assumption — portability to Linux/macOS (`pkill`, `pwsh` fallback exists but untested)
-- [ ] Free-mode content policy — `data/free_mode` file flag + separate guardrails exist but no user-facing toggle beyond `safe_mode` setting
+- [ ] Free-mode content policy — files in `data/builder` enable the separate guardrails when `safe_mode == false`, but there is no user-facing toggle beyond `safe_mode`
 - [ ] Image history limit per scene — carousel grows unbounded; no cap or cleanup

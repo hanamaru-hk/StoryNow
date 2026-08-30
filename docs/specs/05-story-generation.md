@@ -6,7 +6,7 @@
 2. **Start** → `get_tree().change_scene_to_file("res://scenes/brainstorm.tscn")`.
 3. **Brainstorm scene** (`scripts/brainstorm.gd:1`, `scenes/brainstorm.tscn`) — textarea with a localized starter story + buttons: Random, Enhance, Start, Flow Settings, Back.
    - **Random** — requires `ServerRuntimeManager.llm_state == HEALTHY`; shows confirm dialog, then `LLMManager.request_random()` (`scripts/brainstorm.gd:22`).
-   - **Enhance** — requires LLM healthy + non-empty input; `LLMManager.request_enhance(input)` (`scripts/brainstorm.gd:35`).
+   - **Enhance** — requires LLM healthy + non-empty input; shows a confirmation that enhancement will change the content, then calls `LLMManager.request_enhance(input)` (`scripts/brainstorm.gd:53`).
    - **Start** — requires both LLM + Image healthy; validates non-empty, creates `uuid`, seeds `SceneDataManager.scene_data = {uuid, image_filenames:[], version:"1.0", interactions:[], choices:[], image_prompt:"", summary:input, end:false, expected_rounds, current_round:1, language}`, saves, sets `GameProgressManager.settings.current_uuid/ game_status="new_story" / current_round=1`, then loads `gameplay.tscn` (`scripts/brainstorm.gd:67`).
 4. **Gameplay** (`scenes/gameplay.tscn`, `scripts/gameplay.gd:1`) — on `_ready` branches on `game_status`: `new_story` → `_execute_new_story_flow`, `new_scene` → `_execute_new_scene_flow`, `running` → load & render (`scripts/gameplay.gd:113`).
 

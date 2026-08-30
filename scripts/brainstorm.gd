@@ -16,6 +16,8 @@ func _ready() -> void:
 	%ErrorPopupRetry.pressed.connect(_on_error_popup_retry_pressed)
 	%RandomConfirmCancel.pressed.connect(_on_random_confirm_canceled)
 	%RandomConfirmOk.pressed.connect(_on_random_confirmed)
+	%EnhanceConfirmCancel.pressed.connect(_on_enhance_confirm_canceled)
+	%EnhanceConfirmOk.pressed.connect(_on_enhance_confirmed)
 	_update_labels()
 	_set_default_prompt()
 
@@ -60,6 +62,10 @@ func _on_enhance_pressed() -> void:
 	if input.is_empty():
 		_show_error_popup(I18n.translate("notice_write_something_first"))
 		return
+	%EnhanceConfirmPopup.visible = true
+
+
+func _request_enhanced_text(input: String) -> void:
 	_set_brainstorm_request_active(true)
 	var result: Dictionary = await LLMManager.request_enhance(input)
 	if not is_inside_tree():
@@ -213,6 +219,19 @@ func _on_random_confirm_canceled() -> void:
 	%RandomConfirmPopup.visible = false
 
 
+func _on_enhance_confirmed() -> void:
+	%EnhanceConfirmPopup.visible = false
+	var input: String = %BackgroundInput.text.strip_edges()
+	if input.is_empty():
+		_show_error_popup(I18n.translate("notice_write_something_first"))
+		return
+	await _request_enhanced_text(input)
+
+
+func _on_enhance_confirm_canceled() -> void:
+	%EnhanceConfirmPopup.visible = false
+
+
 func _update_labels() -> void:
 	%TopBarTitle.text = I18n.translate("main_title")
 	$MarginContainer/ContentPanel/ContentMargin/VBoxContainer/Title.text = I18n.translate("prompt_title")
@@ -232,6 +251,10 @@ func _update_labels() -> void:
 	%RandomConfirmMessage.text = I18n.translate("confirm_random_clear_text")
 	%RandomConfirmCancel.text = I18n.translate("btn_cancel")
 	%RandomConfirmOk.text = I18n.translate("btn_confirm")
+	%EnhanceConfirmTitle.text = I18n.translate("confirm_dialog_title")
+	%EnhanceConfirmMessage.text = I18n.translate("confirm_enhance_change_text")
+	%EnhanceConfirmCancel.text = I18n.translate("btn_cancel")
+	%EnhanceConfirmOk.text = I18n.translate("btn_confirm")
 
 
 func _set_default_prompt() -> void:

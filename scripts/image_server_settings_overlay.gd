@@ -13,6 +13,7 @@ func _ready() -> void:
 	%TimeoutInput.text_changed.connect(_on_integer_input_changed.bind(%TimeoutInput))
 	%PortInput.text_submitted.connect(_on_port_submitted)
 	%TimeoutInput.text_submitted.connect(_on_timeout_submitted)
+	_update_prompt_affix_visibility()
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -20,6 +21,7 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	_pending = ImageServerSettingsManager.settings.duplicate(true)
+	_update_prompt_affix_visibility()
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -102,6 +104,12 @@ func _sync_ui_to_settings() -> void:
 
 func _integer_text(value: Variant) -> String:
 	return str(str(value).to_int())
+
+
+func _update_prompt_affix_visibility() -> void:
+	var show_prompt_affixes := GameSettingsManager.is_free_mode()
+	%PrefixRow.visible = show_prompt_affixes
+	%SuffixRow.visible = show_prompt_affixes
 
 
 func _update_labels() -> void:

@@ -454,5 +454,82 @@ layout_mode = 2
 custom_minimum_size = Vector2(180, 48)
 text = "Confirm"
 
+[node name="EnhanceConfirmPopup" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDim" type="ColorRect" parent="EnhanceConfirmPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="EnhanceConfirmPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="EnhanceConfirmPopup/CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(600, 300)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_content_panel")
+script = ExtResource("4_gold_frame")
+background_color = Color(0.08, 0.08, 0.1, 0.9)
+
+[node name="Margin" type="MarginContainer" parent="EnhanceConfirmPopup/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="EnhanceConfirmPopup/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="EnhanceConfirmTitle" type="Label" parent="EnhanceConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Confirm"
+horizontal_alignment = 1
+
+[node name="EnhanceConfirmMessage" type="Label" parent="EnhanceConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "The content will be enhanced and changed."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ButtonRow" type="HBoxContainer" parent="EnhanceConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="EnhanceConfirmCancel" type="Button" parent="EnhanceConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Cancel"
+
+[node name="EnhanceConfirmOk" type="Button" parent="EnhanceConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Confirm"
+
 [node name="GameProgressOverlay" parent="." instance=ExtResource("2")]
 unique_name_in_owner = true

@@ -70,7 +70,7 @@ story-now/
 │   └── request_timeout_circle.gd        # Circular timeout indicator
 ├── data/
 │   ├── theme.tres
-│   ├── free_mode                        # Flag file; presence = free mode
+│   ├── builder/                         # Presence of any file enables free mode when safe_mode is false
 │   ├── default_game_settings.json       # {language, screen_size, safe_mode, image_width/height, autoplay_tts}
 │   ├── default_game_progress.json       # {current_dialogue/uuid/round, expected_rounds, minimum_*/maximum_*, game_status}
 │   ├── default_llm_settings.json        # {port: 48763}

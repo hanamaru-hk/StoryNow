@@ -67,7 +67,7 @@ item_count = 4
 popup/item_0 = "English"
 popup/item_1 = "简体中文"
 popup/item_2 = "繁體中文"
-popup/item_3 = "廣東話"
+popup/item_3 = "廣東話(實驗)"
 
 [node name="ScreenSizeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
