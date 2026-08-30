@@ -151,6 +151,8 @@ func _show_current_page() -> void:
 	var end: int = min(start + PAGE_SIZE, _all_entries.size())
 	for i in range(start, end):
 		_add_gallery_item(_all_entries[i])
+	for i in range(end - start, PAGE_SIZE):
+		_add_gallery_placeholder()
 	_update_pagination_bar()
 
 
@@ -344,6 +346,15 @@ func _add_gallery_item(entry: Dictionary) -> void:
 	var escaped_title: String = _escape_bbcode(str(entry.get("title", uuid)))
 	title.text = "[center][font_size=18][color=#ffffff]%s[/color][/font_size][/center]" % escaped_title
 	stack.add_child(title)
+
+
+func _add_gallery_placeholder() -> void:
+	var placeholder := Control.new()
+	placeholder.custom_minimum_size = Vector2(230, 180)
+	placeholder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	placeholder.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	placeholder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	%GalleryGrid.add_child(placeholder)
 
 
 func _get_save_image_entries(entry: Dictionary) -> Array[Dictionary]:

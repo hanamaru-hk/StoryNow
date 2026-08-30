@@ -305,7 +305,7 @@ text = "Scene >>"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Setting"
+text = "Flow Settings"
 
 [node name="GameplayMenuButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
@@ -464,7 +464,11 @@ text = "故事已完，如想繼續，請打下你希望的劇情"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="CustomInput" type="TextEdit" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
+[node name="CustomInputMargin" type="MarginContainer" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/margin_right = 40
+
+[node name="CustomInput" type="TextEdit" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox/CustomInputMargin"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

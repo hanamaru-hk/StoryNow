@@ -37,8 +37,8 @@ First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`. 
 - **Title/Description/Placeholder** via i18n.
 - **Top bar/server chrome:** gameplay-style top bar keeps the global LLM and image server status widget legible; entering the scene restores chrome hidden by the main menu.
 - **Readability panel:** an opaque dark panel backs the title, description, textarea, and button row over the illustrated background.
-- **Textarea** `%BackgroundInput` for story background.
-- **Button row:** Random, Enhance, Advanced (→ `GameProgressOverlay`), Start, Back.
+- **Textarea** `%BackgroundInput` for story background, initialized with a localized humorous starter story.
+- **Button row:** Random, Enhance, Start, Flow Settings (→ `GameProgressOverlay`), Back. Start uses the inverted primary/secondary button palette for emphasis.
 - **Save/generation notice:** localized guidance below the button row explains that every chapter is saved automatically and generation time depends on the user's computer.
 - **LoadingOverlay** + **ErrorDialog** + **RandomConfirmDialog** (clears text).
 
@@ -60,7 +60,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 | Overlay | Editable Fields | Persisted To |
 |---------|----------------|--------------|
 | **Game Settings** (`game_settings_overlay.gd`) | Language (en/zh_CN/zh_TW/yue), Screen size (Full/1344×768), Autoplay TTS | `user://game_settings.json` |
-| **Advanced / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
+| **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
 | **LLM Settings** (`llm_settings_overlay.gd`) | Port (default 48763) | `user://llm_settings.json` |
 | **Image Server Settings** (`image_server_settings_overlay.gd`) | Port (default 56321), Model filename (`waiIllustriousSDXL_v170.safetensors`) | `user://image_server_settings.json` |
 

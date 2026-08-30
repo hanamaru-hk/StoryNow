@@ -17,6 +17,7 @@ func _ready() -> void:
 	%RandomConfirmCancel.pressed.connect(_on_random_confirm_canceled)
 	%RandomConfirmOk.pressed.connect(_on_random_confirmed)
 	_update_labels()
+	_set_default_prompt()
 
 
 func _exit_tree() -> void:
@@ -219,7 +220,7 @@ func _update_labels() -> void:
 	%BackgroundInput.placeholder_text = I18n.translate("prompt_placeholder")
 	%Random.text = I18n.translate("btn_random")
 	%Enhance.text = I18n.translate("btn_enhance")
-	%Advanced.text = I18n.translate("btn_advanced_setting")
+	%Advanced.text = I18n.translate("btn_flow_setting")
 	%Start.text = I18n.translate("btn_start")
 	%Back.text = I18n.translate("btn_back")
 	%SaveNotice.text = I18n.translate("prompt_save_notice")
@@ -231,3 +232,8 @@ func _update_labels() -> void:
 	%RandomConfirmMessage.text = I18n.translate("confirm_random_clear_text")
 	%RandomConfirmCancel.text = I18n.translate("btn_cancel")
 	%RandomConfirmOk.text = I18n.translate("btn_confirm")
+
+
+func _set_default_prompt() -> void:
+	if %BackgroundInput.text.strip_edges().is_empty():
+		%BackgroundInput.text = I18n.translate("prompt_default")

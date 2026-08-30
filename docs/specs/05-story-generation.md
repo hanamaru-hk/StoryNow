@@ -4,7 +4,7 @@
 
 1. **Main menu** (`scenes/main.tscn`, `scripts/main.gd:1`) — buttons: Start, Load, Gallery, Game Setting, Advanced Setting, Exit. First-launch shows `FirstTimeLanguageOverlay`.
 2. **Start** → `get_tree().change_scene_to_file("res://scenes/brainstorm.tscn")`.
-3. **Brainstorm scene** (`scripts/brainstorm.gd:1`, `scenes/brainstorm.tscn`) — textarea + buttons: Random, Enhance, Advanced, Start, Back.
+3. **Brainstorm scene** (`scripts/brainstorm.gd:1`, `scenes/brainstorm.tscn`) — textarea with a localized starter story + buttons: Random, Enhance, Start, Flow Settings, Back.
    - **Random** — requires `ServerRuntimeManager.llm_state == HEALTHY`; shows confirm dialog, then `LLMManager.request_random()` (`scripts/brainstorm.gd:22`).
    - **Enhance** — requires LLM healthy + non-empty input; `LLMManager.request_enhance(input)` (`scripts/brainstorm.gd:35`).
    - **Start** — requires both LLM + Image healthy; validates non-empty, creates `uuid`, seeds `SceneDataManager.scene_data = {uuid, image_filenames:[], version:"1.0", interactions:[], choices:[], image_prompt:"", summary:input, end:false, expected_rounds, current_round:1, language}`, saves, sets `GameProgressManager.settings.current_uuid/ game_status="new_story" / current_round=1`, then loads `gameplay.tscn` (`scripts/brainstorm.gd:67`).
@@ -80,7 +80,7 @@ Response `choices[0].message.content` is returned as `text`; `title` is best-eff
 
 | Component | Status |
 |-----------|--------|
-| Brainstorm scene UI (Random/Enhance/Start/Advanced) | ✅ Implemented (`scripts/brainstorm.gd:1`, `scenes/brainstorm.tscn`) |
+| Brainstorm scene UI (Random/Enhance/Start/Flow Settings) | ✅ Implemented (`scripts/brainstorm.gd:1`, `scenes/brainstorm.tscn`) |
 | LLM prompt templates (en, zh_CN, zh_TW, yue) | ✅ Implemented (`data/llm/*`) |
 | Random prompt generation | ✅ Implemented (`LLMManager.request_random`) |
 | Prompt enhancement | ✅ Implemented (`LLMManager.request_enhance`) |

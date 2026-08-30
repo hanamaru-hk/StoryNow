@@ -53,7 +53,7 @@ func _ready() -> void:
 	%ImageActionOverlay.visible = false
 	%ImageChangeOverlay.visible = false
 
-	# --- GameProgressOverlay (in-game advanced settings) ---
+	# --- GameProgressOverlay (in-game flow settings) ---
 	if has_node("%GameProgressOverlay"):
 		%GameProgressOverlay.closed.connect(_on_settings_closed)
 
@@ -656,7 +656,7 @@ func _update_labels() -> void:
 	%NextLineButton.text = I18n.translate("btn_next_dialog") if I18n.translate("btn_next_dialog") != "btn_next_dialog" else "Dialogue >"
 	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "<< Scene"
 	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Scene >>"
-	%SettingButton.text = I18n.translate("btn_setting") if I18n.translate("btn_setting") != "btn_setting" else "Setting"
+	%SettingButton.text = I18n.translate("btn_flow_setting") if I18n.translate("btn_flow_setting") != "btn_flow_setting" else "Flow Settings"
 	%GameplayMenuButton.text = I18n.translate("btn_gameplay_menu") if I18n.translate("btn_gameplay_menu") != "btn_gameplay_menu" else "Menu"
 	# Choice overlay
 	var choice_title: String = I18n.translate("choice_title")

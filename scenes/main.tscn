@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://main_menu"]
+[gd_scene load_steps=22 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2"]
@@ -62,6 +62,28 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_logo_gradient"]
 shader = SubResource("Shader_logo_gradient")
+
+[sub_resource type="Shader" id="Shader_logo_outline_gradient"]
+code = "shader_type canvas_item;
+
+uniform vec4 top_color : source_color = vec4(0.55, 0.55, 0.55, 1.0);
+uniform vec4 bottom_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+varying float label_y;
+
+void vertex() {
+	label_y = VERTEX.y;
+}
+
+void fragment() {
+	vec4 glyph = texture(TEXTURE, UV);
+	float gradient_position = smoothstep(20.0, 180.0, label_y);
+	vec4 gradient_color = mix(top_color, bottom_color, gradient_position);
+	COLOR = glyph * gradient_color * COLOR;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_logo_outline_gradient"]
+shader = SubResource("Shader_logo_outline_gradient")
 
 [sub_resource type="FontVariation" id="FontVariation_logo"]
 base_font = ExtResource("13_cormorant_upright_bold")
@@ -128,6 +150,29 @@ offset_bottom = 285.0
 grow_horizontal = 0
 mouse_filter = 2
 material = SubResource("ShaderMaterial_logo_glow")
+
+[node name="LogoOutline" type="Label" parent="."]
+unique_name_in_owner = true
+z_index = 2
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -760.0
+offset_top = 40.0
+offset_right = -70.0
+offset_bottom = 235.0
+grow_horizontal = 0
+material = SubResource("ShaderMaterial_logo_outline_gradient")
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 30
+theme_override_fonts/font = SubResource("FontVariation_logo")
+theme_override_font_sizes/font_size = 158
+text = "StoryNow"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="Logo" type="Label" parent="."]
 unique_name_in_owner = true
