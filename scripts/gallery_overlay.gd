@@ -9,6 +9,7 @@ var _total_pages: int = 1
 var _preview_uuid: String = ""
 var _preview_entry: Dictionary = {}
 var _preview_index: int = -1
+var _preview_ui_hidden: bool = false
 
 
 func _ready() -> void:
@@ -16,12 +17,14 @@ func _ready() -> void:
 		%GalleryBackButton.pressed.connect(_on_back_pressed)
 	if has_node("%GalleryBackground"):
 		%GalleryBackground.gui_input.connect(_on_background_input)
+	%GalleryPreview.gui_input.connect(_on_gallery_preview_input)
 	%GalleryPreviewPreviousButton.pressed.connect(_on_preview_previous_pressed)
 	%GalleryPreviewNextButton.pressed.connect(_on_preview_next_pressed)
 	%GalleryPreviewLoadButton.pressed.connect(_on_preview_load_pressed)
 	%GalleryPreviewBackButton.pressed.connect(_hide_preview)
 	%GalleryPreviewConfirmCancel.pressed.connect(_on_preview_load_canceled)
 	%GalleryPreviewConfirmLoad.pressed.connect(_on_preview_load_confirmed)
+	%GalleryPreviewErrorOk.pressed.connect(_on_preview_error_ok_pressed)
 	_update_labels()
 
 
@@ -62,6 +65,8 @@ func _update_labels() -> void:
 	%GalleryPreviewConfirmTitle.text = I18n.translate("confirm_dialog_title")
 	%GalleryPreviewConfirmLoad.text = I18n.translate("btn_confirm")
 	%GalleryPreviewConfirmCancel.text = I18n.translate("btn_cancel")
+	%GalleryPreviewErrorTitle.text = I18n.translate("error_dialog_title")
+	%GalleryPreviewErrorOk.text = "OK"
 
 
 func _refresh_grid() -> void:
@@ -413,6 +418,7 @@ func _show_preview_at_index(index: int) -> void:
 	if entry_page != _current_page:
 		_current_page = entry_page
 		_show_current_page()
+	_set_preview_ui_hidden(false)
 	%GalleryPreview.visible = true
 	%GalleryPreviewLoadButton.grab_focus()
 
@@ -430,6 +436,7 @@ func _get_preview_title(uuid: String, entry: Dictionary) -> String:
 
 
 func _hide_preview() -> void:
+	_set_preview_ui_hidden(false)
 	_preview_uuid = ""
 	_preview_entry = {}
 	_preview_index = -1
@@ -440,7 +447,27 @@ func _hide_preview() -> void:
 	%GalleryPreviewLoadButton.disabled = false
 	%GalleryPreviewBackButton.disabled = false
 	%GalleryPreviewConfirmPopup.visible = false
+	%GalleryPreviewErrorPopup.visible = false
 	%GalleryPreview.visible = false
+
+
+func _on_gallery_preview_input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton or not event.pressed:
+		return
+	if event.button_index not in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
+		return
+	if _preview_ui_hidden:
+		_set_preview_ui_hidden(false)
+		get_viewport().set_input_as_handled()
+	elif event.button_index == MOUSE_BUTTON_RIGHT:
+		_set_preview_ui_hidden(true)
+		get_viewport().set_input_as_handled()
+
+
+func _set_preview_ui_hidden(is_hidden: bool) -> void:
+	_preview_ui_hidden = is_hidden
+	%BottomBar.visible = not is_hidden
+	ServerRuntimeManager.set_chrome_visible(not is_hidden)
 
 
 func _on_preview_previous_pressed() -> void:
@@ -453,6 +480,9 @@ func _on_preview_next_pressed() -> void:
 
 func _on_preview_load_pressed() -> void:
 	if _preview_uuid.strip_edges().is_empty() or _preview_entry.is_empty():
+		return
+	if not _are_story_servers_ready():
+		_show_preview_error(I18n.translate("notice_wait_llm_and_image_ready"))
 		return
 	var template := I18n.translate("gallery_load_scene_confirm")
 	if template == "gallery_load_scene_confirm":
@@ -469,6 +499,9 @@ func _on_preview_load_canceled() -> void:
 
 func _on_preview_load_confirmed() -> void:
 	%GalleryPreviewConfirmPopup.visible = false
+	if not _are_story_servers_ready():
+		_show_preview_error(I18n.translate("notice_wait_llm_and_image_ready"))
+		return
 	var uuid := _preview_uuid.strip_edges()
 	var entry := _preview_entry.duplicate(true)
 	if uuid.is_empty() or entry.is_empty():
@@ -480,6 +513,24 @@ func _on_preview_load_confirmed() -> void:
 	var scene_changed := await _load_gallery_entry(uuid, entry)
 	if is_instance_valid(self) and not scene_changed:
 		_show_preview_at_index(_preview_index)
+
+
+func _are_story_servers_ready() -> bool:
+	return (
+		ServerRuntimeManager.llm_state == ServerRuntimeManager.ServerState.HEALTHY
+		and ServerRuntimeManager.image_state == ServerRuntimeManager.ServerState.HEALTHY
+	)
+
+
+func _show_preview_error(message: String) -> void:
+	%GalleryPreviewErrorMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%GalleryPreviewErrorPopup.visible = true
+	%GalleryPreviewErrorOk.grab_focus()
+
+
+func _on_preview_error_ok_pressed() -> void:
+	%GalleryPreviewErrorPopup.visible = false
+	%GalleryPreviewLoadButton.grab_focus()
 
 
 func _load_gallery_entry(uuid: String, entry: Dictionary) -> bool:

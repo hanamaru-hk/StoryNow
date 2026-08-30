@@ -77,7 +77,7 @@ The PlotOverlay UI regression check runs with `godot --headless --path . --scene
 ## 7.8 Gallery / Load Overlays
 
 - **LoadGameOverlay** (`scripts/load_game_overlay.gd:1`) — paginated `PAGE_SIZE=10` list of save dirs sorted by `timestamp` desc; each row shows thumbnail (largest image), timestamp + title, Delete and Load buttons. Loading requires confirmation. The list viewport clips part of the next row to make scrolling discoverable. Pagination bar shows `1 2 3 … 9 10` style.
-- **GalleryOverlay** (`scripts/gallery_overlay.gd:1`) — grid `PAGE_SIZE=16`, `GridContainer` thumbnails (230×180 buttons) with the same sorting/thumbnail logic. Clicking a thumbnail opens a full-screen image preview with a bottom bar showing the story title, previous/next controls that follow the gallery sort order, and Load Scene/Back actions. Load Scene requires confirmation before loading that save as `running` with the selected image active.
+- **GalleryOverlay** (`scripts/gallery_overlay.gd:1`) — grid `PAGE_SIZE=16`, `GridContainer` thumbnails (230×180 buttons) with the same sorting/thumbnail logic. Clicking a thumbnail opens a full-screen image preview with a bottom bar showing the story title, UTF-8 previous/next controls that follow the gallery sort order, and Load Scene/Back actions. Right-clicking the preview image toggles an immersive view that hides the bottom bar and server-status chrome; while hidden, either left- or right-click restores both. Load Scene first requires both story engines to be healthy (otherwise it shows the same readiness error as LoadGameOverlay), then requires confirmation before loading that save as `running` with the selected image active.
 
 ## 7.9 Internationalization
 
