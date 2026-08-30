@@ -52,7 +52,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — localized Image heading with New/Change actions, then a carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).
 - **ChoiceOverlay** (`scripts/gameplay.gd:287`) — dynamic choice buttons + free-form `CustomInput` + Confirm/Cancel.
 - **GameplayMenuOverlay** — Menu hub (Load/Gallery/Game Settings/Advanced/Main Menu/Quit) bridging to other overlays.
-- **HelpOverlay** (`scripts/help_overlay.gd:1`) — troubleshooting guidance for engines that remain in the starting state, plus a nested minimum-system-requirements page.
+- **HelpOverlay** (`scripts/help_overlay.gd:1`) — troubleshooting guidance for engines that remain in the starting state, repeated generation retries, and minimum system requirements.
 - **GameProgressOverlay / GameSettingsOverlay / AdvancedSettingsOverlay / LLM/Image Server Settings overlays** — settings editors (see below).
 
 ## 7.6 Settings Overlays
