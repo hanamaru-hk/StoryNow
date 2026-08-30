@@ -5,6 +5,9 @@ signal dialogue_updated
 signal summary_requested
 
 const TRIM_LEN := 20
+const SEX_MALE_ID := 0
+const SEX_FEMALE_ID := 1
+const SEX_OTHER_ID := 2
 
 var _editing_index: int = -1
 var _is_regenerating: bool = false
@@ -34,6 +37,10 @@ func _ready() -> void:
 		%EditBack.pressed.connect(_on_edit_back_pressed)
 	if has_node("%EditSave"):
 		%EditSave.pressed.connect(_on_edit_save_pressed)
+	if has_node("%EditDelete"):
+		%EditDelete.pressed.connect(_on_edit_delete_pressed)
+	if has_node("%SexDropdown"):
+		%SexDropdown.item_selected.connect(_on_sex_selected)
 	visible = false
 	if has_node("%EditOverlay"):
 		%EditOverlay.visible = false
@@ -287,10 +294,12 @@ func _on_item_pressed(index: int) -> void:
 	var dict: Dictionary = entry if entry is Dictionary else {}
 	var character_name: String = str(dict.get("character", dict.get("characer", "")))
 	var dialogue_text: String = str(dict.get("dialogue", ""))
+	var sex: String = str(dict.get("sex", "male")).strip_edges()
 	if has_node("%EditCharacter"):
 		%EditCharacter.text = character_name
 	if has_node("%EditDialogue"):
 		%EditDialogue.text = dialogue_text
+	_set_sex_editor_value(sex)
 	if has_node("%EditPopup"):
 		%EditPopup.visible = true
 	_update_labels()
@@ -300,6 +309,45 @@ func _on_edit_back_pressed() -> void:
 	if has_node("%EditPopup"):
 		%EditPopup.visible = false
 	_editing_index = -1
+
+
+func _set_sex_editor_value(sex: String) -> void:
+	if not has_node("%SexDropdown"):
+		return
+	var normalized := sex.to_lower()
+	var selected_id := SEX_OTHER_ID
+	if normalized == "male":
+		selected_id = SEX_MALE_ID
+	elif normalized == "female":
+		selected_id = SEX_FEMALE_ID
+	for i in %SexDropdown.item_count:
+		if %SexDropdown.get_item_id(i) == selected_id:
+			%SexDropdown.selected = i
+			break
+	if has_node("%CustomSexInput"):
+		%CustomSexInput.text = sex if selected_id == SEX_OTHER_ID else ""
+		%CustomSexInput.visible = selected_id == SEX_OTHER_ID
+
+
+func _on_sex_selected(item_index: int) -> void:
+	if not has_node("%SexDropdown") or not has_node("%CustomSexInput"):
+		return
+	%CustomSexInput.visible = %SexDropdown.get_item_id(item_index) == SEX_OTHER_ID
+	if %CustomSexInput.visible:
+		%CustomSexInput.grab_focus()
+
+
+func _get_edited_sex() -> String:
+	if not has_node("%SexDropdown") or %SexDropdown.selected < 0:
+		return "male"
+	match %SexDropdown.get_selected_id():
+		SEX_MALE_ID:
+			return "male"
+		SEX_FEMALE_ID:
+			return "female"
+		_:
+			var custom_value: String = %CustomSexInput.text.strip_edges() if has_node("%CustomSexInput") else ""
+			return custom_value if not custom_value.is_empty() else "other"
 
 
 func _on_edit_save_pressed() -> void:
@@ -316,8 +364,7 @@ func _on_edit_save_pressed() -> void:
 	if dict.has("characer"):
 		dict.erase("characer")
 	dict["dialogue"] = dialogue_text
-	if not dict.has("sex"):
-		dict["sex"] = "male"
+	dict["sex"] = _get_edited_sex()
 	# Clear old sound_filename to force regeneration
 	dict.erase("sound_filename")
 	interactions[_editing_index] = dict
@@ -328,6 +375,25 @@ func _on_edit_save_pressed() -> void:
 	var uuid_edit := str(SceneDataManager.scene_data.get("uuid", "")).strip_edges()
 	if not uuid_edit.is_empty() and not str(dialogue_text).strip_edges().is_empty():
 		TTSManager.generate_single_interaction(uuid_edit, saved_idx)
+	if has_node("%EditPopup"):
+		%EditPopup.visible = false
+	_editing_index = -1
+	_refresh_list()
+	_refresh_dropdown()
+	dialogue_updated.emit()
+
+
+func _on_edit_delete_pressed() -> void:
+	var interactions: Array = _get_interactions()
+	if _editing_index < 0 or _editing_index >= interactions.size():
+		return
+	if interactions.size() <= 1:
+		if has_node("%LastDialogueError"):
+			%LastDialogueError.popup_centered()
+		return
+	interactions.remove_at(_editing_index)
+	SceneDataManager.scene_data["interactions"] = interactions
+	SceneDataManager.save()
 	if has_node("%EditPopup"):
 		%EditPopup.visible = false
 	_editing_index = -1
@@ -394,6 +460,7 @@ func _on_back_pressed() -> void:
 
 
 func _update_labels() -> void:
+	_update_sex_dropdown_labels()
 	if has_node("%Title"):
 		%Title.text = I18n.translate("plot_overlay_title") if I18n.translate("plot_overlay_title") != "plot_overlay_title" else "Plot"
 	if has_node("%HubEditButton"):
@@ -432,7 +499,32 @@ func _update_labels() -> void:
 		%EditCharacter.placeholder_text = I18n.translate("dialogue_character_placeholder") if I18n.translate("dialogue_character_placeholder") != "dialogue_character_placeholder" else "Character"
 	if has_node("%EditDialogue"):
 		%EditDialogue.placeholder_text = I18n.translate("dialogue_text_placeholder") if I18n.translate("dialogue_text_placeholder") != "dialogue_text_placeholder" else "Dialogue..."
+	if has_node("%SexLabel"):
+		%SexLabel.text = I18n.translate("dialogue_sex_label") if I18n.translate("dialogue_sex_label") != "dialogue_sex_label" else "Sex"
+	if has_node("%CustomSexInput"):
+		%CustomSexInput.placeholder_text = I18n.translate("dialogue_sex_custom_placeholder") if I18n.translate("dialogue_sex_custom_placeholder") != "dialogue_sex_custom_placeholder" else "Enter a value"
 	if has_node("%EditBack"):
 		%EditBack.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	if has_node("%EditSave"):
 		%EditSave.text = I18n.translate("btn_save") if I18n.translate("btn_save") != "btn_save" else "Save"
+	if has_node("%EditDelete"):
+		%EditDelete.text = I18n.translate("btn_delete") if I18n.translate("btn_delete") != "btn_delete" else "Delete"
+	if has_node("%LastDialogueError"):
+		%LastDialogueError.title = I18n.translate("error_dialog_title") if I18n.translate("error_dialog_title") != "error_dialog_title" else "Error"
+		%LastDialogueError.dialog_text = I18n.translate("dialogue_delete_last_error") if I18n.translate("dialogue_delete_last_error") != "dialogue_delete_last_error" else "The last dialogue cannot be deleted."
+
+
+func _update_sex_dropdown_labels() -> void:
+	if not has_node("%SexDropdown"):
+		return
+	var selected_id := SEX_MALE_ID
+	if %SexDropdown.selected >= 0:
+		selected_id = %SexDropdown.get_selected_id()
+	%SexDropdown.clear()
+	%SexDropdown.add_item(I18n.translate("dialogue_sex_male"), SEX_MALE_ID)
+	%SexDropdown.add_item(I18n.translate("dialogue_sex_female"), SEX_FEMALE_ID)
+	%SexDropdown.add_item(I18n.translate("dialogue_sex_other"), SEX_OTHER_ID)
+	for i in %SexDropdown.item_count:
+		if %SexDropdown.get_item_id(i) == selected_id:
+			%SexDropdown.selected = i
+			break

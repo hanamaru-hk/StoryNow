@@ -43,7 +43,7 @@ First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`.
 
 All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `open()/closed` signal pattern:
 
-- **PlotOverlay** (`scripts/plot_overlay.gd:1`) — hub (Edit/Add/Regenerate All/Summary/Back) → Edit list (indexed buttons) → Edit dialog (character/dialogue fields) → Add overlay (dropdown + before/after). Summary opens `SummaryOverlay`; Regenerate All calls LLM in retry loop, replaces only `interactions[]`, resets `current_dialogue=0`, triggers TTS.
+- **PlotOverlay** (`scripts/plot_overlay.gd:1`) — hub (Edit/Add/Regenerate All/Summary/Back) → Edit list (indexed buttons) → Edit dialog (character/dialogue/sex fields plus delete) → Add overlay (dropdown + before/after). Sex stores `male`, `female`, or the custom value entered for Other. Delete is blocked when only one dialogue remains. Summary opens `SummaryOverlay`; Regenerate All calls LLM in retry loop, replaces only `interactions[]`, resets `current_dialogue=0`, triggers TTS.
 - **SummaryOverlay** (`scripts/summary_overlay.gd:1`) — shows and edits `summary`.
 - **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (free mode); **Produce** closes the overlay and requests generation through Gameplay's image controller.
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — New image vs carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).
@@ -62,6 +62,8 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 | **Image Server Settings** (`image_server_settings_overlay.gd`) | Port (default 56321), Model filename (`waiIllustriousSDXL_v170.safetensors`) | `user://image_server_settings.json` |
 
 All follow **open → edit `_pending` → Save/Reset/Back** pattern; Save merges into manager singleton and calls `save_settings()`; Reset reloads defaults.
+
+The PlotOverlay UI regression check runs with `godot --headless --path . --scene res://tools/test_plot_overlay.tscn`.
 
 ## 7.7 Server Status Overlay
 
