@@ -53,3 +53,9 @@ Autoloads: `I18n`, `GameSettingsManager`, `LLM/Image Server SettingsManager`, `L
 ## Testing
 
 Planned GUT suite (`docs/specs/10-testing-strategy.md`). CI: `godot --headless -s tests/run_all.gd` (tests not yet committed).
+
+If Godot resources need to be imported manually, run:
+
+```powershell
+godot --headless --path "F:\repo-pakyinwww\StoryNow" --import --quit
+```
