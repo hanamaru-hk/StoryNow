@@ -10,7 +10,7 @@ var settings := {
 	"minimum_dialogues_per_scene": 10,
 	"minimum_sentences_per_dialogue": 10,
 	"minimum_plot_directions": 10,
-	"minimum_summary_sentences": 10,
+	"minimum_sentences_in_summary": 10,
 	"game_status": ""
 }
 
@@ -67,7 +67,6 @@ func _normalize_integer_settings() -> void:
 		"minimum_sentences_per_dialogue",
 		"minimum_plot_directions",
 		"maximum_plot_directions",
-		"minimum_summary_sentences",
 		"minimum_sentences_in_summary",
 	]:
 		if settings.has(key):

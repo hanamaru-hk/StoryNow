@@ -86,7 +86,7 @@ func _apply_pending_from_ui() -> void:
 		_pending["maximum_plot_directions"] = plot_directions
 	v = %MinSummaryInput.text.strip_edges()
 	if v.is_valid_int():
-		_pending["minimum_summary_sentences"] = maxi(v.to_int(), 0)
+		_pending["minimum_sentences_in_summary"] = maxi(v.to_int(), 0)
 
 
 func _sync_ui_to_settings() -> void:
@@ -98,7 +98,7 @@ func _sync_ui_to_settings() -> void:
 	# Support both minimum_plot_directions and maximum_plot_directions keys
 	var plot_val: Variant = _pending.get("minimum_plot_directions", _pending.get("maximum_plot_directions", 10))
 	%MaxPlotDirectionsInput.text = _integer_text(plot_val)
-	%MinSummaryInput.text = _integer_text(_pending.get("minimum_summary_sentences", _pending.get("minimum_sentences_in_summary", 10)))
+	%MinSummaryInput.text = _integer_text(_pending.get("minimum_sentences_in_summary", 10))
 
 
 func _integer_text(value: Variant) -> String:

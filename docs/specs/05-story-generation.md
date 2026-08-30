@@ -39,7 +39,7 @@ The LLM returns **raw JSON** (no Markdown) conforming to `data/llm/<lang>/common
 | `interactions` | Array of `{character, dialogue, sex}` | Ordered dialogue lines. `character` may be empty for narration; `sex` drives TTS voice selection. Supports legacy typo `characer`. `sound_filename` is added locally by `TTSManager`. |
 | `choices` | Array of `{plot, uuid?}` | 1–N plot directions. When a choice is selected, its `plot` becomes `player_input` and `uuid` is later stamped to mark "previously selected". |
 | `image_prompt` | String | Danbooru tag list (English, comma-separated) for ComfyUI. Prefixed at runtime with `score_9, …` and suffixed with guardrail handling. Repaired if LLM emits bare quotes. |
-| `summary` | String | Compressed story state, ≤ `minimum_sentences_in_summary` sentences (default 10), simple clauses. Used as `story_background` for next scene. |
+| `summary` | String | Compressed story state, ≤ `minimum_sentences_in_summary` sentences (default 3), simple clauses. Used as `story_background` for next scene. |
 | `end` | bool | Whether story should end; LLM instructed to set true when `current_round == expected_rounds`. |
 | `language` | String | `en` / `zh_CN` / `zh_TW` / `yue` (mirrors `I18n.current_lang`). |
 | `title` | String | Short scene title shown in `%TitleLabel` as `"${round}. ${title}"` (`scripts/gameplay.gd:1088`). |

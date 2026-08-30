@@ -1,5 +1,5 @@
 {
 	"port": 56321,
-	"timeout": 120,
+	"timeout": 240,
 	"model_filename": "waiIllustriousSDXL_v170.safetensors"
 }
