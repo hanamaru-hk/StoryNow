@@ -11,12 +11,16 @@ const ROW_BG_IMAGE := Color(0.24, 0.17, 0.1, 0.88)
 const ROW_BG_SOUND := Color(0.15, 0.21, 0.14, 0.88)
 const TimeoutCircle := preload("res://scripts/request_timeout_circle.gd")
 
+var _engine_status_hint_tween: Tween
+
 
 func _ready() -> void:
 	ServerRuntimeManager.llm_state_changed.connect(_on_llm_state_changed)
 	ServerRuntimeManager.image_state_changed.connect(_on_image_state_changed)
 	ServerRuntimeManager.chrome_visibility_changed.connect(_on_chrome_visibility_changed)
 	ServerRuntimeManager.request_queue_changed.connect(_on_request_queue_changed)
+	ServerRuntimeManager.engine_status_hint_changed.connect(_on_engine_status_hint_changed)
+	ServerRuntimeManager.engine_status_hint_emphasis_requested.connect(_on_engine_status_hint_emphasis_requested)
 	if I18n.has_signal("language_changed"):
 		I18n.language_changed.connect(_on_language_changed)
 	%LLMLoader.set_spinner_kind("llm")
@@ -25,6 +29,7 @@ func _ready() -> void:
 	_apply_image(ServerRuntimeManager.image_state)
 	_on_chrome_visibility_changed(ServerRuntimeManager.chrome_visible)
 	_on_request_queue_changed(ServerRuntimeManager.request_queue)
+	_on_engine_status_hint_changed(ServerRuntimeManager.engine_status_hint_visible)
 	_update_labels()
 
 
@@ -47,6 +52,33 @@ func _notification(what: int) -> void:
 
 func _on_chrome_visibility_changed(is_visible: bool) -> void:
 	visible = is_visible
+
+
+func _on_engine_status_hint_changed(is_visible: bool) -> void:
+	if is_instance_valid(_engine_status_hint_tween):
+		_engine_status_hint_tween.kill()
+	_engine_status_hint_tween = null
+	%EngineStatusHintArrow.visible = is_visible
+	%EngineStatusHintArrow.modulate.a = 1.0
+	if not is_visible:
+		return
+	_start_engine_status_hint_flash(ServerRuntimeManager.engine_status_hint_emphasized)
+
+
+func _on_engine_status_hint_emphasis_requested() -> void:
+	if %EngineStatusHintArrow.visible:
+		_start_engine_status_hint_flash(true)
+
+
+func _start_engine_status_hint_flash(is_emphasized: bool) -> void:
+	if is_instance_valid(_engine_status_hint_tween):
+		_engine_status_hint_tween.kill()
+	%EngineStatusHintArrow.modulate.a = 1.0
+	var dim_alpha := 0.03 if is_emphasized else 0.2
+	var flash_seconds := 0.16 if is_emphasized else 0.45
+	_engine_status_hint_tween = create_tween().set_loops()
+	_engine_status_hint_tween.tween_property(%EngineStatusHintArrow, "modulate:a", dim_alpha, flash_seconds)
+	_engine_status_hint_tween.tween_property(%EngineStatusHintArrow, "modulate:a", 1.0, flash_seconds)
 
 
 func _on_request_queue_changed(queue: Array) -> void:

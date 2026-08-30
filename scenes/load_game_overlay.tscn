@@ -159,6 +159,13 @@ layout_mode = 2
 custom_minimum_size = Vector2(180, 48)
 text = "OK"
 
+[node name="LoadErrorRetry" type="Button" parent="LoadErrorPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Retry"
+
 [node name="LoadDeleteConfirmPopup" type="Control" parent="."]
 unique_name_in_owner = true
 visible = false

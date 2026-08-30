@@ -1,6 +1,7 @@
 extends Control
 
 var _brainstorm_request_active := false
+var _pending_engine_retry_action := ""
 
 
 func _ready() -> void:
@@ -12,16 +13,21 @@ func _ready() -> void:
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
 	%ErrorPopupOk.pressed.connect(_on_error_popup_ok_pressed)
+	%ErrorPopupRetry.pressed.connect(_on_error_popup_retry_pressed)
 	%RandomConfirmCancel.pressed.connect(_on_random_confirm_canceled)
 	%RandomConfirmOk.pressed.connect(_on_random_confirmed)
 	_update_labels()
+
+
+func _exit_tree() -> void:
+	ServerRuntimeManager.set_engine_status_hint_visible(false)
 
 
 func _on_random_pressed() -> void:
 	if _brainstorm_request_active:
 		return
 	if not _is_llm_ready():
-		_show_error_popup(I18n.translate("notice_wait_llm_ready"))
+		_show_error_popup(I18n.translate("notice_wait_llm_ready"), true, "random")
 		return
 	if %BackgroundInput.text.strip_edges().is_empty():
 		await _request_random_text()
@@ -47,7 +53,7 @@ func _on_enhance_pressed() -> void:
 	if _brainstorm_request_active:
 		return
 	if not _is_llm_ready():
-		_show_error_popup(I18n.translate("notice_wait_llm_ready"))
+		_show_error_popup(I18n.translate("notice_wait_llm_ready"), true, "enhance")
 		return
 	var input: String = %BackgroundInput.text.strip_edges()
 	if input.is_empty():
@@ -92,18 +98,46 @@ func _set_child_buttons_disabled(root: Node, is_disabled: bool) -> void:
 		_set_child_buttons_disabled(child, is_disabled)
 
 
-func _show_error_popup(message: String) -> void:
+func _show_error_popup(message: String, show_engine_status_hint := false, retry_action := "") -> void:
+	_pending_engine_retry_action = retry_action if show_engine_status_hint else ""
 	%ErrorPopupMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
 	%ErrorPopup.visible = true
+	%ErrorPopupRetry.visible = not _pending_engine_retry_action.is_empty()
+	ServerRuntimeManager.set_engine_status_hint_visible(show_engine_status_hint)
 
 
 func _on_error_popup_ok_pressed() -> void:
+	_close_error_popup()
+
+
+func _on_error_popup_retry_pressed() -> void:
+	var action := _pending_engine_retry_action
+	var servers_ready := _is_llm_ready()
+	if action == "start":
+		servers_ready = _are_story_servers_ready()
+	if not servers_ready:
+		ServerRuntimeManager.emphasize_engine_status_hint()
+		return
+	_close_error_popup()
+	match action:
+		"random":
+			_on_random_pressed()
+		"enhance":
+			_on_enhance_pressed()
+		"start":
+			_on_start_pressed()
+
+
+func _close_error_popup() -> void:
+	_pending_engine_retry_action = ""
 	%ErrorPopup.visible = false
+	%ErrorPopupRetry.visible = false
+	ServerRuntimeManager.set_engine_status_hint_visible(false)
 
 
 func _on_start_pressed() -> void:
 	if not _are_story_servers_ready():
-		_show_error_popup(I18n.translate("notice_wait_llm_and_image_ready"))
+		_show_error_popup(I18n.translate("notice_wait_llm_and_image_ready"), true, "start")
 		return
 	var input: String = %BackgroundInput.text.strip_edges()
 	if input.is_empty():
@@ -192,6 +226,7 @@ func _update_labels() -> void:
 	%LoadingLabel.text = I18n.translate("loading_title")
 	%ErrorPopupTitle.text = I18n.translate("error_dialog_title")
 	%ErrorPopupOk.text = "OK"
+	%ErrorPopupRetry.text = I18n.translate("btn_retry")
 	%RandomConfirmTitle.text = I18n.translate("confirm_dialog_title")
 	%RandomConfirmMessage.text = I18n.translate("confirm_random_clear_text")
 	%RandomConfirmCancel.text = I18n.translate("btn_cancel")

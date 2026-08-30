@@ -10,6 +10,7 @@ var _preview_uuid: String = ""
 var _preview_entry: Dictionary = {}
 var _preview_index: int = -1
 var _preview_ui_hidden: bool = false
+var _pending_engine_retry_action := ""
 
 
 func _ready() -> void:
@@ -25,11 +26,13 @@ func _ready() -> void:
 	%GalleryPreviewConfirmCancel.pressed.connect(_on_preview_load_canceled)
 	%GalleryPreviewConfirmLoad.pressed.connect(_on_preview_load_confirmed)
 	%GalleryPreviewErrorOk.pressed.connect(_on_preview_error_ok_pressed)
+	%GalleryPreviewErrorRetry.pressed.connect(_on_preview_error_retry_pressed)
 	_update_labels()
 
 
 func open() -> void:
 	visible = true
+	ServerRuntimeManager.set_engine_status_hint_visible(false)
 	_hide_preview()
 	_current_page = 1
 	_refresh_grid()
@@ -37,6 +40,7 @@ func open() -> void:
 
 
 func close() -> void:
+	ServerRuntimeManager.set_engine_status_hint_visible(false)
 	_hide_preview()
 	visible = false
 	closed.emit()
@@ -67,6 +71,7 @@ func _update_labels() -> void:
 	%GalleryPreviewConfirmCancel.text = I18n.translate("btn_cancel")
 	%GalleryPreviewErrorTitle.text = I18n.translate("error_dialog_title")
 	%GalleryPreviewErrorOk.text = "OK"
+	%GalleryPreviewErrorRetry.text = I18n.translate("btn_retry")
 
 
 func _refresh_grid() -> void:
@@ -438,6 +443,8 @@ func _get_preview_title(uuid: String, entry: Dictionary) -> String:
 
 
 func _hide_preview() -> void:
+	ServerRuntimeManager.set_engine_status_hint_visible(false)
+	_pending_engine_retry_action = ""
 	_set_preview_ui_hidden(false)
 	_preview_uuid = ""
 	_preview_entry = {}
@@ -450,6 +457,7 @@ func _hide_preview() -> void:
 	%GalleryPreviewBackButton.disabled = false
 	%GalleryPreviewConfirmPopup.visible = false
 	%GalleryPreviewErrorPopup.visible = false
+	%GalleryPreviewErrorRetry.visible = false
 	%GalleryPreview.visible = false
 
 
@@ -484,7 +492,7 @@ func _on_preview_load_pressed() -> void:
 	if _preview_uuid.strip_edges().is_empty() or _preview_entry.is_empty():
 		return
 	if not _are_story_servers_ready():
-		_show_preview_error(I18n.translate("notice_wait_llm_and_image_ready"))
+		_show_preview_error(I18n.translate("notice_wait_llm_and_image_ready"), true, "show_confirmation")
 		return
 	var template := I18n.translate("gallery_load_scene_confirm")
 	if template == "gallery_load_scene_confirm":
@@ -502,7 +510,7 @@ func _on_preview_load_canceled() -> void:
 func _on_preview_load_confirmed() -> void:
 	%GalleryPreviewConfirmPopup.visible = false
 	if not _are_story_servers_ready():
-		_show_preview_error(I18n.translate("notice_wait_llm_and_image_ready"))
+		_show_preview_error(I18n.translate("notice_wait_llm_and_image_ready"), true, "load")
 		return
 	var uuid := _preview_uuid.strip_edges()
 	var entry := _preview_entry.duplicate(true)
@@ -524,15 +532,39 @@ func _are_story_servers_ready() -> bool:
 	)
 
 
-func _show_preview_error(message: String) -> void:
+func _show_preview_error(message: String, show_engine_status_hint := false, retry_action := "") -> void:
+	_pending_engine_retry_action = retry_action if show_engine_status_hint else ""
 	%GalleryPreviewErrorMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
 	%GalleryPreviewErrorPopup.visible = true
-	%GalleryPreviewErrorOk.grab_focus()
+	%GalleryPreviewErrorRetry.visible = not _pending_engine_retry_action.is_empty()
+	if %GalleryPreviewErrorRetry.visible:
+		%GalleryPreviewErrorRetry.grab_focus()
+	else:
+		%GalleryPreviewErrorOk.grab_focus()
+	ServerRuntimeManager.set_engine_status_hint_visible(show_engine_status_hint)
 
 
 func _on_preview_error_ok_pressed() -> void:
+	_pending_engine_retry_action = ""
 	%GalleryPreviewErrorPopup.visible = false
+	%GalleryPreviewErrorRetry.visible = false
+	ServerRuntimeManager.set_engine_status_hint_visible(false)
 	%GalleryPreviewLoadButton.grab_focus()
+
+
+func _on_preview_error_retry_pressed() -> void:
+	if not _are_story_servers_ready():
+		ServerRuntimeManager.emphasize_engine_status_hint()
+		return
+	var action := _pending_engine_retry_action
+	_pending_engine_retry_action = ""
+	%GalleryPreviewErrorPopup.visible = false
+	%GalleryPreviewErrorRetry.visible = false
+	ServerRuntimeManager.set_engine_status_hint_visible(false)
+	if action == "load":
+		await _on_preview_load_confirmed()
+	elif action == "show_confirmation":
+		_on_preview_load_pressed()
 
 
 func _load_gallery_entry(uuid: String, entry: Dictionary) -> bool:

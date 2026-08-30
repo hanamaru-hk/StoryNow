@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://server_status_overlay"]
+[gd_scene load_steps=5 format=3 uid="uid://server_status_overlay"]
 
 [ext_resource type="Script" path="res://scripts/server_status_overlay.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/request_timeout_circle.gd" id="2_timeout"]
+[ext_resource type="Script" path="res://scripts/engine_status_hint_arrow.gd" id="3_hint_arrow"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_queue_panel"]
 
@@ -19,6 +20,20 @@ offset_right = -8.0
 offset_bottom = 40.0
 grow_horizontal = 0
 theme_override_constants/separation = 16
+
+[node name="EngineStatusHintArrow" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -566.0
+offset_top = 42.0
+offset_right = -284.0
+offset_bottom = 324.0
+grow_horizontal = 0
+mouse_filter = 2
+script = ExtResource("3_hint_arrow")
 
 [node name="LLMIndicator" type="HBoxContainer" parent="StatusPanel"]
 layout_mode = 2

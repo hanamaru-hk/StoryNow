@@ -10,6 +10,8 @@ signal llm_state_changed(state: ServerState)
 signal image_state_changed(state: ServerState)
 signal chrome_visibility_changed(is_visible: bool)
 signal request_queue_changed(queue: Array)
+signal engine_status_hint_changed(is_visible: bool)
+signal engine_status_hint_emphasis_requested
 
 const HEARTBEAT_NOT_CONNECTED_INTERVAL := 2.0
 const HEARTBEAT_CONNECTED_INTERVAL := 10.0
@@ -18,6 +20,8 @@ const INITIAL_CHECK_DELAY := 2.0
 var llm_state := ServerState.STARTING
 var image_state := ServerState.STARTING
 var chrome_visible := true
+var engine_status_hint_visible := false
+var engine_status_hint_emphasized := false
 var request_queue: Array[Dictionary] = []
 
 var _heartbeat_timer: Timer
@@ -150,6 +154,21 @@ func set_chrome_visible(is_visible: bool) -> void:
 		return
 	chrome_visible = is_visible
 	chrome_visibility_changed.emit(chrome_visible)
+
+
+func set_engine_status_hint_visible(is_visible: bool) -> void:
+	if engine_status_hint_visible == is_visible:
+		return
+	engine_status_hint_visible = is_visible
+	engine_status_hint_emphasized = false
+	engine_status_hint_changed.emit(engine_status_hint_visible)
+
+
+func emphasize_engine_status_hint() -> void:
+	if not engine_status_hint_visible:
+		return
+	engine_status_hint_emphasized = true
+	engine_status_hint_emphasis_requested.emit()
 
 
 func push_request(kind: String, label: String, timeout_seconds: float) -> int:
