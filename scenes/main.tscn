@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://main_menu"]
+[gd_scene load_steps=20 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2"]
@@ -24,17 +24,6 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_left_black_fade"]
 shader = SubResource("Shader_left_black_fade")
-
-[sub_resource type="Shader" id="Shader_right_black_fade"]
-code = "shader_type canvas_item;
-
-void fragment() {
-	COLOR = vec4(0.0, 0.0, 0.0, COLOR.a * UV.x);
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_right_black_fade"]
-shader = SubResource("Shader_right_black_fade")
 
 [sub_resource type="Shader" id="Shader_logo_glow"]
 code = "shader_type canvas_item;
@@ -125,24 +114,6 @@ grow_vertical = 2
 material = SubResource("ShaderMaterial_left_black_fade")
 color = Color(1, 1, 1, 1)
 
-[node name="RightGradient" type="ColorRect" parent="."]
-unique_name_in_owner = true
-z_index = 1
-layout_mode = 1
-anchors_preset = 12
-anchor_left = 1.0
-anchor_top = 0.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -350.0
-offset_right = 0.0
-offset_top = 0.0
-offset_bottom = 0.0
-grow_horizontal = 0
-grow_vertical = 2
-material = SubResource("ShaderMaterial_right_black_fade")
-color = Color(1, 1, 1, 1)
-
 [node name="LogoGlow" type="ColorRect" parent="."]
 unique_name_in_owner = true
 z_index = 2
@@ -188,7 +159,7 @@ anchor_top = 0.0
 anchor_right = 0.0
 anchor_bottom = 1.0
 offset_left = 70.0
-offset_right = 820.0
+offset_right = 445.0
 offset_top = 0.0
 offset_bottom = 0.0
 grow_horizontal = 1
@@ -207,10 +178,10 @@ theme_override_constants/separation = 0
 [node name="Start" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(750, 180)
+custom_minimum_size = Vector2(375, 90)
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
@@ -222,10 +193,10 @@ script = ExtResource("11_main_menu_button")
 [node name="Load" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(750, 180)
+custom_minimum_size = Vector2(375, 90)
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
@@ -237,10 +208,10 @@ script = ExtResource("11_main_menu_button")
 [node name="Gallery" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(750, 180)
+custom_minimum_size = Vector2(375, 90)
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
@@ -252,10 +223,10 @@ script = ExtResource("11_main_menu_button")
 [node name="Help" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(750, 180)
+custom_minimum_size = Vector2(375, 90)
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
@@ -264,39 +235,13 @@ alignment = 0
 flat = true
 script = ExtResource("11_main_menu_button")
 
-[node name="SecondaryButtonGroup" type="MarginContainer" parent="."]
-unique_name_in_owner = true
-z_index = 2
-layout_mode = 1
-anchors_preset = 12
-anchor_left = 1.0
-anchor_top = 0.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -820.0
-offset_right = -70.0
-offset_top = 0.0
-offset_bottom = 0.0
-grow_horizontal = 0
-grow_vertical = 2
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 500
-theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 0
-
-[node name="SecondaryButtons" type="VBoxContainer" parent="SecondaryButtonGroup"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-theme_override_constants/separation = 0
-
-[node name="Setting" type="Button" parent="SecondaryButtonGroup/SecondaryButtons"]
+[node name="Setting" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(750, 180)
+custom_minimum_size = Vector2(375, 90)
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
@@ -305,13 +250,13 @@ alignment = 2
 flat = true
 script = ExtResource("11_main_menu_button")
 
-[node name="AdvancedSetting" type="Button" parent="SecondaryButtonGroup/SecondaryButtons"]
+[node name="AdvancedSetting" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(750, 180)
+custom_minimum_size = Vector2(375, 90)
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
@@ -320,13 +265,13 @@ alignment = 2
 flat = true
 script = ExtResource("11_main_menu_button")
 
-[node name="Exit" type="Button" parent="SecondaryButtonGroup/SecondaryButtons"]
+[node name="Exit" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(750, 180)
+custom_minimum_size = Vector2(375, 90)
 size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
