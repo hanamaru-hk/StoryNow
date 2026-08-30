@@ -3,6 +3,7 @@ extends Control
 signal closed
 
 const PAGE_SIZE := 12
+const GRID_COLUMNS := 4
 var _all_entries: Array[Dictionary] = []
 var _current_page: int = 1
 var _total_pages: int = 1
@@ -89,8 +90,9 @@ func _refresh_grid() -> void:
 		_current_page = 1
 
 	if _all_entries.is_empty():
+		grid.columns = 1
 		var t_empty: String = I18n.translate("gallery_empty")
-		_add_empty_label(t_empty if t_empty != "gallery_empty" else "No saves found")
+		_add_empty_label(t_empty if t_empty != "gallery_empty" else "No images")
 		_update_pagination_bar()
 		return
 
@@ -142,6 +144,7 @@ func _show_current_page() -> void:
 	if not has_node("%GalleryGrid"):
 		return
 	var grid: GridContainer = %GalleryGrid
+	grid.columns = GRID_COLUMNS
 	for child in grid.get_children():
 		child.queue_free()
 	var start: int = (_current_page - 1) * PAGE_SIZE
