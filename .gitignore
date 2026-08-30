@@ -11,4 +11,4 @@ addons/sherpa_tts/bin/*.pdb
 addons/sherpa_tts/src/*.obj
 data/sherpa-models
 data/llama-models
-data/free_mode
+data/builder/*
