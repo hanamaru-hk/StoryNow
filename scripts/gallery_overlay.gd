@@ -2,7 +2,7 @@ extends Control
 
 signal closed
 
-const PAGE_SIZE := 16
+const PAGE_SIZE := 12
 var _all_entries: Array[Dictionary] = []
 var _current_page: int = 1
 var _total_pages: int = 1

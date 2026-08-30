@@ -6,7 +6,7 @@
 - [x] Multiple languages → 4 languages (en, zh_CN, zh_TW, yue) via `I18n` singleton + per-lang prompt dirs `data/llm/<lang>/`
 - [x] llama.cpp system prompt for reliable JSON → `data/llm/<lang>/{story,scene,random,enhance}` + `common/output_json_requirement` + `common/output_template.json` + guardrail injection; plus runtime JSON repair for `image_prompt` bare quotes
 - [x] Scene limit / ending detection → `expected_rounds` / `current_round` + `end` bool; prompt instructs LLM to set `end=true` when `current_round == expected_rounds`
-- [x] How many save slots → unlimited: one folder per `uuid` under `user://saves/`, paginated Load (10) / Gallery (16) overlays
+- [x] How many save slots → unlimited: one folder per `uuid` under `user://saves/`, paginated Load (10) / Gallery (12) overlays
 - [x] Model checkpoint selection → configurable via Image Server Settings `model_filename` (default `waiIllustriousSDXL_v170.safetensors`)
 - [x] Negative prompt configuration → `data/comfyui/{safe,free}_negative_prompt` switched by `GameSettingsManager.is_free_mode()`
 - [x] Image generation resolution → configurable via `GameSettingsManager.settings.image_width/height` (defaults 1344×768), injected into `EmptyLatentImage`
