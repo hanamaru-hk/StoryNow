@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://game_scene"]
+[gd_scene load_steps=18 format=3 uid="uid://game_scene"]
 
 [ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
 [ext_resource type="PackedScene" path="res://scenes/game_progress_overlay.tscn" id="2_m7w2a"]
@@ -17,6 +17,13 @@
 [ext_resource type="Script" path="res://scripts/ornate_gold_frame.gd" id="15_ornate_gold_frame"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ornate_frame"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_name_background"]
+bg_color = Color(0.82, 0.66, 0.28, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="Gameplay" type="Control"]
 layout_mode = 3
@@ -175,10 +182,7 @@ theme_override_constants/separation = 12
 
 [node name="NameFrame" type="PanelContainer" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox/HeaderRow"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxEmpty_ornate_frame")
-script = ExtResource("15_ornate_gold_frame")
-corner_size = 8.0
-inner_inset = 3.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_name_background")
 
 [node name="Margin" type="MarginContainer" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox/HeaderRow/NameFrame"]
 layout_mode = 2
@@ -190,6 +194,9 @@ theme_override_constants/margin_bottom = 4
 [node name="NameLabel" type="Label" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox/HeaderRow/NameFrame/Margin"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
+theme_override_fonts/font = ExtResource("14_noto_serif_bold")
+theme_override_font_sizes/font_size = 32
 text = ":)"
 
 [node name="HeaderSpacer" type="Control" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox/HeaderRow"]
