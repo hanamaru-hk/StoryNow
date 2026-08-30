@@ -329,7 +329,7 @@ grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="ErrorPopup/CenterContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(600, 300)
+custom_minimum_size = Vector2(1200, 300)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_content_panel")
 script = ExtResource("4_gold_frame")
 background_color = Color(0.08, 0.08, 0.1, 0.9)

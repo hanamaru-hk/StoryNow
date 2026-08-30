@@ -646,6 +646,7 @@ func _show_error_popup(message: String, show_engine_status_hint := false) -> voi
 	if not show_engine_status_hint:
 		_clear_retry_load()
 	%LoadErrorMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%LoadErrorOk.text = I18n.translate("btn_back") if show_engine_status_hint else "OK"
 	%LoadErrorPopup.visible = true
 	%LoadErrorRetry.visible = show_engine_status_hint and not _retry_load_uuid.is_empty()
 	ServerRuntimeManager.set_engine_status_hint_visible(show_engine_status_hint)

@@ -278,7 +278,7 @@ grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="GalleryPreview/GalleryPreviewErrorPopup/CenterContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(640, 300)
+custom_minimum_size = Vector2(1280, 300)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_popup")
 script = ExtResource("2_gold_frame")
 background_color = Color(0.08, 0.08, 0.1, 0.9)

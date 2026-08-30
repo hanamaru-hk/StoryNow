@@ -549,6 +549,7 @@ func _are_story_servers_ready() -> bool:
 func _show_preview_error(message: String, show_engine_status_hint := false, retry_action := "") -> void:
 	_pending_engine_retry_action = retry_action if show_engine_status_hint else ""
 	%GalleryPreviewErrorMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	%GalleryPreviewErrorOk.text = I18n.translate("btn_back") if show_engine_status_hint else "OK"
 	%GalleryPreviewErrorPopup.visible = true
 	%GalleryPreviewErrorRetry.visible = not _pending_engine_retry_action.is_empty()
 	if %GalleryPreviewErrorRetry.visible:
