@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://main_menu"]
+[gd_scene load_steps=18 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2"]
@@ -11,6 +11,8 @@
 [ext_resource type="VideoStream" path="res://assets/videos/1.ogv" id="9"]
 [ext_resource type="FontFile" path="res://assets/fonts/NotoSerifCJKjp-Bold.otf" id="10_noto_serif_cjk_jp_bold"]
 [ext_resource type="Script" path="res://scripts/main_menu_button.gd" id="11_main_menu_button"]
+[ext_resource type="PackedScene" path="res://scenes/help_overlay.tscn" id="12_help"]
+[ext_resource type="FontFile" path="res://assets/fonts/CormorantUpright-Bold.ttf" id="13_cormorant_upright_bold"]
 
 [sub_resource type="Shader" id="Shader_left_black_fade"]
 code = "shader_type canvas_item;
@@ -33,6 +35,10 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_right_black_fade"]
 shader = SubResource("Shader_right_black_fade")
+
+[sub_resource type="FontVariation" id="FontVariation_logo"]
+base_font = ExtResource("13_cormorant_upright_bold")
+spacing_glyph = -2
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -111,11 +117,11 @@ offset_top = 55.0
 offset_right = -70.0
 offset_bottom = 215.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(1, 0.78, 0.84, 1)
-theme_override_colors/font_outline_color = Color(0.03, 0.025, 0.02, 0.9)
-theme_override_constants/outline_size = 7
-theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
-theme_override_font_sizes/font_size = 120
+theme_override_colors/font_color = Color(0.72, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0.78, 0.58, 0.22, 1)
+theme_override_constants/outline_size = 11
+theme_override_fonts/font = SubResource("FontVariation_logo")
+theme_override_font_sizes/font_size = 132
 text = "StoryNow"
 horizontal_alignment = 2
 vertical_alignment = 1
@@ -136,7 +142,7 @@ offset_bottom = 0.0
 grow_horizontal = 1
 grow_vertical = 2
 theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 500
+theme_override_constants/margin_top = 100
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 0
 
@@ -187,6 +193,21 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 text = "Gallery"
+alignment = 0
+flat = true
+script = ExtResource("11_main_menu_button")
+
+[node name="Help" type="Button" parent="PrimaryButtonGroup/PrimaryButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(750, 180)
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("10_noto_serif_cjk_jp_bold")
+theme_override_font_sizes/font_size = 80
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+text = "Help"
 alignment = 0
 flat = true
 script = ExtResource("11_main_menu_button")
@@ -287,6 +308,10 @@ unique_name_in_owner = true
 z_index = 10
 
 [node name="GalleryOverlay" parent="." instance=ExtResource("7")]
+unique_name_in_owner = true
+z_index = 10
+
+[node name="HelpOverlay" parent="." instance=ExtResource("12_help")]
 unique_name_in_owner = true
 z_index = 10
 

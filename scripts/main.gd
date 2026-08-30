@@ -18,6 +18,7 @@ func _ready() -> void:
 	%Start.pressed.connect(_on_start_pressed)
 	%Load.pressed.connect(_on_load_pressed)
 	%Gallery.pressed.connect(_on_gallery_pressed)
+	%Help.pressed.connect(_on_help_pressed)
 	%Setting.pressed.connect(_on_setting_pressed)
 	%AdvancedSetting.pressed.connect(_on_advanced_setting_pressed)
 	%Exit.pressed.connect(_on_exit_pressed)
@@ -32,6 +33,8 @@ func _ready() -> void:
 		%LoadGameOverlay.closed.connect(_on_settings_closed)
 	if has_node("%GalleryOverlay"):
 		%GalleryOverlay.closed.connect(_on_settings_closed)
+	if has_node("%HelpOverlay"):
+		%HelpOverlay.closed.connect(_on_settings_closed)
 	_update_labels()
 	_check_first_time_overlay()
 	_play_intro_sequence()
@@ -51,6 +54,11 @@ func _on_gallery_pressed() -> void:
 	if has_node("%GalleryOverlay"):
 		%GalleryOverlay.open()
 		_update_main_menu_chrome_visibility()
+
+
+func _on_help_pressed() -> void:
+	if has_node("%HelpOverlay"):
+		%HelpOverlay.open()
 
 
 func _on_setting_pressed() -> void:
@@ -99,12 +107,13 @@ func _on_first_time_language_selected(_lang: String) -> void:
 
 
 func _update_labels() -> void:
-	%Start.text = I18n.translate("btn_start")
-	%Load.text = I18n.translate("btn_load")
-	%Gallery.text = I18n.translate("btn_gallery")
-	%Setting.text = I18n.translate("btn_game_setting")
-	%AdvancedSetting.text = I18n.translate("btn_advanced_setting")
-	%Exit.text = I18n.translate("btn_exit")
+	%Start.text = I18n.translate("main_btn_start")
+	%Load.text = I18n.translate("main_btn_load")
+	%Gallery.text = I18n.translate("main_btn_gallery")
+	%Help.text = I18n.translate("main_btn_help")
+	%Setting.text = I18n.translate("main_btn_game_setting")
+	%AdvancedSetting.text = I18n.translate("main_btn_advanced_setting")
+	%Exit.text = I18n.translate("main_btn_exit")
 
 
 func _start_hidden_menu_video() -> void:
