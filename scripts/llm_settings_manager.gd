@@ -7,7 +7,7 @@ const LLAMA_MODELS_DIR_AB := "data/llama-models/ab"
 
 var settings := {
 	"port": 48763,
-	"timeout": 60,
+	"timeout": 240,
 	"context_size": 0,
 	"llm_model_filename": "cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf",
 }
@@ -31,7 +31,18 @@ func save_settings() -> void:
 
 func load_settings() -> void:
 	if not FileAccess.file_exists(SETTINGS_PATH):
-		return
+		var src := AppPaths.external_path(DEFAULT_SETTINGS_PATH)
+		if FileAccess.file_exists(src):
+			var src_file := FileAccess.open(src, FileAccess.READ)
+			if src_file:
+				var content := src_file.get_as_text()
+				src_file.close()
+				var dst_file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+				if dst_file:
+					dst_file.store_string(content)
+					dst_file.close()
+		if not FileAccess.file_exists(SETTINGS_PATH):
+			return
 	var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
 	if file:
 		var json := JSON.new()

@@ -56,6 +56,33 @@ func _ready() -> void:
 				if dst_file2:
 					dst_file2.store_string(content2)
 					dst_file2.close()
+	if not FileAccess.file_exists("user://llm_settings.json"):
+		var src_llm := AppPaths.external_path("data/default_llm_settings.json")
+		if FileAccess.file_exists(src_llm):
+			var src_file3 := FileAccess.open(src_llm, FileAccess.READ)
+			if src_file3:
+				var content3 := src_file3.get_as_text()
+				src_file3.close()
+				var dst_file3 := FileAccess.open("user://llm_settings.json", FileAccess.WRITE)
+				if dst_file3:
+					dst_file3.store_string(content3)
+					dst_file3.close()
+	if not FileAccess.file_exists("user://image_server_settings.json"):
+		var src_image := AppPaths.external_path("data/default_image_server_settings.json")
+		if FileAccess.file_exists(src_image):
+			var src_file4 := FileAccess.open(src_image, FileAccess.READ)
+			if src_file4:
+				var content4 := src_file4.get_as_text()
+				src_file4.close()
+				var dst_file4 := FileAccess.open("user://image_server_settings.json", FileAccess.WRITE)
+				if dst_file4:
+					dst_file4.store_string(content4)
+					dst_file4.close()
+	# Ensure managers reload in case they initialized before the copy.
+	if FileAccess.file_exists("user://llm_settings.json"):
+		LLMSettingsManager.load_settings()
+	if FileAccess.file_exists("user://image_server_settings.json"):
+		ImageServerSettingsManager.load_settings()
 	LLMManager.status_changed.connect(_on_llm_status_changed)
 	ImageServerManager.status_changed.connect(_on_image_status_changed)
 	_reconcile_stale_state()
