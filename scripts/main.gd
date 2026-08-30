@@ -152,14 +152,14 @@ func _resume_intro_video() -> void:
 
 
 func _hide_menu_overlay() -> void:
-	for node in [%LeftGradient, %RightGradient, %Logo, %PrimaryButtonGroup, %SecondaryButtonGroup]:
+	for node in [%LeftGradient, %RightGradient, %LogoGlow, %Logo, %PrimaryButtonGroup, %SecondaryButtonGroup]:
 		node.visible = true
 		node.modulate.a = 0.0
 
 
 func _reveal_menu_overlay_after_delays() -> void:
 	await get_tree().create_timer(GRADIENT_REVEAL_DELAY).timeout
-	_reveal_nodes([%LeftGradient, %RightGradient, %Logo])
+	_reveal_nodes([%LeftGradient, %RightGradient, %LogoGlow, %Logo])
 	await get_tree().create_timer(BUTTON_REVEAL_DELAY - GRADIENT_REVEAL_DELAY).timeout
 	_reveal_nodes([%PrimaryButtonGroup, %SecondaryButtonGroup])
 

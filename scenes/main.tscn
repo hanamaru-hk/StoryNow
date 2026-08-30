@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://main_menu"]
+[gd_scene load_steps=22 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/game_settings_overlay.tscn" id="2"]
@@ -35,6 +35,44 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_right_black_fade"]
 shader = SubResource("Shader_right_black_fade")
+
+[sub_resource type="Shader" id="Shader_logo_glow"]
+code = "shader_type canvas_item;
+
+uniform vec4 glow_color : source_color = vec4(1.0, 1.0, 1.0, 0.24);
+
+void fragment() {
+	vec2 p = abs(UV * 2.0 - 1.0);
+	float edge_distance = length(max(p - vec2(0.68, 0.24), vec2(0.0)));
+	float softness = 1.0 - smoothstep(0.0, 0.32, edge_distance);
+	COLOR = vec4(glow_color.rgb, glow_color.a * softness);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_logo_glow"]
+shader = SubResource("Shader_logo_glow")
+
+[sub_resource type="Shader" id="Shader_logo_gradient"]
+code = "shader_type canvas_item;
+
+uniform vec4 top_color : source_color = vec4(0.06, 0.18, 0.45, 1.0);
+uniform vec4 bottom_color : source_color = vec4(0.04, 0.36, 0.27, 1.0);
+varying float label_y;
+
+void vertex() {
+	label_y = VERTEX.y;
+}
+
+void fragment() {
+	vec4 glyph = texture(TEXTURE, UV);
+	float gradient_position = smoothstep(20.0, 180.0, label_y);
+	vec4 gradient_color = mix(top_color, bottom_color, gradient_position);
+	COLOR = glyph * gradient_color * COLOR;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_logo_gradient"]
+shader = SubResource("Shader_logo_gradient")
 
 [sub_resource type="FontVariation" id="FontVariation_logo"]
 base_font = ExtResource("13_cormorant_upright_bold")
@@ -105,6 +143,21 @@ grow_vertical = 2
 material = SubResource("ShaderMaterial_right_black_fade")
 color = Color(1, 1, 1, 1)
 
+[node name="LogoGlow" type="ColorRect" parent="."]
+unique_name_in_owner = true
+z_index = 2
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -850.0
+offset_top = 0.0
+offset_right = -10.0
+offset_bottom = 285.0
+grow_horizontal = 0
+mouse_filter = 2
+material = SubResource("ShaderMaterial_logo_glow")
+
 [node name="Logo" type="Label" parent="."]
 unique_name_in_owner = true
 z_index = 2
@@ -113,15 +166,14 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -760.0
-offset_top = 55.0
+offset_top = 40.0
 offset_right = -70.0
-offset_bottom = 215.0
+offset_bottom = 235.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(0.72, 0.9, 1, 1)
-theme_override_colors/font_outline_color = Color(0.78, 0.58, 0.22, 1)
-theme_override_constants/outline_size = 11
+material = SubResource("ShaderMaterial_logo_gradient")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = SubResource("FontVariation_logo")
-theme_override_font_sizes/font_size = 132
+theme_override_font_sizes/font_size = 158
 text = "StoryNow"
 horizontal_alignment = 2
 vertical_alignment = 1
