@@ -287,6 +287,8 @@ func _add_gallery_item(entry: Dictionary) -> void:
 	var image_path: String = str(entry.get("image_path", ""))
 
 	var button := Button.new()
+	# Thumbnail cards intentionally retain Godot's dark neutral style instead of the app-wide light controls.
+	button.theme = ThemeDB.get_default_theme()
 	button.custom_minimum_size = Vector2(230, 180)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.size_flags_vertical = Control.SIZE_EXPAND_FILL

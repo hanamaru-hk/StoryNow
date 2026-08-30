@@ -3,6 +3,7 @@
 ## 7.1 Visual Style
 
 - **Classic VN** — `%BackgroundImage` fills screen; bottom `Dialogue` panel with `NameLabel`, `DialogLabel`, `DialogProgressLabel`; top bar `TitleLabel`.
+- Standard buttons, text fields, and text areas use 90%-opaque light-grey surfaces with dark-blue text and rounded dark-blue frames. The main-menu buttons keep their dedicated illustrated blue shader treatment, while gallery thumbnail cards retain Godot's original dark neutral button style.
 - Non-full-screen overlay content and modal panels use the reusable cut-corner, double-line gold frame from `scripts/ornate_gold_frame.gd`; full-screen backgrounds and dimming layers remain unframed.
 - Dialogue advances by Prev/Next buttons and optional `DialogArea` click; the side panel includes Plot, Image, Play, Help, navigation, Setting, and Menu buttons. Help opens troubleshooting and minimum-system-requirements pages and remains available while the local engines start.
 - No typewriter animation — text swaps instantly; pagination `"1 / N"` shown per dialogue.
