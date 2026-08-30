@@ -146,6 +146,8 @@ var _translations := {
 		"server_running": "%s running",
 		"server_starting": "%s starting...",
 		"gallery_empty": "No saves found",
+		"gallery_load_scene": "Load Scene",
+		"gallery_load_scene_confirm": "Load this scene?\n%s",
 	},
 	"zh_CN": {
 		"first_time_title": "请选择你的语言",
@@ -285,6 +287,8 @@ var _translations := {
 		"server_running": "%s运行中",
 		"server_starting": "%s启动中...",
 		"gallery_empty": "没有存档",
+		"gallery_load_scene": "加载场景",
+		"gallery_load_scene_confirm": "加载这个场景？\n%s",
 	},
 	"zh_TW": {
 		"first_time_title": "請選擇你的語言",
@@ -424,6 +428,8 @@ var _translations := {
 		"server_running": "%s運行中",
 		"server_starting": "%s啟動中...",
 		"gallery_empty": "冇存檔",
+		"gallery_load_scene": "載入場景",
+		"gallery_load_scene_confirm": "載入此場景？\n%s",
 	},
 	"yue": {
 		"first_time_title": "請選擇你嘅語言",
@@ -563,6 +569,8 @@ var _translations := {
 		"server_running": "%s運行緊",
 		"server_starting": "%s啟動緊...",
 		"gallery_empty": "冇存檔",
+		"gallery_load_scene": "載入場景",
+		"gallery_load_scene_confirm": "載入呢個場景？\n%s",
 	},
 }
 

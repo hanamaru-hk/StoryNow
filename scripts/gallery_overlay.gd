@@ -6,6 +6,9 @@ const PAGE_SIZE := 16
 var _all_entries: Array[Dictionary] = []
 var _current_page: int = 1
 var _total_pages: int = 1
+var _preview_uuid: String = ""
+var _preview_entry: Dictionary = {}
+var _preview_index: int = -1
 
 
 func _ready() -> void:
@@ -13,17 +16,25 @@ func _ready() -> void:
 		%GalleryBackButton.pressed.connect(_on_back_pressed)
 	if has_node("%GalleryBackground"):
 		%GalleryBackground.gui_input.connect(_on_background_input)
+	%GalleryPreviewPreviousButton.pressed.connect(_on_preview_previous_pressed)
+	%GalleryPreviewNextButton.pressed.connect(_on_preview_next_pressed)
+	%GalleryPreviewLoadButton.pressed.connect(_on_preview_load_pressed)
+	%GalleryPreviewBackButton.pressed.connect(_hide_preview)
+	%GalleryPreviewConfirmCancel.pressed.connect(_on_preview_load_canceled)
+	%GalleryPreviewConfirmLoad.pressed.connect(_on_preview_load_confirmed)
 	_update_labels()
 
 
 func open() -> void:
 	visible = true
+	_hide_preview()
 	_current_page = 1
 	_refresh_grid()
 	_update_labels()
 
 
 func close() -> void:
+	_hide_preview()
 	visible = false
 	closed.emit()
 
@@ -44,6 +55,13 @@ func _update_labels() -> void:
 	if has_node("%GalleryBackButton"):
 		var b: String = I18n.translate("btn_back")
 		%GalleryBackButton.text = b if b != "btn_back" else "Back"
+	var load_scene_text := I18n.translate("gallery_load_scene")
+	%GalleryPreviewLoadButton.text = load_scene_text if load_scene_text != "gallery_load_scene" else "Load Scene"
+	var preview_back_text := I18n.translate("btn_back")
+	%GalleryPreviewBackButton.text = preview_back_text if preview_back_text != "btn_back" else "Back"
+	%GalleryPreviewConfirmTitle.text = I18n.translate("confirm_dialog_title")
+	%GalleryPreviewConfirmLoad.text = I18n.translate("btn_confirm")
+	%GalleryPreviewConfirmCancel.text = I18n.translate("btn_cancel")
 
 
 func _refresh_grid() -> void:
@@ -358,12 +376,119 @@ func _escape_bbcode(text: String) -> String:
 func _on_gallery_item_pressed(uuid: String, entry: Dictionary) -> void:
 	if uuid.strip_edges().is_empty():
 		return
+	var index := _find_gallery_entry_index(uuid, entry)
+	if index < 0:
+		return
+	_show_preview_at_index(index)
+
+
+func _find_gallery_entry_index(uuid: String, entry: Dictionary) -> int:
+	var image_path := str(entry.get("image_path", "")).strip_edges()
+	for i in range(_all_entries.size()):
+		var candidate: Dictionary = _all_entries[i]
+		if str(candidate.get("uuid", "")) == uuid and str(candidate.get("image_path", "")).strip_edges() == image_path:
+			return i
+	return -1
+
+
+func _show_preview_at_index(index: int) -> void:
+	if index < 0 or index >= _all_entries.size():
+		return
+	var entry: Dictionary = _all_entries[index]
+	var uuid := str(entry.get("uuid", "")).strip_edges()
+	var image_path: String = str(entry.get("image_path", "")).strip_edges()
+	var texture := _load_texture_from_user_path(image_path)
+	if uuid.is_empty() or texture == null:
+		return
+	_preview_index = index
+	_preview_uuid = uuid
+	_preview_entry = entry.duplicate(true)
+	%GalleryPreviewImage.texture = texture
+	%GalleryPreviewTitle.text = _get_preview_title(uuid, entry)
+	%GalleryPreviewPreviousButton.disabled = index <= 0
+	%GalleryPreviewNextButton.disabled = index >= _all_entries.size() - 1
+	%GalleryPreviewLoadButton.disabled = false
+	%GalleryPreviewBackButton.disabled = false
+	var entry_page := int(index / PAGE_SIZE) + 1
+	if entry_page != _current_page:
+		_current_page = entry_page
+		_show_current_page()
+	%GalleryPreview.visible = true
+	%GalleryPreviewLoadButton.grab_focus()
+
+
+func _get_preview_title(uuid: String, entry: Dictionary) -> String:
+	var title := str(entry.get("title", "")).strip_edges()
+	var data: Dictionary = entry.get("data", {}) as Dictionary if entry.get("data", {}) is Dictionary else {}
+	if title.is_empty():
+		title = str(data.get("title", "")).strip_edges()
+	if title.is_empty():
+		title = str(data.get("summary", "")).strip_edges()
+	if title.length() > 80:
+		title = title.substr(0, 80) + "..."
+	return title if not title.is_empty() else uuid
+
+
+func _hide_preview() -> void:
+	_preview_uuid = ""
+	_preview_entry = {}
+	_preview_index = -1
+	%GalleryPreviewImage.texture = null
+	%GalleryPreviewTitle.text = ""
+	%GalleryPreviewPreviousButton.disabled = false
+	%GalleryPreviewNextButton.disabled = false
+	%GalleryPreviewLoadButton.disabled = false
+	%GalleryPreviewBackButton.disabled = false
+	%GalleryPreviewConfirmPopup.visible = false
+	%GalleryPreview.visible = false
+
+
+func _on_preview_previous_pressed() -> void:
+	_show_preview_at_index(_preview_index - 1)
+
+
+func _on_preview_next_pressed() -> void:
+	_show_preview_at_index(_preview_index + 1)
+
+
+func _on_preview_load_pressed() -> void:
+	if _preview_uuid.strip_edges().is_empty() or _preview_entry.is_empty():
+		return
+	var template := I18n.translate("gallery_load_scene_confirm")
+	if template == "gallery_load_scene_confirm":
+		template = "Load this scene?\n%s"
+	%GalleryPreviewConfirmMessage.text = template % _get_preview_title(_preview_uuid, _preview_entry)
+	%GalleryPreviewConfirmPopup.visible = true
+	%GalleryPreviewConfirmLoad.grab_focus()
+
+
+func _on_preview_load_canceled() -> void:
+	%GalleryPreviewConfirmPopup.visible = false
+	%GalleryPreviewLoadButton.grab_focus()
+
+
+func _on_preview_load_confirmed() -> void:
+	%GalleryPreviewConfirmPopup.visible = false
+	var uuid := _preview_uuid.strip_edges()
+	var entry := _preview_entry.duplicate(true)
+	if uuid.is_empty() or entry.is_empty():
+		return
+	%GalleryPreviewPreviousButton.disabled = true
+	%GalleryPreviewNextButton.disabled = true
+	%GalleryPreviewLoadButton.disabled = true
+	%GalleryPreviewBackButton.disabled = true
+	var scene_changed := await _load_gallery_entry(uuid, entry)
+	if is_instance_valid(self) and not scene_changed:
+		_show_preview_at_index(_preview_index)
+
+
+func _load_gallery_entry(uuid: String, entry: Dictionary) -> bool:
 	var image_filename: String = str(entry.get("image_filename", "")).strip_edges()
 	var image_index: int = _get_image_filename_index(entry, image_filename)
 	if image_index < 0:
-		return
+		return false
 	if not SceneDataManager.load_data(uuid):
-		return
+		return false
 	if ServerRuntimeManager.has_generation_requests():
 		await ServerRuntimeManager.cancel_active_generation_tasks()
 	SceneDataManager.scene_data["current_image_index"] = image_index
@@ -373,7 +498,7 @@ func _on_gallery_item_pressed(uuid: String, entry: Dictionary) -> void:
 	GameProgressManager.settings["current_dialogue"] = 0
 	GameProgressManager.settings["current_round"] = _to_positive_int(entry.get("round", 1), 1)
 	GameProgressManager.save_settings()
-	get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
+	return get_tree().change_scene_to_file("res://scenes/gameplay.tscn") == OK
 
 
 func _get_image_filename_index(entry: Dictionary, image_filename: String) -> int:
