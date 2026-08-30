@@ -2,7 +2,7 @@
 
 ## Resolved
 
-- [x] ComfyUI workflow design → txt2img SDXL pipeline (`data/comfyui/workflow_template.json`), placeholders `__MODEL_FILENAME__`, `__POSITIVE_PROMPT__`, `__NEGATIVE_PROMPT__`, `__SEED__`, `__FILENAME_PREFIX__`, `__IMAGE_WIDTH__/__IMAGE_HEIGHT__`
+- [x] ComfyUI workflow design → txt2img SDXL pipeline (`data/comfyui/workflow_template.json`), placeholders `__MODEL_FILENAME__`, `__PREFIX__`, `__POSITIVE_PROMPT__`, `__SUFFIX__`, `__NEGATIVE_PROMPT__`, `__SEED__`, `__FILENAME_PREFIX__`, `__IMAGE_WIDTH__/__IMAGE_HEIGHT__`
 - [x] Multiple languages → 4 languages (en, zh_CN, zh_TW, yue) via `I18n` singleton + per-lang prompt dirs `data/llm/<lang>/`
 - [x] llama.cpp system prompt for reliable JSON → `data/llm/<lang>/{story,scene,random,enhance}` + `common/output_json_requirement` + `common/output_template.json` + guardrail injection; plus runtime JSON repair for `image_prompt` bare quotes
 - [x] Scene limit / ending detection → `expected_rounds` / `current_round` + `end` bool; prompt instructs LLM to set `end=true` when `current_round == expected_rounds`

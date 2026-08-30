@@ -32,7 +32,8 @@
 | Placeholder | Node | Field | Replaced By |
 |---|---|---|---|
 | `__MODEL_FILENAME__` / `__MODEL_NAME__` | `1` CheckpointLoaderSimple | `ckpt_name` | `ImageServerSettingsManager.settings.model_filename` or `waiIllustriousSDXL_v170.safetensors` |
-| `__POSITIVE_PROMPT__` | `3` CLIPTextEncode | `text` | `"score_9, score_8_up, score_7_up, masterpiece, ${image_prompt}"` |
+| `__PREFIX__` / `__SUFFIX__` | `3` CLIPTextEncode | `text` | Configurable positive-prompt prefix/suffix from `ImageServerSettingsManager` |
+| `__POSITIVE_PROMPT__` | `3` CLIPTextEncode | `text` | Trimmed generated image prompt with leading/trailing commas added when missing |
 | `__NEGATIVE_PROMPT__` | `6` CLIPTextEncode | `text` | `"(white_skin:1.5), ${negative_prompt}"` (free vs safe file) |
 | `__SEED__` | `2` KSampler | `seed` | random int |
 | `__FILENAME_PREFIX__` | `5` SaveImage | `filename_prefix` | `"SN"` |

@@ -513,16 +513,21 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	var model_filename: String = str(ImageServerSettingsManager.settings.get("model_filename", ""))
 	if model_filename.is_empty():
 		model_filename = DEFAULT_MODEL
+	var prefix: String = str(ImageServerSettingsManager.settings.get("prefix", ""))
+	var suffix: String = str(ImageServerSettingsManager.settings.get("suffix", ""))
+	var positive_prompt := _with_prompt_separators(image_prompt)
 	var negative_prompt: String = _load_negative_prompt()
 	var image_width: String = str(GameSettingsManager.settings.get("image_width", "1344"))
 	var image_height: String = str(GameSettingsManager.settings.get("image_height", "768"))
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	var seed_val: int = rng.randi_range(0, 2147483647)
-	workflow_text = workflow_text.replace("__MODEL_FILENAME__", model_filename)
-	workflow_text = workflow_text.replace("__MODEL_NAME__", model_filename)
-	workflow_text = workflow_text.replace("__POSITIVE_PROMPT__", image_prompt)
-	workflow_text = workflow_text.replace("__NEGATIVE_PROMPT__", negative_prompt)
+	workflow_text = workflow_text.replace("__MODEL_FILENAME__", _json_string_content(model_filename))
+	workflow_text = workflow_text.replace("__MODEL_NAME__", _json_string_content(model_filename))
+	workflow_text = workflow_text.replace("__PREFIX__", _json_string_content(prefix))
+	workflow_text = workflow_text.replace("__POSITIVE_PROMPT__", _json_string_content(positive_prompt))
+	workflow_text = workflow_text.replace("__SUFFIX__", _json_string_content(suffix))
+	workflow_text = workflow_text.replace("__NEGATIVE_PROMPT__", _json_string_content(negative_prompt))
 	workflow_text = workflow_text.replace("__FILENAME_PREFIX__", FILENAME_PREFIX)
 	workflow_text = workflow_text.replace("__IMAGE_WIDTH__", image_width)
 	workflow_text = workflow_text.replace("__IMAGE_HEIGHT__", image_height)
@@ -565,3 +570,17 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	ServerRuntimeManager.update_request(queue_id, {"status": "Done", "progress": 1.0})
 	ServerRuntimeManager.pop_request(queue_id)
 	return {"success": true, "save_path": save_path, "filename": filename, "prompt": image_prompt, "seed": seed_val}
+
+
+func _json_string_content(value: String) -> String:
+	var encoded := JSON.stringify(value)
+	return encoded.substr(1, encoded.length() - 2)
+
+
+func _with_prompt_separators(value: String) -> String:
+	var result := value.strip_edges()
+	if not result.begins_with(","):
+		result = "," + result
+	if not result.ends_with(","):
+		result += ","
+	return result

@@ -40,6 +40,8 @@ func _on_reset_pressed() -> void:
 func _on_save_pressed() -> void:
 	_apply_port()
 	_apply_timeout()
+	_pending["prefix"] = %PrefixInput.text
+	_pending["suffix"] = %SuffixInput.text
 	ImageServerSettingsManager.settings = _pending.duplicate(true)
 	ImageServerSettingsManager.save_settings()
 	_pending = {}
@@ -94,6 +96,8 @@ func _sync_ui_to_settings() -> void:
 		return
 	%PortInput.text = _integer_text(_pending.get("port", 56321))
 	%TimeoutInput.text = _integer_text(_pending.get("timeout", 120))
+	%PrefixInput.text = str(_pending.get("prefix", ""))
+	%SuffixInput.text = str(_pending.get("suffix", ""))
 
 
 func _integer_text(value: Variant) -> String:
@@ -104,6 +108,8 @@ func _update_labels() -> void:
 	%Title.text = I18n.translate("image_server_settings_title")
 	%PortLabel.text = I18n.translate("settings_port")
 	%TimeoutLabel.text = I18n.translate("settings_timeout")
+	%PrefixLabel.text = I18n.translate("settings_prompt_prefix")
+	%SuffixLabel.text = I18n.translate("settings_prompt_suffix")
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")

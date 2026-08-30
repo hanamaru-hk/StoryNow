@@ -74,7 +74,7 @@ story-now/
 │   ├── default_game_settings.json       # {language, screen_size, safe_mode, image_width/height, autoplay_tts}
 │   ├── default_game_progress.json       # {current_dialogue/uuid/round, expected_rounds, minimum_*/maximum_*, game_status}
 │   ├── default_llm_settings.json        # {port: 48763}
-│   ├── default_image_server_settings.json # {port: 56321, model_filename}
+│   ├── default_image_server_settings.json # ComfyUI port, model, timeout, prompt prefix/suffix
 │   ├── llama-models/
 │   │   ├── cen/*.gguf
 │   │   └── ab/*.gguf
@@ -109,7 +109,7 @@ Registered in `project.godot:11-22`:
 |------|--------|---------|
 | `I18n` | `scripts/i18n.gd` | Translations (en, zh_CN, zh_TW, yue) |
 | `GameSettingsManager` | `scripts/game_settings_manager.gd` | Display/TTS/safe_mode settings (`user://game_settings.json`) |
-| `ImageServerSettingsManager` | `scripts/image_server_settings_manager.gd` | ComfyUI port + model |
+| `ImageServerSettingsManager` | `scripts/image_server_settings_manager.gd` | ComfyUI port, timeout, model, and prompt prefix/suffix |
 | `LLMSettingsManager` | `scripts/llm_settings_manager.gd` | llama.cpp port |
 | `LLMManager` | `scripts/llm_manager.gd` | llama.cpp process + prompt/HTTP |
 | `ImageServerManager` | `scripts/image_server_manager.gd` | ComfyUI process + image pipeline |

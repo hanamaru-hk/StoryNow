@@ -26,7 +26,7 @@
       "class_type": "CLIPTextEncode",
       "inputs": {
         "clip": ["1", 1],
-        "text": "score_9, score_8_up, score_7_up, masterpiece, __POSITIVE_PROMPT__"
+        "text": "__PREFIX____POSITIVE_PROMPT____SUFFIX__"
       }
     },
     "4": {
@@ -47,7 +47,7 @@
       "class_type": "CLIPTextEncode",
       "inputs": {
         "clip": ["1", 1],
-        "text": "(white_skin:1.5), __NEGATIVE_PROMPT__"
+        "text": "__NEGATIVE_PROMPT__"
       }
     },
     "7": {

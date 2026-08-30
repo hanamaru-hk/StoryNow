@@ -2,11 +2,17 @@ extends Node
 
 const SETTINGS_PATH := "user://image_server_settings.json"
 const DEFAULT_SETTINGS_PATH := "data/default_image_server_settings.json"
+const LEGACY_DEFAULT_PREFIX := "score_9, score_8_up, score_7_up, masterpiece,"
+const DEFAULT_PREFIX := "score_9, score_8_up, score_7_up, masterpiece"
+const LEGACY_DEFAULT_SUFFIX := ",4k"
+const DEFAULT_SUFFIX := "4k"
 
 var settings := {
 	"port": 56321,
 	"timeout": 240,
 	"model_filename": "waiIllustriousSDXL_v170.safetensors",
+	"prefix": DEFAULT_PREFIX,
+	"suffix": DEFAULT_SUFFIX,
 }
 
 
@@ -44,6 +50,7 @@ func load_settings() -> void:
 		if error == OK and json.data is Dictionary:
 			settings.merge(json.data, true)
 			_normalize_integer_settings()
+			_migrate_legacy_prompt_affixes()
 
 
 func reset_to_defaults() -> void:
@@ -62,3 +69,10 @@ func _normalize_integer_settings() -> void:
 	for key in ["port", "timeout"]:
 		if settings.has(key):
 			settings[key] = str(settings[key]).to_int()
+
+
+func _migrate_legacy_prompt_affixes() -> void:
+	if str(settings.get("prefix", "")) == LEGACY_DEFAULT_PREFIX:
+		settings["prefix"] = DEFAULT_PREFIX
+	if str(settings.get("suffix", "")) == LEGACY_DEFAULT_SUFFIX:
+		settings["suffix"] = DEFAULT_SUFFIX

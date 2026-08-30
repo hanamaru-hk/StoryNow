@@ -1,5 +1,7 @@
 {
 	"port": 56321,
 	"timeout": 240,
-	"model_filename": "waiIllustriousSDXL_v170.safetensors"
+	"model_filename": "waiIllustriousSDXL_v170.safetensors",
+	"prefix": "score_9, score_8_up, score_7_up, masterpiece",
+	"suffix": "4k"
 }
