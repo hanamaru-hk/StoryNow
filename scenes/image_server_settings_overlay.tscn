@@ -84,6 +84,22 @@ layout_mode = 2
 custom_minimum_size = Vector2(200, 40)
 placeholder_text = "120"
 
+[node name="LowVramRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LowVramLabel" type="Label" parent="CenterContainer/VBoxContainer/LowVramRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Low VRAM"
+
+[node name="LowVramCheck" type="CheckButton" parent="CenterContainer/VBoxContainer/LowVramRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Off"
+
 [node name="PrefixRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

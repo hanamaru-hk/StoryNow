@@ -20,6 +20,7 @@ func _ready() -> void:
 	%ConfirmOk.pressed.connect(_on_confirmed)
 	%PortInput.text_changed.connect(_on_integer_input_changed.bind(%PortInput))
 	%TimeoutInput.text_changed.connect(_on_integer_input_changed.bind(%TimeoutInput))
+	%LowVramCheck.toggled.connect(_on_low_vram_toggled)
 	%PortInput.text_submitted.connect(_on_port_submitted)
 	%TimeoutInput.text_submitted.connect(_on_timeout_submitted)
 	_update_prompt_affix_visibility()
@@ -100,6 +101,11 @@ func _on_timeout_submitted(_text: String) -> void:
 	_apply_timeout()
 
 
+func _on_low_vram_toggled(pressed: bool) -> void:
+	_pending["low_vram"] = pressed
+	%LowVramCheck.text = I18n.translate("settings_on") if pressed else I18n.translate("settings_off")
+
+
 func _on_integer_input_changed(text: String, input: LineEdit) -> void:
 	var sanitized := _digits_only(text)
 	if sanitized == text:
@@ -139,6 +145,8 @@ func _sync_ui_to_settings() -> void:
 		return
 	%PortInput.text = _integer_text(_pending.get("port", 56321))
 	%TimeoutInput.text = _integer_text(_pending.get("timeout", 120))
+	%LowVramCheck.button_pressed = bool(_pending["low_vram"])
+	%LowVramCheck.text = I18n.translate("settings_on") if %LowVramCheck.button_pressed else I18n.translate("settings_off")
 	%PrefixInput.text = str(_pending.get("prefix", ""))
 	%SuffixInput.text = str(_pending.get("suffix", ""))
 
@@ -157,6 +165,8 @@ func _update_labels() -> void:
 	%Title.text = I18n.translate("image_server_settings_title")
 	%PortLabel.text = I18n.translate("settings_port")
 	%TimeoutLabel.text = I18n.translate("settings_timeout")
+	%LowVramLabel.text = I18n.translate("settings_low_vram")
+	%LowVramCheck.text = I18n.translate("settings_on") if %LowVramCheck.button_pressed else I18n.translate("settings_off")
 	%PrefixLabel.text = I18n.translate("settings_prompt_prefix")
 	%SuffixLabel.text = I18n.translate("settings_prompt_suffix")
 	%Back.text = I18n.translate("btn_back")

@@ -10,6 +10,7 @@ const DEFAULT_SUFFIX := "4k"
 var settings := {
 	"port": 56321,
 	"timeout": 240,
+	"low_vram": false,
 	"model_filename": "waiIllustriousSDXL_v170.safetensors",
 	"prefix": DEFAULT_PREFIX,
 	"suffix": DEFAULT_SUFFIX,
