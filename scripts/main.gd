@@ -11,7 +11,6 @@ var _intro_video_should_resume := false
 func _ready() -> void:
 	modulate.a = 1.0
 	ServerRuntimeManager.set_chrome_visible(false)
-	MusicManager.play_random_mood("main_menu")
 	_start_hidden_menu_video()
 	_hide_menu_overlay()
 	print_verbose("")
@@ -38,6 +37,8 @@ func _ready() -> void:
 		%HelpOverlay.closed.connect(_on_settings_closed)
 	_update_labels()
 	_check_first_time_overlay()
+	if not bool(GameSettingsManager.settings.get("first_time", true)):
+		MusicManager.play_random_mood("main_menu")
 	_play_intro_sequence()
 
 
@@ -102,6 +103,7 @@ func _check_first_time_overlay() -> void:
 
 func _on_first_time_language_selected(_lang: String) -> void:
 	_update_labels()
+	MusicManager.play_random_mood("main_menu")
 	if _intro_video_should_resume:
 		_intro_video_should_resume = false
 		_resume_intro_video()

@@ -49,47 +49,80 @@ mouse_filter = 0
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
-text = "Please choose your language / 请选择你的语言 / 請選擇你的語言"
+text = "Language"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="CenterContainer/Panel/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 12)
 
-[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/VBoxContainer"]
+[node name="LanguageGrid" type="GridContainer" parent="CenterContainer/Panel/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 24
+columns = 5
 
-[node name="EnglishButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/ButtonRow"]
+[node name="RequirementsTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-custom_minimum_size = Vector2(200, 56)
-text = "English"
+theme_override_font_sizes/font_size = 30
+text = "System Requirements"
+horizontal_alignment = 1
 
-[node name="ZhCNButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/ButtonRow"]
+[node name="RequirementsIntro" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-custom_minimum_size = Vector2(200, 56)
-text = "简体中文"
+theme_override_font_sizes/font_size = 18
+text = "To run StoryNow, your computer needs:"
+horizontal_alignment = 1
 
-[node name="ZhTWButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/ButtonRow"]
+[node name="RequirementsList" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-custom_minimum_size = Vector2(200, 56)
-text = "繁體中文"
+theme_override_font_sizes/font_size = 20
+text = "• An NVIDIA graphics card that supports CUDA\n• 8 GB VRAM\n• 32 GB system RAM"
+horizontal_alignment = 1
 
-[node name="CantoneseButton" type="Button" parent="CenterContainer/Panel/VBoxContainer/ButtonRow"]
+[node name="CheckSeparator" type="HSeparator" parent="CenterContainer/Panel/VBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-custom_minimum_size = Vector2(200, 56)
-text = "廣東話"
 
-[node name="Remark" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
+[node name="CheckTitle" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
-text = "You can change this afterwards in Game Settings / 你可以在游戏设置中更改 / 你可以在遊戲設定中更改"
+theme_override_font_sizes/font_size = 18
+text = "Quick check"
+horizontal_alignment = 1
+
+[node name="NvidiaResult" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "NVIDIA graphics card check"
 horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="CheckNote" type="Label" parent="CenterContainer/Panel/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_font_sizes/font_size = 14
+text = "Only the graphics-card vendor is checked instantly. Please verify VRAM and RAM yourself."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ConfirmButton" type="Button" parent="CenterContainer/Panel/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(300, 56)
+size_flags_horizontal = 4
+text = "Confirm and Continue"

@@ -28,7 +28,7 @@
 | Advanced Setting | Opens `AdvancedSettingsOverlay` | Contains Image/LLM settings shortcuts |
 | Exit | `get_tree().quit()` | |
 
-First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`.
+First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`. Its language buttons are generated from `I18n.LANGUAGES` in a grid of up to five per row. Choosing a language applies it immediately, then shows the minimum NVIDIA/CUDA, 8 GB VRAM, and 32 GB RAM requirements. The overlay performs only an instant NVIDIA adapter vendor/name check; confirmation always remains available and is what completes first-time setup, starts menu music, and resumes the intro.
 
 ## 7.4 Brainstorm Scene
 
