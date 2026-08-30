@@ -11,6 +11,7 @@ var _intro_video_should_resume := false
 func _ready() -> void:
 	modulate.a = 1.0
 	ServerRuntimeManager.set_chrome_visible(false)
+	MusicManager.play_random_mood("main_menu")
 	_start_hidden_menu_video()
 	_hide_menu_overlay()
 	print_verbose("")

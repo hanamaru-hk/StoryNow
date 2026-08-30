@@ -5,6 +5,7 @@ var _brainstorm_request_active := false
 
 func _ready() -> void:
 	ServerRuntimeManager.set_chrome_visible(true)
+	MusicManager.play_random_mood("main_menu")
 	%Random.pressed.connect(_on_random_pressed)
 	%Enhance.pressed.connect(_on_enhance_pressed)
 	%Advanced.pressed.connect(_on_advanced_pressed)
