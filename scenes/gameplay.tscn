@@ -197,7 +197,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.18, 0.18, 0.18, 1)
 theme_override_fonts/font = ExtResource("14_noto_serif_bold")
 theme_override_font_sizes/font_size = 32
-text = ":)"
+text = "🕮"
 
 [node name="HeaderSpacer" type="Control" parent="Dialogue/Margin/HBox/DialogArea/Margin/VBox/HeaderRow"]
 layout_mode = 2
@@ -484,6 +484,83 @@ custom_minimum_size = Vector2(180, 48)
 text = "Back"
 
 [node name="ChoiceConfirm" type="Button" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Confirm"
+
+[node name="ChoiceDeleteConfirmPopup" type="Control" parent="ChoiceOverlay"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDim" type="ColorRect" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(700, 320)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ornate_frame")
+script = ExtResource("15_ornate_gold_frame")
+background_color = Color(0.08, 0.08, 0.1, 0.96)
+
+[node name="Margin" type="MarginContainer" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="ChoiceDeleteConfirmTitle" type="Label" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Confirm"
+horizontal_alignment = 1
+
+[node name="ChoiceDeleteConfirmMessage" type="Label" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "Delete this choice?"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ButtonRow" type="HBoxContainer" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="ChoiceDeleteCancel" type="Button" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Cancel"
+
+[node name="ChoiceDeleteConfirm" type="Button" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(180, 48)

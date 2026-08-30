@@ -1,7 +1,10 @@
 class_name GameplayChoiceController
 extends RefCounted
 
+const ScrollbarStyleScript := preload("res://scripts/scrollbar_style.gd")
+
 var _host: Control
+var _pending_delete_index := -1
 
 
 func _init(host: Control) -> void:
@@ -12,6 +15,20 @@ func resize_overlay_panel() -> void:
 	var panel := _host.get_node_or_null("ChoiceOverlay/CenterContainer/Panel")
 	if panel is Control:
 		(panel as Control).custom_minimum_size = _host.get_viewport_rect().size * 0.7
+
+
+func style_scrollbar() -> void:
+	var choice_scroll := _node("ChoiceScroll") as ScrollContainer
+	if choice_scroll:
+		ScrollbarStyleScript.apply(choice_scroll)
+	var delete_confirm := _node("ChoiceDeleteConfirm") as Button
+	if delete_confirm and not delete_confirm.pressed.is_connected(_confirm_delete_choice):
+		delete_confirm.pressed.connect(_confirm_delete_choice)
+	var delete_cancel := _node("ChoiceDeleteCancel") as Button
+	if delete_cancel and not delete_cancel.pressed.is_connected(_cancel_delete_choice):
+		delete_cancel.pressed.connect(_cancel_delete_choice)
+	_update_delete_confirmation_labels()
+	_cancel_delete_choice()
 
 
 func populate_buttons() -> void:
@@ -31,7 +48,7 @@ func populate_buttons() -> void:
 		var was_selected := choice is Dictionary and not str(choice.get("uuid", "")).strip_edges().is_empty()
 		var display_text := choice_text
 		if was_selected:
-			display_text = "***** %s ***** %s" % [_translated("choice_previously_selected", "Previously selected this choice"), choice_text]
+			display_text = "***** %s *****\n%s" % [_translated("choice_previously_selected", "Previously selected this choice"), choice_text]
 
 		var row := HBoxContainer.new()
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -53,8 +70,12 @@ func populate_buttons() -> void:
 		delete_button.text = _translated("btn_delete", "Delete")
 		delete_button.custom_minimum_size = Vector2(88, row_height)
 		delete_button.size_flags_horizontal = Control.SIZE_SHRINK_END
-		delete_button.pressed.connect(delete_choice.bind(choice_index))
+		delete_button.pressed.connect(_request_delete_choice.bind(choice_index, choice_text))
 		row.add_child(delete_button)
+
+		var scrollbar_gutter := Control.new()
+		scrollbar_gutter.custom_minimum_size.x = ScrollbarStyleScript.WIDTH + 8.0
+		row.add_child(scrollbar_gutter)
 
 
 func select_choice(choice_text: String) -> void:
@@ -77,7 +98,46 @@ func delete_choice(choice_index: int) -> void:
 	populate_buttons()
 
 
+func _request_delete_choice(choice_index: int, choice_text: String) -> void:
+	_pending_delete_index = choice_index
+	var message := _node("ChoiceDeleteConfirmMessage") as Label
+	if message:
+		var template := _translated("choice_delete_confirm", "Delete this choice?\n%s")
+		message.text = template % choice_text
+	var popup := _node("ChoiceDeleteConfirmPopup") as Control
+	if popup:
+		popup.visible = true
+
+
+func _confirm_delete_choice() -> void:
+	var choice_index := _pending_delete_index
+	_cancel_delete_choice()
+	if choice_index >= 0:
+		delete_choice(choice_index)
+
+
+func _cancel_delete_choice() -> void:
+	_pending_delete_index = -1
+	var popup := _node("ChoiceDeleteConfirmPopup") as Control
+	if popup:
+		popup.visible = false
+
+
+func _update_delete_confirmation_labels() -> void:
+	var title := _node("ChoiceDeleteConfirmTitle") as Label
+	if title:
+		title.text = _translated("confirm_dialog_title", "Confirm")
+	var confirm_button := _node("ChoiceDeleteConfirm") as Button
+	if confirm_button:
+		confirm_button.text = _translated("btn_confirm", "Confirm")
+	var cancel_button := _node("ChoiceDeleteCancel") as Button
+	if cancel_button:
+		cancel_button.text = _translated("btn_cancel", "Cancel")
+
+
 func show_overlay() -> void:
+	_cancel_delete_choice()
+	_update_delete_confirmation_labels()
 	var story_has_ended := bool(SceneDataManager.scene_data.get("end", false))
 	var custom_input := _node("CustomInput") as TextEdit
 	if custom_input:
@@ -103,6 +163,7 @@ func show_overlay() -> void:
 
 
 func hide_overlay() -> void:
+	_cancel_delete_choice()
 	var overlay := _node("ChoiceOverlay") as Control
 	if overlay:
 		overlay.visible = false
@@ -144,44 +205,30 @@ func confirm() -> void:
 	_host.get_tree().change_scene_to_file("res://scenes/gameplay.tscn")
 
 
-func _make_selected_button(choice_text: String, row_height: float) -> Control:
-	var panel := PanelContainer.new()
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.custom_minimum_size = Vector2(0, row_height)
-	panel.gui_input.connect(_on_selected_input.bind(choice_text))
-	panel.mouse_entered.connect(_set_selected_hover.bind(panel, true))
-	panel.mouse_exited.connect(_set_selected_hover.bind(panel, false))
-	_set_selected_hover(panel, false)
+func _make_selected_button(choice_text: String, row_height: float) -> Button:
+	var button := Button.new()
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.custom_minimum_size = Vector2(0, row_height)
+	button.pressed.connect(select_choice.bind(choice_text))
 	var label := RichTextLabel.new()
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.bbcode_enabled = true
-	label.fit_content = true
 	label.scroll_active = false
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.text = "[color=yellow]***** %s *****[/color] %s" % [
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	button.add_child(label)
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	label.offset_left = 14.0
+	label.offset_top = 8.0
+	label.offset_right = -14.0
+	label.offset_bottom = -8.0
+	var button_text_color := _host.get_theme_color("font_color", "Button").to_html(false)
+	label.text = "[center][color=#806000]***** %s *****[/color]\n[color=#%s]%s[/color][/center]" % [
 		_escape_bbcode(_translated("choice_previously_selected", "Previously selected this choice")),
+		button_text_color,
 		_escape_bbcode(choice_text),
 	]
-	panel.add_child(label)
-	return panel
-
-
-func _on_selected_input(event: InputEvent, choice_text: String) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		select_choice(choice_text)
-
-
-func _set_selected_hover(panel: PanelContainer, is_hovered: bool) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.22, 0.22, 0.22, 1.0) if is_hovered else Color(0.13, 0.13, 0.13, 1.0)
-	style.content_margin_left = 12
-	style.content_margin_top = 8
-	style.content_margin_right = 12
-	style.content_margin_bottom = 8
-	panel.add_theme_stylebox_override("panel", style)
+	return button
 
 
 func _choice_text(choice: Variant) -> String:
@@ -191,7 +238,15 @@ func _choice_text(choice: Variant) -> String:
 
 
 func _choice_row_height(text: String) -> float:
-	return maxf(44.0, 24.0 + float(maxi(1, ceili(float(text.length()) / 30.0))) * 30.0)
+	var choice_scroll := _node("ChoiceScroll") as ScrollContainer
+	var text_width := choice_scroll.size.x if choice_scroll else 0.0
+	if text_width <= 0.0:
+		text_width = _host.get_viewport_rect().size.x * 0.7 - 72.0
+	text_width = maxf(120.0, text_width - 88.0 - ScrollbarStyleScript.WIDTH - 24.0)
+	var font := _host.get_theme_font("font", "Button")
+	var font_size := _host.get_theme_font_size("font_size", "Button")
+	var text_size := font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, text_width, font_size)
+	return maxf(44.0, ceilf(text_size.y) + 16.0)
 
 
 func _escape_bbcode(text: String) -> String:

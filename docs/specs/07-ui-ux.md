@@ -11,8 +11,8 @@
 
 ## 7.2 Choice Presentation
 
-- Choices appear as dynamic buttons above `CustomInput` inside `ChoiceOverlay` (`VBoxContainer %DynamicChoiceButtons`, `scripts/gameplay.gd:287`). Previously-selected choices render as yellow-tagged `PanelContainer`.
-- Each row has **Delete** to remove the choice permanently.
+- Choices appear as dynamic buttons above `CustomInput` inside `ChoiceOverlay` (`VBoxContainer %DynamicChoiceButtons`). Previously-selected choices remain themed buttons and center their dark-yellow status marker on a separate line above choice text rendered in the active button theme color. Row height is calculated from the themed font's wrapped multiline size. The choice list uses the same wide, gold-accented scrollbar as `LoadGameOverlay` and reserves a gutter so it does not overlap row actions.
+- Each row has **Delete**, followed by a confirmation prompt before the choice is permanently removed.
 - Confirm validates that at least one choice exists and servers are healthy; writes `player_input` + seed `next_uuid`/`prev_uuid` into saves and reloads `gameplay.tscn`.
 
 ## 7.3 Main Menu

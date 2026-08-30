@@ -112,6 +112,7 @@ func _ready() -> void:
 	_start_continue_indicator_flash()
 
 	_resize_choice_overlay_panel()
+	_choice_controller.style_scrollbar()
 
 	# --- TTS auto-play ---
 	if is_instance_valid(TTSManager) and TTSManager.has_signal("tts_generated") and not TTSManager.tts_generated.is_connected(_on_tts_generated):
