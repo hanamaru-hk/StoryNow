@@ -62,6 +62,8 @@ Sherpa TTS has no Python fallback. Changes under `addons/sherpa_tts/src/` requir
 
 Use a Godot 4.7 executable available on the machine; replace `godot` below with its full path when necessary.
 
+On the current Windows workstation, use the console executable at `C:\Users\celew\Downloads\Godot_v4.7.1-stable_win64_console.exe` for automated headless checks. Godot 4.7.1 is known to crash with native `signal 11` when launched inside the Codex sandbox on this machine, even when the project is valid. If that happens, request approval to rerun the same non-destructive Godot command outside the sandbox. Do not treat the sandbox crash as a test failure or report that validation is unavailable without attempting the approved out-of-sandbox run. When the UI offers it, request/persist approval for the executable's `--headless` command prefix so later validation can run without repeated prompts.
+
 For pure gameplay scene logic:
 
 ```powershell
