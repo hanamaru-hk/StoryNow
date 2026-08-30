@@ -361,6 +361,7 @@ theme_override_constants/separation = 28
 [node name="ErrorReturnTitle" type="Label" parent="ErrorReturnPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Error"
 horizontal_alignment = 1
 
@@ -438,6 +439,7 @@ theme_override_constants/separation = 24
 [node name="ChoiceTitle" type="Label" parent="ChoiceOverlay/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Choose Next Step"
 horizontal_alignment = 1
 
@@ -541,6 +543,7 @@ theme_override_constants/separation = 28
 [node name="ChoiceDeleteConfirmTitle" type="Label" parent="ChoiceOverlay/ChoiceDeleteConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Confirm"
 horizontal_alignment = 1
 
@@ -617,6 +620,7 @@ theme_override_constants/separation = 24
 [node name="ImageActionTitle" type="Label" parent="ImageActionOverlay/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Image"
 horizontal_alignment = 1
 
@@ -691,6 +695,7 @@ theme_override_constants/separation = 24
 [node name="ImageChangeLabel" type="Label" parent="ImageChangeOverlay/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Image"
 horizontal_alignment = 1
 

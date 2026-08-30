@@ -1,6 +1,7 @@
-[gd_resource type="Theme" load_steps=10 format=3]
+[gd_resource type="Theme" load_steps=11 format=3]
 
 [ext_resource type="FontFile" path="res://assets/fonts/NotoSerifCJKjp-SemiBold.otf" id="1_noto_serif_cjk_jp_semibold"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSerifCJKjp-Bold.otf" id="2_noto_serif_cjk_jp_bold"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
 content_margin_left = 14.0
@@ -133,6 +134,15 @@ corner_radius_bottom_left = 6
 [resource]
 default_font = ExtResource("1_noto_serif_cjk_jp_semibold")
 default_font_size = 28
+PopupTitle/base_type = &"Label"
+PopupTitle/colors/font_color = Color(0.82, 0.66, 0.28, 1)
+PopupTitle/fonts/font = ExtResource("2_noto_serif_cjk_jp_bold")
+PopupTitle/font_sizes/font_size = 42
+PopupWindowTitle/base_type = &"Window"
+PopupWindowTitle/colors/title_color = Color(0.82, 0.66, 0.28, 1)
+PopupWindowTitle/constants/title_height = 56
+PopupWindowTitle/fonts/title_font = ExtResource("2_noto_serif_cjk_jp_bold")
+PopupWindowTitle/font_sizes/title_font_size = 42
 Button/colors/font_color = Color(0.0352941, 0.145098, 0.298039, 1)
 Button/colors/font_focus_color = Color(0.0352941, 0.145098, 0.298039, 1)
 Button/colors/font_hover_color = Color(0.0509804, 0.270588, 0.517647, 1)

@@ -51,6 +51,7 @@ theme_override_constants/separation = 16
 [node name="GalleryTitle" type="Label" parent="Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Gallery"
 horizontal_alignment = 1
 
@@ -218,6 +219,7 @@ theme_override_constants/separation = 28
 [node name="GalleryPreviewConfirmTitle" type="Label" parent="GalleryPreview/GalleryPreviewConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Confirm"
 horizontal_alignment = 1
 
@@ -295,6 +297,7 @@ theme_override_constants/separation = 28
 [node name="GalleryPreviewErrorTitle" type="Label" parent="GalleryPreview/GalleryPreviewErrorPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Error"
 horizontal_alignment = 1
 

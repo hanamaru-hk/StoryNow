@@ -54,6 +54,7 @@ theme_override_constants/separation = 24
 [node name="LoadTitle" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Load Game"
 horizontal_alignment = 1
 
@@ -136,6 +137,7 @@ theme_override_constants/separation = 28
 [node name="LoadErrorTitle" type="Label" parent="LoadErrorPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Error"
 horizontal_alignment = 1
 
@@ -214,6 +216,7 @@ theme_override_constants/separation = 28
 [node name="LoadDeleteConfirmTitle" type="Label" parent="LoadDeleteConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Confirm"
 horizontal_alignment = 1
 
@@ -291,6 +294,7 @@ theme_override_constants/separation = 28
 [node name="LoadConfirmTitle" type="Label" parent="LoadConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Confirm"
 horizontal_alignment = 1
 

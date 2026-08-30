@@ -42,6 +42,7 @@ frame_padding = 72.0
 [node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "LLM Settings"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -195,6 +196,7 @@ theme_override_constants/separation = 28
 [node name="ConfirmTitle" type="Label" parent="ConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Confirm"
 horizontal_alignment = 1
 

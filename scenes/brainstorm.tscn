@@ -296,6 +296,7 @@ indeterminate = true
 [node name="LoadingLabel" type="Label" parent="LoadingOverlay/CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Loading..."
 horizontal_alignment = 1
 
@@ -347,6 +348,7 @@ theme_override_constants/separation = 28
 [node name="ErrorPopupTitle" type="Label" parent="ErrorPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Error"
 horizontal_alignment = 1
 
@@ -425,6 +427,7 @@ theme_override_constants/separation = 28
 [node name="RandomConfirmTitle" type="Label" parent="RandomConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Confirm"
 horizontal_alignment = 1
 
@@ -502,6 +505,7 @@ theme_override_constants/separation = 28
 [node name="EnhanceConfirmTitle" type="Label" parent="EnhanceConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PopupTitle"
 text = "Confirm"
 horizontal_alignment = 1
 
