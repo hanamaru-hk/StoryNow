@@ -4,65 +4,51 @@ const BUTTON_SHADER := """
 shader_type canvas_item;
 render_mode unshaded;
 
-uniform vec2 control_size = vec2(375.0, 90.0);
-uniform vec4 gradient_top : source_color = vec4(0.69, 0.82, 1.0, 1.0);
-uniform vec4 gradient_bottom : source_color = vec4(0.55, 0.71, 0.95, 1.0);
-uniform vec4 border_color : source_color = vec4(0.51, 0.60, 0.72, 1.0);
-uniform vec4 inner_border_color : source_color = vec4(0.85, 0.91, 1.0, 1.0);
-uniform vec4 shadow_color : source_color = vec4(0.20, 0.27, 0.38, 0.32);
-uniform float fill_opacity : hint_range(0.0, 1.0) = 0.85;
+uniform vec2 control_size = vec2(275.0, 90.0);
+uniform vec4 background_top : source_color = vec4(0.06, 0.18, 0.45, 1.0);
+uniform vec4 background_bottom : source_color = vec4(0.14, 0.35, 0.60, 1.0);
+uniform vec4 decoration_color : source_color = vec4(1.0);
+uniform float background_opacity : hint_range(0.0, 1.0) = 0.0;
 
-float rounded_box_sdf(vec2 point, vec2 half_size, float radius) {
-	vec2 distance_to_corner = abs(point) - half_size + vec2(radius);
-	return min(max(distance_to_corner.x, distance_to_corner.y), 0.0)
-		+ length(max(distance_to_corner, vec2(0.0))) - radius;
+float segment_distance(vec2 point, vec2 start, vec2 end) {
+	vec2 start_to_point = point - start;
+	vec2 start_to_end = end - start;
+	float projection = clamp(dot(start_to_point, start_to_end) / dot(start_to_end, start_to_end), 0.0, 1.0);
+	return length(start_to_point - start_to_end * projection);
 }
 
 void fragment() {
-	vec2 point = (UV - vec2(0.5)) * control_size + vec2(0.0, 2.0);
-	vec2 half_size = control_size * 0.5 - vec2(5.0, 8.0);
-	float radius = min(half_size.y, 16.0);
-	float button_distance = rounded_box_sdf(point, half_size, radius);
-	float shadow_distance = rounded_box_sdf(point - vec2(0.0, 4.0), half_size, radius);
+	vec2 point = UV * control_size;
+	float panel_mask = step(54.0, point.x)
+		* step(point.x, control_size.x - 6.0)
+		* step(6.0, point.y)
+		* step(point.y, control_size.y - 6.0);
+	float gradient_position = clamp((point.y - 6.0) / (control_size.y - 12.0), 0.0, 1.0);
+	vec4 panel_color = mix(background_top, background_bottom, gradient_position);
+	panel_color.a = background_opacity * smoothstep(0.0, 1.0, gradient_position) * panel_mask;
 
-	float button_mask = 1.0 - smoothstep(-1.0, 1.0, button_distance);
-	float inner_border_mask = 1.0 - smoothstep(-0.8, 0.8, button_distance + 3.0);
-	float fill_mask = 1.0 - smoothstep(-0.8, 0.8, button_distance + 6.0);
-	float shadow_mask = (1.0 - smoothstep(-1.0, 4.0, shadow_distance)) * (1.0 - button_mask);
+	float circle_distance = length(point - vec2(28.0, 43.0)) - 19.0;
+	float circle_mask = 1.0 - smoothstep(-1.0, 1.0, circle_distance);
+	float diagonal_distance = segment_distance(point, vec2(40.0, 54.0), vec2(61.0, 75.0));
+	float underline_distance = segment_distance(point, vec2(61.0, 75.0), vec2(control_size.x - 8.0, 75.0));
+	float line_mask = 1.0 - smoothstep(2.6, 3.8, min(diagonal_distance, underline_distance));
+	float decoration_mask = max(circle_mask, line_mask);
 
-	float gradient_position = clamp((point.y + half_size.y) / (half_size.y * 2.0), 0.0, 1.0);
-	vec4 fill_color = mix(gradient_top, gradient_bottom, gradient_position);
-	float top_gloss = (1.0 - smoothstep(0.08, 0.52, UV.y)) * 0.16;
-	fill_color.rgb = mix(fill_color.rgb, vec3(1.0), top_gloss);
-	fill_color.a *= fill_opacity;
-
-	vec4 button_color = mix(border_color, inner_border_color, inner_border_mask);
-	button_color = mix(button_color, fill_color, fill_mask);
-	vec4 result = shadow_color * shadow_mask;
-	result = mix(result, button_color, button_mask);
+	vec4 result = panel_color;
+	result = mix(result, decoration_color, decoration_mask * decoration_color.a);
 	COLOR = result;
 }
 """
 
-const NORMAL_TOP := Color(0.06, 0.18, 0.45, 1.0)
-const NORMAL_BOTTOM := Color("24599a")
-const NORMAL_BORDER := Color("8298b9")
-const NORMAL_INNER_BORDER := Color("d8e8ff")
-const HOVER_TOP := Color("21488a")
-const HOVER_BOTTOM := Color("3970b1")
-const HOVER_BORDER := Color("7196c9")
-const HOVER_INNER_BORDER := Color("edf6ff")
+const HOVER_TOP := Color(0.06, 0.18, 0.45, 1.0)
+const HOVER_BOTTOM := Color("0b245a")
 const PRESSED_TOP := Color("0b245a")
-const PRESSED_BOTTOM := Color("173f79")
-const PRESSED_BORDER := Color("587bad")
-const PRESSED_INNER_BORDER := Color("bdd5f3")
-const DISABLED_TOP := Color("c2ccd9")
-const DISABLED_BOTTOM := Color("a8b4c5")
-const DISABLED_BORDER := Color("8994a3")
-const DISABLED_INNER_BORDER := Color("d8dde5")
+const PRESSED_BOTTOM := Color("061a43")
+const DISABLED_TOP := Color("36465e")
+const DISABLED_BOTTOM := Color("53677f")
 const TEXT_COLOR := Color("ffffff")
 
-@export var hover_font_size := 43
+@export var hover_font_size := 46
 
 var _normal_font_size := 40
 var _hovered := false
@@ -72,16 +58,16 @@ var _background_material: ShaderMaterial
 
 func _ready() -> void:
 	_normal_font_size = get_theme_font_size("font_size")
-	flat = true
-	alignment = HORIZONTAL_ALIGNMENT_CENTER
+	flat = false
+	alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_apply_text_theme()
 	_create_button_background()
 	mouse_entered.connect(_set_hovered.bind(true))
 	mouse_exited.connect(_set_hovered.bind(false))
 	button_down.connect(_set_pressed.bind(true))
 	button_up.connect(_set_pressed.bind(false))
-	focus_entered.connect(_update_background_colors)
-	focus_exited.connect(_update_background_colors)
+	focus_entered.connect(_update_visual_state)
+	focus_exited.connect(_update_visual_state)
 	resized.connect(_sync_background_size)
 
 
@@ -90,10 +76,16 @@ func _apply_text_theme() -> void:
 	add_theme_color_override("font_hover_color", TEXT_COLOR)
 	add_theme_color_override("font_pressed_color", TEXT_COLOR)
 	add_theme_color_override("font_focus_color", TEXT_COLOR)
-	add_theme_color_override("font_disabled_color", Color(TEXT_COLOR, 0.58))
-	add_theme_color_override("font_outline_color", Color(0.18, 0.35, 0.58, 0.38))
+	add_theme_color_override("font_disabled_color", Color(TEXT_COLOR, 0.52))
+	add_theme_color_override("font_outline_color", Color(0.02, 0.08, 0.18, 0.5))
 	add_theme_constant_override("outline_size", 1)
-	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	var text_padding := StyleBoxEmpty.new()
+	text_padding.content_margin_right = 12.0
+	add_theme_stylebox_override("normal", text_padding)
+	add_theme_stylebox_override("hover", text_padding)
+	add_theme_stylebox_override("pressed", text_padding)
+	add_theme_stylebox_override("disabled", text_padding)
+	add_theme_stylebox_override("focus", text_padding)
 
 
 func _create_button_background() -> void:
@@ -102,14 +94,14 @@ func _create_button_background() -> void:
 	_background_material = ShaderMaterial.new()
 	_background_material.shader = shader
 	var background := ColorRect.new()
-	background.name = "BlueButtonBackground"
+	background.name = "GraphicButtonBackground"
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.show_behind_parent = true
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.material = _background_material
 	add_child(background)
 	_sync_background_size()
-	_update_background_colors()
+	_update_visual_state()
 
 
 func _sync_background_size() -> void:
@@ -120,37 +112,33 @@ func _sync_background_size() -> void:
 func _set_hovered(hovered: bool) -> void:
 	_hovered = hovered
 	add_theme_font_size_override("font_size", hover_font_size if hovered else _normal_font_size)
-	_update_background_colors()
+	_update_visual_state()
 
 
 func _set_pressed(pressed: bool) -> void:
 	_pressed = pressed
-	_update_background_colors()
+	_update_visual_state()
 
 
-func _update_background_colors() -> void:
+func _update_visual_state() -> void:
 	if not is_instance_valid(_background_material):
 		return
-	var top_color := NORMAL_TOP
-	var bottom_color := NORMAL_BOTTOM
-	var outline_color := NORMAL_BORDER
-	var inner_outline_color := NORMAL_INNER_BORDER
+	var top_color := HOVER_TOP
+	var bottom_color := HOVER_BOTTOM
+	var panel_opacity := 0.0
+	var graphic_color := TEXT_COLOR
 	if disabled:
 		top_color = DISABLED_TOP
 		bottom_color = DISABLED_BOTTOM
-		outline_color = DISABLED_BORDER
-		inner_outline_color = DISABLED_INNER_BORDER
+		panel_opacity = 0.30
+		graphic_color = Color(TEXT_COLOR, 0.52)
 	elif _pressed:
 		top_color = PRESSED_TOP
 		bottom_color = PRESSED_BOTTOM
-		outline_color = PRESSED_BORDER
-		inner_outline_color = PRESSED_INNER_BORDER
+		panel_opacity = 0.95
 	elif _hovered or has_focus():
-		top_color = HOVER_TOP
-		bottom_color = HOVER_BOTTOM
-		outline_color = HOVER_BORDER
-		inner_outline_color = HOVER_INNER_BORDER
-	_background_material.set_shader_parameter("gradient_top", top_color)
-	_background_material.set_shader_parameter("gradient_bottom", bottom_color)
-	_background_material.set_shader_parameter("border_color", outline_color)
-	_background_material.set_shader_parameter("inner_border_color", inner_outline_color)
+		panel_opacity = 0.85
+	_background_material.set_shader_parameter("background_top", top_color)
+	_background_material.set_shader_parameter("background_bottom", bottom_color)
+	_background_material.set_shader_parameter("background_opacity", panel_opacity)
+	_background_material.set_shader_parameter("decoration_color", graphic_color)
