@@ -4,6 +4,10 @@ extends RefCounted
 const CURRENT_VERSION := "1.0"
 
 
+static func generation_flow_for_round(current_round: int) -> String:
+	return "new_story" if current_round == 1 else "new_scene"
+
+
 static func parse_generation_result(result: Dictionary) -> Dictionary:
 	var title := str(result.get("title", "")).strip_edges()
 	if not result.get("success", false):

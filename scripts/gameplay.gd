@@ -547,6 +547,15 @@ func _execute_new_scene_flow() -> void:
 	await _flow_controller.execute_generation("new_scene")
 
 
+func regenerate_current_scene(current_round: int) -> void:
+	var flow := GameplaySceneService.generation_flow_for_round(current_round)
+	current_dialogue_index = 0
+	_current_dialog_idx = 0
+	GameProgressManager.settings["current_dialogue"] = 0
+	_set_game_status(flow)
+	await _flow_controller.execute_generation(flow)
+
+
 func _prepare_generating_resume_flow(load_image: bool = false) -> String:
 	return _flow_controller.prepare_resume(load_image)
 

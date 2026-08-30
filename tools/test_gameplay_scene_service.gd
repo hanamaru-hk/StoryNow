@@ -6,6 +6,7 @@ var _failures := 0
 
 
 func _initialize() -> void:
+	_test_generation_flow_for_round()
 	_test_generation_parsing()
 	_test_scene_merge()
 	_test_new_choice_transition()
@@ -13,6 +14,11 @@ func _initialize() -> void:
 	if _failures == 0:
 		print("GameplaySceneService: all tests passed")
 	quit(_failures)
+
+
+func _test_generation_flow_for_round() -> void:
+	_expect(Service.generation_flow_for_round(1) == "new_story", "uses new_story for round 1 regeneration")
+	_expect(Service.generation_flow_for_round(2) == "new_scene", "uses new_scene after round 1 regeneration")
 
 
 func _test_generation_parsing() -> void:

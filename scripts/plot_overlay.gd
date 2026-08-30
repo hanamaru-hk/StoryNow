@@ -206,6 +206,8 @@ func _on_regenerate_cancel_pressed() -> void:
 func _on_regenerate_confirm_pressed() -> void:
 	if has_node("%RegenerateConfirmPopup"):
 		%RegenerateConfirmPopup.visible = false
+	visible = false
+	closed.emit()
 	await _execute_regenerate_all()
 
 
@@ -229,7 +231,7 @@ func _update_regenerate_button_state() -> void:
 		if _is_regenerating:
 			%RegenerateAllButton.text = I18n.translate("dialogue_regenerating") if I18n.translate("dialogue_regenerating") != "dialogue_regenerating" else "Regenerating..."
 		else:
-			%RegenerateAllButton.text = I18n.translate("dialogue_hub_regenerate") if I18n.translate("dialogue_hub_regenerate") != "dialogue_hub_regenerate" else "Regenerate All"
+			%RegenerateAllButton.text = I18n.translate("dialogue_hub_regenerate") if I18n.translate("dialogue_hub_regenerate") != "dialogue_hub_regenerate" else "Regenerate Scene"
 	if has_node("%HubEditButton"):
 		%HubEditButton.disabled = disabled
 	if has_node("%HubAddButton"):
@@ -240,171 +242,23 @@ func _update_regenerate_button_state() -> void:
 		%DialogueBack.disabled = disabled
 
 
-func _extract_json(text: String) -> String:
-	var t := text.strip_edges()
-	if t.begins_with("```"):
-		var start := t.find("\n")
-		var end := t.rfind("```")
-		if start != -1 and end != -1 and end > start:
-			t = t.substr(start + 1, end - start - 1).strip_edges()
-		else:
-			t = t.replace("```json", "").replace("```", "").strip_edges()
-	return t
-
-
-func _repair_llm_json_text(text: String) -> String:
-	var key := "\"image_prompt\""
-	var idx := text.find(key)
-	if idx == -1:
-		return text
-	var colon := text.find(":", idx + key.length())
-	if colon == -1:
-		return text
-	var first_quote := text.find("\"", colon)
-	if first_quote == -1:
-		return text
-	var summary_key := "\"summary\""
-	var summary_idx := text.find(summary_key, first_quote)
-	if summary_idx == -1:
-		summary_idx = text.find("\"end\"", first_quote)
-		if summary_idx == -1:
-			summary_idx = text.find("\"language\"", first_quote)
-		if summary_idx == -1:
-			return text
-	var close_seq := text.rfind("\",", summary_idx)
-	if close_seq == -1 or close_seq <= first_quote:
-		return text
-	var raw_val := text.substr(first_quote + 1, close_seq - first_quote - 1)
-	var sanitized := raw_val.replace("\\\"", "").replace("\\", "").replace("\"", "").replace("'", "").replace("\n", " ").replace("\r", " ")
-	sanitized = sanitized.strip_edges()
-	while sanitized.find(",,") != -1:
-		sanitized = sanitized.replace(",,", ",")
-	var before := text.substr(0, first_quote + 1)
-	var after := text.substr(close_seq)
-	return before + sanitized + after
-
-
 func _execute_regenerate_all() -> void:
 	if _is_regenerating:
 		return
 	_is_regenerating = true
 	_update_regenerate_button_state()
-	# Infinite retry loop like gameplay _execute_new_story/scene
-	while true:
-		var round_val: int = _get_current_round()
-		var is_first: bool = round_val == 1
-		var result: Dictionary
-		if is_first:
-			result = await LLMManager.request_new_story()
-		else:
-			result = await LLMManager.request_new_scene()
-		print_verbose("RegenerateAll round=%d is_first=%s result=%s" % [round_val, str(is_first), str(result)])
-		if not result.get("success", false):
-			var gameplay = get_parent()
-			if result.get("cancelled", false) or (gameplay and bool(gameplay.get("_is_leaving_scene"))):
-				_is_regenerating = false
-				return
-			var err_msg: String = str(result.get("error", "Failed to generate dialogue"))
-			if gameplay and gameplay.has_method("show_error"):
-				gameplay.show_error(err_msg, true, "regenerate_all")
-				if gameplay.has_signal("retry_requested"):
-					await gameplay.retry_requested
-					await get_tree().create_timer(0.1).timeout
-					if not is_instance_valid(self) or not is_inside_tree():
-						_is_regenerating = false
-						_update_regenerate_button_state()
-						return
-					continue
-			else:
-				push_error("Regenerate failed: %s" % err_msg)
-				break
-			continue
-		var raw_text: String = str(result.get("text", ""))
-		var json_str: String = _extract_json(raw_text)
-		var json := JSON.new()
-		var err := json.parse(json_str)
-		if err != OK or not json.data is Dictionary:
-			var repaired := _repair_llm_json_text(json_str)
-			if repaired != json_str:
-				json = JSON.new()
-				err = json.parse(repaired)
-				if err == OK and json.data is Dictionary:
-					json_str = repaired
-			if err != OK or not json.data is Dictionary:
-				var gameplay2 = get_parent()
-				var msg2: String = I18n.translate("error_llm_invalid_json")
-				if gameplay2 and gameplay2.has_method("show_error"):
-					gameplay2.show_error(msg2, true, "regenerate_all")
-					if gameplay2.has_signal("retry_requested"):
-						await gameplay2.retry_requested
-						await get_tree().create_timer(0.1).timeout
-						if not is_instance_valid(self) or not is_inside_tree():
-							_is_regenerating = false
-							_update_regenerate_button_state()
-							return
-						continue
-				push_warning(msg2)
-				continue
-		var llm_data: Dictionary = json.data as Dictionary
-		if not llm_data.has("interactions") or not llm_data["interactions"] is Array:
-			var gameplay3 = get_parent()
-			var msg3: String = "LLM response missing interactions"
-			if gameplay3 and gameplay3.has_method("show_error"):
-				gameplay3.show_error(msg3, true, "regenerate_all")
-				if gameplay3.has_signal("retry_requested"):
-					await gameplay3.retry_requested
-					await get_tree().create_timer(0.1).timeout
-					if not is_instance_valid(self) or not is_inside_tree():
-						_is_regenerating = false
-						_update_regenerate_button_state()
-						return
-					continue
-			push_warning(msg3)
-			continue
-		# Success: overwrite only interactions, preserve everything else
-		var new_interactions: Array = (llm_data["interactions"] as Array).duplicate(true)
-		# Normalize entries
-		for i in new_interactions.size():
-			var e = new_interactions[i]
-			if not e is Dictionary:
-				new_interactions[i] = {"character": str(e), "dialogue": "", "sex": "male"}
-				continue
-			var d: Dictionary = e as Dictionary
-			if d.has("characer") and not d.has("character"):
-				d["character"] = d["characer"]
-				d.erase("characer")
-			if not d.has("character"):
-				d["character"] = ""
-			if not d.has("dialogue"):
-				d["dialogue"] = ""
-			if not d.has("sex"):
-				d["sex"] = "male"
-			new_interactions[i] = d
-		SceneDataManager.scene_data["interactions"] = new_interactions
-		SceneDataManager.save()
-		# Non-blocking TTS for regenerated dialogues
-		TTSManager.generate_all_for_scene(SceneDataManager.scene_data)
-		# Reset dialogue progress to 0 as requested
-		GameProgressManager.settings["current_dialogue"] = 0
-		GameProgressManager.save_settings()
-		var gameplay4 = get_parent()
-		if gameplay4:
-			if gameplay4.get("current_dialogue_index") != null or gameplay4.has_method("_show_current_dialogue"):
-				gameplay4.set("current_dialogue_index", 0)
-			if gameplay4.get("_current_dialog_idx") != null:
-				gameplay4.set("_current_dialog_idx", 0)
-		_refresh_list()
-		_refresh_dropdown()
-		dialogue_updated.emit()
-		# Clear retry pending in gameplay
-		var gp_clear = get_parent()
-		if gp_clear:
-			if gp_clear.get("_pending_retry_action") != null:
-				gp_clear.set("_pending_retry_action", "")
-			else:
-				# fallback direct assign if property exists
-				gp_clear.set("_pending_retry_action", "")
-		break
+	var gameplay := get_parent()
+	if gameplay == null or not gameplay.has_method("regenerate_current_scene"):
+		push_error("PlotOverlay requires a gameplay parent with regenerate_current_scene()")
+		_is_regenerating = false
+		_update_regenerate_button_state()
+		return
+	await gameplay.call("regenerate_current_scene", _get_current_round())
+	if not is_instance_valid(self) or not is_inside_tree():
+		return
+	_refresh_list()
+	_refresh_dropdown()
+	dialogue_updated.emit()
 	_is_regenerating = false
 	_update_regenerate_button_state()
 	_update_labels()
@@ -547,13 +401,13 @@ func _update_labels() -> void:
 	if has_node("%HubAddButton"):
 		%HubAddButton.text = I18n.translate("dialogue_hub_add") if I18n.translate("dialogue_hub_add") != "dialogue_hub_add" else "Add"
 	if has_node("%RegenerateAllButton") and not _is_regenerating:
-		%RegenerateAllButton.text = I18n.translate("dialogue_hub_regenerate") if I18n.translate("dialogue_hub_regenerate") != "dialogue_hub_regenerate" else "Regenerate All"
+		%RegenerateAllButton.text = I18n.translate("dialogue_hub_regenerate") if I18n.translate("dialogue_hub_regenerate") != "dialogue_hub_regenerate" else "Regenerate Scene"
 	if has_node("%SummaryButton"):
 		%SummaryButton.text = I18n.translate("btn_summary") if I18n.translate("btn_summary") != "btn_summary" else "Summary"
 	if has_node("%DialogueBack"):
 		%DialogueBack.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	if has_node("%RegenerateConfirmLabel"):
-		%RegenerateConfirmLabel.text = I18n.translate("dialogue_regenerate_confirm") if I18n.translate("dialogue_regenerate_confirm") != "dialogue_regenerate_confirm" else "Regenerate all dialogues? This will overwrite all current dialogues."
+		%RegenerateConfirmLabel.text = I18n.translate("dialogue_regenerate_confirm") if I18n.translate("dialogue_regenerate_confirm") != "dialogue_regenerate_confirm" else "Regenerate this scene? This will replace its story, dialogues, and choices, then generate a new image."
 	if has_node("%RegenerateCancel"):
 		%RegenerateCancel.text = I18n.translate("btn_cancel") if I18n.translate("btn_cancel") != "btn_cancel" else "Cancel"
 	if has_node("%RegenerateConfirm"):

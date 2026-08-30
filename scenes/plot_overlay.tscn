@@ -76,7 +76,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(320, 48)
 size_flags_horizontal = 4
-text = "Regenerate All"
+text = "Regenerate Scene"
 
 [node name="SummaryButton" type="Button" parent="HubCenter/HubPanel/HubMargin/HubVBox/HubButtons"]
 unique_name_in_owner = true
@@ -398,7 +398,7 @@ theme_override_constants/separation = 28
 [node name="RegenerateConfirmLabel" type="Label" parent="RegenerateConfirmPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Regenerate all dialogues? This will overwrite all current dialogues."
+text = "Regenerate this scene? This will replace its story, dialogues, and choices, then generate a new image."
 horizontal_alignment = 1
 autowrap_mode = 3
 

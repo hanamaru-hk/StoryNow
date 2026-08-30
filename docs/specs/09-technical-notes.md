@@ -7,7 +7,7 @@
 - Default port **48763** (configurable via LLM Settings → `user://llm_settings.json`).
 - Model ≤9B GGUF invoked as `llama-server.exe -c 0 -ngl 99 -m <gguf> --port <port>` (`scripts/llm_manager.gd:42`).
 - Request queue: `ServerRuntimeManager.push_request("llm","generate gameplay",120.0)` / `pop_request` for overlay display.
-- JSON repair: `Gameplay._repair_llm_json_text` sanitizes `image_prompt` bare quotes before `JSON.parse`; title extracted before repair (`scripts/gameplay.gd:1046`, `scripts/llm_manager.gd:418`).
+- JSON repair: `GameplaySceneService.parse_generation_result()` sanitizes `image_prompt` bare quotes before its second parse attempt; the request result keeps the best-effort title as a fallback.
 
 ## 9.2 ComfyUI API
 
