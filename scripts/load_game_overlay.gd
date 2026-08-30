@@ -89,12 +89,12 @@ func _refresh_list() -> void:
 
 	var save_dir: String = SceneDataManager.SAVE_DIR
 	if not DirAccess.dir_exists_absolute(save_dir):
-		_add_empty_label("No saves found")
+		_add_empty_label(_get_empty_text())
 		return
 
 	var dir := DirAccess.open(save_dir)
 	if dir == null:
-		_add_empty_label("No saves found")
+		_add_empty_label(_get_empty_text())
 		return
 
 	dir.list_dir_begin()
@@ -146,7 +146,7 @@ func _refresh_list() -> void:
 		_current_page = 1
 
 	if entries.is_empty():
-		_add_empty_label("No saves found")
+		_add_empty_label(_get_empty_text())
 		_update_pagination_bar()
 		return
 
@@ -160,6 +160,11 @@ func _add_empty_label(text: String) -> void:
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container.add_child(lbl)
+
+
+func _get_empty_text() -> String:
+	var empty_text := I18n.translate("load_empty")
+	return empty_text if empty_text != "load_empty" else "No saves found"
 
 
 func _is_generating_save(data: Dictionary) -> bool:
