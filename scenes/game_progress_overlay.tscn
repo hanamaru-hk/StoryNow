@@ -66,7 +66,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
 size_flags_horizontal = 3
-text = "Expected Round"
+text = "Expected Number of Rounds"
 
 [node name="ExpectedRoundInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/ExpectedRoundRow"]
 unique_name_in_owner = true
@@ -84,7 +84,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
 size_flags_horizontal = 3
-text = "Minimum Dialogue Rounds"
+text = "Dialogues per Round"
 
 [node name="MinDialogueRoundsInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/MinDialogueRoundsRow"]
 unique_name_in_owner = true
@@ -101,7 +101,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
 size_flags_horizontal = 3
-text = "Minimum Sentences per Dialogue"
+text = "Sentences per Dialogue"
 
 [node name="MinSentencesInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/MinSentencesRow"]
 unique_name_in_owner = true
@@ -118,7 +118,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
 size_flags_horizontal = 3
-text = "Maximum Plot Directions"
+text = "Plot Directions per Round"
 
 [node name="MaxPlotDirectionsInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/MaxPlotDirectionsRow"]
 unique_name_in_owner = true
@@ -135,7 +135,7 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
 size_flags_horizontal = 3
-text = "Minimum Summary Sentences"
+text = "Sentences in the AI Story Summary"
 
 [node name="MinSummaryInput" type="LineEdit" parent="CenterContainer/Panel/Margin/VBoxContainer/MinSummaryRow"]
 unique_name_in_owner = true

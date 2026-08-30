@@ -2,13 +2,22 @@ extends Control
 
 signal closed
 
+enum ConfirmAction {
+	NONE,
+	RESET,
+	SAVE,
+}
+
 var _pending := {}
+var _confirm_action := ConfirmAction.NONE
 
 
 func _ready() -> void:
 	%Back.pressed.connect(_on_back_pressed)
 	%Reset.pressed.connect(_on_reset_pressed)
 	%Save.pressed.connect(_on_save_pressed)
+	%ConfirmCancel.pressed.connect(_on_confirmation_canceled)
+	%ConfirmOk.pressed.connect(_on_confirmed)
 	%PortInput.text_changed.connect(_on_integer_input_changed.bind(%PortInput))
 	%TimeoutInput.text_changed.connect(_on_integer_input_changed.bind(%TimeoutInput))
 	%PortInput.text_submitted.connect(_on_port_submitted)
@@ -19,6 +28,8 @@ func _ready() -> void:
 
 
 func open() -> void:
+	%ConfirmPopup.hide()
+	_confirm_action = ConfirmAction.NONE
 	visible = true
 	_pending = ImageServerSettingsManager.settings.duplicate(true)
 	_update_prompt_affix_visibility()
@@ -27,12 +38,20 @@ func open() -> void:
 
 
 func _on_back_pressed() -> void:
+	%ConfirmPopup.hide()
+	_confirm_action = ConfirmAction.NONE
 	_pending = {}
 	visible = false
 	closed.emit()
 
 
 func _on_reset_pressed() -> void:
+	_confirm_action = ConfirmAction.RESET
+	%ConfirmMessage.text = I18n.translate("settings_reset_restart_confirm")
+	%ConfirmPopup.visible = true
+
+
+func _reset_settings() -> void:
 	ImageServerSettingsManager.reset_to_defaults()
 	_pending = ImageServerSettingsManager.settings.duplicate(true)
 	_sync_ui_to_settings()
@@ -40,6 +59,12 @@ func _on_reset_pressed() -> void:
 
 
 func _on_save_pressed() -> void:
+	_confirm_action = ConfirmAction.SAVE
+	%ConfirmMessage.text = I18n.translate("settings_save_restart_confirm")
+	%ConfirmPopup.visible = true
+
+
+func _save_settings() -> void:
 	_apply_port()
 	_apply_timeout()
 	_pending["prefix"] = %PrefixInput.text
@@ -49,6 +74,22 @@ func _on_save_pressed() -> void:
 	_pending = {}
 	visible = false
 	closed.emit()
+
+
+func _on_confirmed() -> void:
+	var action := _confirm_action
+	_confirm_action = ConfirmAction.NONE
+	%ConfirmPopup.visible = false
+	match action:
+		ConfirmAction.RESET:
+			_reset_settings()
+		ConfirmAction.SAVE:
+			_save_settings()
+
+
+func _on_confirmation_canceled() -> void:
+	_confirm_action = ConfirmAction.NONE
+	%ConfirmPopup.visible = false
 
 
 func _on_port_submitted(_text: String) -> void:
@@ -121,3 +162,6 @@ func _update_labels() -> void:
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")
+	%ConfirmTitle.text = I18n.translate("confirm_dialog_title")
+	%ConfirmOk.text = I18n.translate("btn_confirm")
+	%ConfirmCancel.text = I18n.translate("btn_cancel")

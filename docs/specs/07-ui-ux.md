@@ -64,7 +64,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 | **LLM Settings** (`llm_settings_overlay.gd`) | Port (default 48763) | `user://llm_settings.json` |
 | **Image Server Settings** (`image_server_settings_overlay.gd`) | Port, timeout, and free-mode-only editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
 
-All follow **open → edit `_pending` → Save/Reset/Back** pattern; Save merges into manager singleton and calls `save_settings()`; Reset reloads defaults.
+All follow **open → edit `_pending` → Save/Reset/Back** pattern; the LLM and Image Server overlays confirm Save and Reset while warning that StoryNow must restart before changes take effect. Save merges into the manager singleton and calls `save_settings()`; Reset reloads defaults.
 
 The PlotOverlay UI regression check runs with `godot --headless --path . --scene res://tools/test_plot_overlay.tscn`.
 
