@@ -195,7 +195,7 @@ grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="AddOverlay/CenterContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(640, 340)
+custom_minimum_size = Vector2(960, 620)
 
 [node name="Margin" type="MarginContainer" parent="AddOverlay/CenterContainer/Panel"]
 layout_mode = 2
@@ -228,9 +228,47 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 12
 
+[node name="AddCharacter" type="LineEdit" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Character"
+
+[node name="AddSexRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AddSexLabel" type="Label" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddSexRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(100, 0)
+text = "Sex"
+vertical_alignment = 1
+
+[node name="AddSexDropdown" type="OptionButton" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddSexRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 40)
+
+[node name="AddCustomSexInput" type="LineEdit" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddSexRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter a value"
+
+[node name="AddDialogue" type="TextEdit" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 160)
+placeholder_text = "Dialogue..."
+wrap_mode = 1
+
 [node name="RadioRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
 layout_mode = 2
-alignment = 1
+alignment = 0
 theme_override_constants/separation = 24
 
 [node name="AddBeforeRadio" type="CheckBox" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/RadioRow"]
@@ -256,12 +294,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 custom_minimum_size = Vector2(0, 40)
 
-[node name="DialogueConfirm" type="Button" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/DropdownRow"]
-unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(180, 48)
-text = "Confirm"
-
 [node name="ButtonRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
 alignment = 1
@@ -272,6 +304,12 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(180, 48)
 text = "Back"
+
+[node name="DialogueConfirm" type="Button" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Confirm"
 
 [node name="EditPopup" type="Control" parent="."]
 unique_name_in_owner = true

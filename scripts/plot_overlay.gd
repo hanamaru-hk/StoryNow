@@ -41,6 +41,8 @@ func _ready() -> void:
 		%EditDelete.pressed.connect(_on_edit_delete_pressed)
 	if has_node("%SexDropdown"):
 		%SexDropdown.item_selected.connect(_on_sex_selected)
+	if has_node("%AddSexDropdown"):
+		%AddSexDropdown.item_selected.connect(_on_add_sex_selected)
 	visible = false
 	if has_node("%EditOverlay"):
 		%EditOverlay.visible = false
@@ -167,6 +169,7 @@ func _on_hub_add_pressed() -> void:
 		%AddOverlay.visible = true
 		_refresh_dropdown()
 		_update_labels()
+		_reset_add_fields()
 	if has_node("%EditOverlay"):
 		%EditOverlay.visible = false
 	if has_node("%EditPopup"):
@@ -350,6 +353,42 @@ func _get_edited_sex() -> String:
 			return custom_value if not custom_value.is_empty() else "other"
 
 
+func _reset_add_fields() -> void:
+	if has_node("%AddCharacter"):
+		%AddCharacter.text = ""
+	if has_node("%AddDialogue"):
+		%AddDialogue.text = ""
+	if has_node("%AddSexDropdown"):
+		for i in %AddSexDropdown.item_count:
+			if %AddSexDropdown.get_item_id(i) == SEX_MALE_ID:
+				%AddSexDropdown.selected = i
+				break
+	if has_node("%AddCustomSexInput"):
+		%AddCustomSexInput.text = ""
+		%AddCustomSexInput.visible = false
+
+
+func _on_add_sex_selected(item_index: int) -> void:
+	if not has_node("%AddSexDropdown") or not has_node("%AddCustomSexInput"):
+		return
+	%AddCustomSexInput.visible = %AddSexDropdown.get_item_id(item_index) == SEX_OTHER_ID
+	if %AddCustomSexInput.visible:
+		%AddCustomSexInput.grab_focus()
+
+
+func _get_add_sex() -> String:
+	if not has_node("%AddSexDropdown") or %AddSexDropdown.selected < 0:
+		return "male"
+	match %AddSexDropdown.get_selected_id():
+		SEX_MALE_ID:
+			return "male"
+		SEX_FEMALE_ID:
+			return "female"
+		_:
+			var custom_value: String = %AddCustomSexInput.text.strip_edges() if has_node("%AddCustomSexInput") else ""
+			return custom_value if not custom_value.is_empty() else "other"
+
+
 func _on_edit_save_pressed() -> void:
 	if _editing_index < 0:
 		return
@@ -432,9 +471,9 @@ func _on_confirm_pressed() -> void:
 		insert_at = clampi(insert_at, 0, interactions.size())
 
 	var new_entry: Dictionary = {
-		"character": "",
-		"dialogue": "New dialogue",
-		"sex": "male"
+		"character": %AddCharacter.text.strip_edges() if has_node("%AddCharacter") else "",
+		"dialogue": %AddDialogue.text if has_node("%AddDialogue") else "",
+		"sex": _get_add_sex()
 	}
 	interactions.insert(insert_at, new_entry)
 	SceneDataManager.scene_data["interactions"] = interactions
@@ -451,7 +490,12 @@ func _on_confirm_pressed() -> void:
 			if dropdown2.get_item_id(i) == insert_at:
 				dropdown2.selected = i
 				break
+	_reset_add_fields()
 	dialogue_updated.emit()
+	if has_node("%AddOverlay"):
+		%AddOverlay.visible = false
+	visible = false
+	closed.emit()
 
 
 func _on_back_pressed() -> void:
@@ -461,6 +505,7 @@ func _on_back_pressed() -> void:
 
 func _update_labels() -> void:
 	_update_sex_dropdown_labels()
+	_update_add_sex_dropdown_labels()
 	if has_node("%Title"):
 		%Title.text = I18n.translate("plot_overlay_title") if I18n.translate("plot_overlay_title") != "plot_overlay_title" else "Plot"
 	if has_node("%HubEditButton"):
@@ -493,6 +538,14 @@ func _update_labels() -> void:
 		%AddAfterRadio.text = I18n.translate("dialogue_add_after") if I18n.translate("dialogue_add_after") != "dialogue_add_after" else "Add after"
 	if has_node("%DialogueConfirm"):
 		%DialogueConfirm.text = I18n.translate("btn_confirm") if I18n.translate("btn_confirm") != "btn_confirm" else "Confirm"
+	if has_node("%AddCharacter"):
+		%AddCharacter.placeholder_text = I18n.translate("dialogue_character_placeholder") if I18n.translate("dialogue_character_placeholder") != "dialogue_character_placeholder" else "Character"
+	if has_node("%AddDialogue"):
+		%AddDialogue.placeholder_text = I18n.translate("dialogue_text_placeholder") if I18n.translate("dialogue_text_placeholder") != "dialogue_text_placeholder" else "Dialogue..."
+	if has_node("%AddSexLabel"):
+		%AddSexLabel.text = I18n.translate("dialogue_sex_label") if I18n.translate("dialogue_sex_label") != "dialogue_sex_label" else "Sex"
+	if has_node("%AddCustomSexInput"):
+		%AddCustomSexInput.placeholder_text = I18n.translate("dialogue_sex_custom_placeholder") if I18n.translate("dialogue_sex_custom_placeholder") != "dialogue_sex_custom_placeholder" else "Enter a value"
 	if has_node("%EditTitle"):
 		%EditTitle.text = I18n.translate("dialogue_edit_title") if I18n.translate("dialogue_edit_title") != "dialogue_edit_title" else "Edit Dialogue"
 	if has_node("%EditCharacter"):
@@ -527,4 +580,20 @@ func _update_sex_dropdown_labels() -> void:
 	for i in %SexDropdown.item_count:
 		if %SexDropdown.get_item_id(i) == selected_id:
 			%SexDropdown.selected = i
+			break
+
+
+func _update_add_sex_dropdown_labels() -> void:
+	if not has_node("%AddSexDropdown"):
+		return
+	var selected_id := SEX_MALE_ID
+	if %AddSexDropdown.selected >= 0:
+		selected_id = %AddSexDropdown.get_selected_id()
+	%AddSexDropdown.clear()
+	%AddSexDropdown.add_item(I18n.translate("dialogue_sex_male"), SEX_MALE_ID)
+	%AddSexDropdown.add_item(I18n.translate("dialogue_sex_female"), SEX_FEMALE_ID)
+	%AddSexDropdown.add_item(I18n.translate("dialogue_sex_other"), SEX_OTHER_ID)
+	for i in %AddSexDropdown.item_count:
+		if %AddSexDropdown.get_item_id(i) == selected_id:
+			%AddSexDropdown.selected = i
 			break
