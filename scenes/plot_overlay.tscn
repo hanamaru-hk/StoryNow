@@ -1,8 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://plot_overlay"]
+[gd_scene load_steps=4 format=3 uid="uid://plot_overlay"]
 
 [ext_resource type="Script" path="res://scripts/plot_overlay.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ornate_gold_frame.gd" id="2_gold_frame"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_AddPos"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_popup"]
 
 [node name="PlotOverlay" type="Control"]
 visible = false
@@ -34,6 +37,8 @@ grow_vertical = 2
 [node name="HubPanel" type="PanelContainer" parent="HubCenter"]
 layout_mode = 2
 custom_minimum_size = Vector2(520, 400)
+script = ExtResource("2_gold_frame")
+draw_background = false
 
 [node name="HubMargin" type="MarginContainer" parent="HubCenter/HubPanel"]
 layout_mode = 2
@@ -122,6 +127,8 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="EditOverlay/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(920, 560)
+script = ExtResource("2_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="EditOverlay/CenterContainer/Panel"]
 layout_mode = 2
@@ -196,6 +203,8 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="AddOverlay/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(960, 620)
+script = ExtResource("2_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="AddOverlay/CenterContainer/Panel"]
 layout_mode = 2
@@ -341,6 +350,9 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="EditPopup/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(680, 460)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_popup")
+script = ExtResource("2_gold_frame")
+background_color = Color(0.08, 0.08, 0.1, 0.9)
 
 [node name="Margin" type="MarginContainer" parent="EditPopup/CenterContainer/Panel"]
 layout_mode = 2
@@ -455,6 +467,9 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="RegenerateConfirmPopup/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(600, 300)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_popup")
+script = ExtResource("2_gold_frame")
+background_color = Color(0.08, 0.08, 0.1, 0.9)
 
 [node name="Margin" type="MarginContainer" parent="RegenerateConfirmPopup/CenterContainer/Panel"]
 layout_mode = 2

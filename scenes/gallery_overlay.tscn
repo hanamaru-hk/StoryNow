@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://gallery_overlay"]
+[gd_scene load_steps=4 format=3 uid="uid://gallery_overlay"]
 
 [ext_resource type="Script" path="res://scripts/gallery_overlay.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ornate_gold_frame.gd" id="2_gold_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_popup"]
 
 [node name="GalleryOverlay" type="Control"]
 visible = false
@@ -31,6 +34,8 @@ anchor_right = 0.9
 anchor_bottom = 0.9
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("2_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 2
@@ -195,6 +200,9 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="GalleryPreview/GalleryPreviewConfirmPopup/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(640, 300)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_popup")
+script = ExtResource("2_gold_frame")
+background_color = Color(0.08, 0.08, 0.1, 0.9)
 
 [node name="Margin" type="MarginContainer" parent="GalleryPreview/GalleryPreviewConfirmPopup/CenterContainer/Panel"]
 layout_mode = 2
@@ -269,6 +277,9 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="GalleryPreview/GalleryPreviewErrorPopup/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(640, 300)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_popup")
+script = ExtResource("2_gold_frame")
+background_color = Color(0.08, 0.08, 0.1, 0.9)
 
 [node name="Margin" type="MarginContainer" parent="GalleryPreview/GalleryPreviewErrorPopup/CenterContainer/Panel"]
 layout_mode = 2

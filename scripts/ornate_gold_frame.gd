@@ -1,8 +1,9 @@
 class_name OrnateGoldFrame
-extends PanelContainer
+extends Container
 
 @export var background_color := Color(0.08, 0.08, 0.1, 0.75)
 @export var frame_color := Color(0.82, 0.66, 0.28, 1.0)
+@export var draw_background := true
 @export_range(4.0, 32.0, 1.0) var corner_size := 14.0
 @export_range(2.0, 8.0, 1.0) var inner_inset := 4.0
 
@@ -18,7 +19,8 @@ func _draw() -> void:
 
 	var cut := minf(corner_size, minf(size.x, size.y) * 0.25)
 	var outer := _frame_points(1.0, cut)
-	draw_colored_polygon(outer, background_color)
+	if draw_background:
+		draw_colored_polygon(outer, background_color)
 	_draw_closed_line(outer, frame_color, 1.5)
 
 	var inset := minf(inner_inset, cut * 0.45)

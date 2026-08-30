@@ -3,6 +3,7 @@
 ## 7.1 Visual Style
 
 - **Classic VN** — `%BackgroundImage` fills screen; bottom `Dialogue` panel with `NameLabel`, `DialogLabel`, `DialogProgressLabel`; top bar `TitleLabel`.
+- Non-full-screen overlay content and modal panels use the reusable cut-corner, double-line gold frame from `scripts/ornate_gold_frame.gd`; full-screen backgrounds and dimming layers remain unframed.
 - Dialogue advances by Prev/Next buttons and optional `DialogArea` click; the side panel includes Plot, Image, Play, Help, navigation, Setting, and Menu buttons. Help opens troubleshooting and minimum-system-requirements pages and remains available while the local engines start.
 - No typewriter animation — text swaps instantly; pagination `"1 / N"` shown per dialogue.
 - Chrome can be hidden: right-click on background hides `TopBar`+`Dialogue` + `ServerStatusOverlay` (`ServerRuntimeManager.chrome_visible`), left-click restores (`scripts/gameplay.gd:503-541`).

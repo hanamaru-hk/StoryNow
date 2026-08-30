@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/help_overlay.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ornate_gold_frame.gd" id="2_gold_frame"]
 
 [node name="HelpOverlay" type="Control"]
 visible = false
@@ -33,6 +34,8 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="HubCenter"]
 layout_mode = 2
 custom_minimum_size = Vector2(760, 420)
+script = ExtResource("2_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="HubCenter/Panel"]
 layout_mode = 2
@@ -88,6 +91,8 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="TroubleshootingOverlay"]
 layout_mode = 2
 custom_minimum_size = Vector2(960, 650)
+script = ExtResource("2_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="TroubleshootingOverlay/Panel"]
 layout_mode = 2
@@ -152,6 +157,8 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="MinimumRequirementsOverlay"]
 layout_mode = 2
 custom_minimum_size = Vector2(820, 440)
+script = ExtResource("2_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="MinimumRequirementsOverlay/Panel"]
 layout_mode = 2

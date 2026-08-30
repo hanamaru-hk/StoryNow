@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://game_scene"]
+[gd_scene load_steps=17 format=3 uid="uid://game_scene"]
 
 [ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
 [ext_resource type="PackedScene" path="res://scenes/game_progress_overlay.tscn" id="2_m7w2a"]
@@ -15,9 +15,6 @@
 [ext_resource type="PackedScene" path="res://scenes/help_overlay.tscn" id="13_help"]
 [ext_resource type="FontFile" path="res://assets/fonts/NotoSerifCJKjp-Bold.otf" id="14_noto_serif_bold"]
 [ext_resource type="Script" path="res://scripts/ornate_gold_frame.gd" id="15_ornate_gold_frame"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialogue_panel"]
-bg_color = Color(0.08, 0.08, 0.1, 0.75)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ornate_frame"]
 
@@ -232,7 +229,9 @@ horizontal_alignment = 2
 layout_mode = 2
 size_flags_vertical = 3
 custom_minimum_size = Vector2(380, 0)
-theme_override_styles/panel = SubResource("StyleBoxFlat_dialogue_panel")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ornate_frame")
+script = ExtResource("15_ornate_gold_frame")
+draw_background = true
 
 [node name="Margin" type="MarginContainer" parent="Dialogue/Margin/HBox/SidePanel"]
 layout_mode = 2
@@ -337,6 +336,9 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="ErrorReturnPopup/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(640, 320)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ornate_frame")
+script = ExtResource("15_ornate_gold_frame")
+background_color = Color(0.08, 0.08, 0.1, 0.9)
 
 [node name="Margin" type="MarginContainer" parent="ErrorReturnPopup/CenterContainer/Panel"]
 layout_mode = 2
@@ -412,6 +414,8 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="ChoiceOverlay/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(720, 560)
+script = ExtResource("15_ornate_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="ChoiceOverlay/CenterContainer/Panel"]
 layout_mode = 2
@@ -508,6 +512,8 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="ImageActionOverlay/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(420, 220)
+script = ExtResource("15_ornate_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="ImageActionOverlay/CenterContainer/Panel"]
 layout_mode = 2
@@ -574,6 +580,8 @@ grow_vertical = 2
 [node name="Panel" type="PanelContainer" parent="ImageChangeOverlay/CenterContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(820, 620)
+script = ExtResource("15_ornate_gold_frame")
+draw_background = false
 
 [node name="Margin" type="MarginContainer" parent="ImageChangeOverlay/CenterContainer/Panel"]
 layout_mode = 2
