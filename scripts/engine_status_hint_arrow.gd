@@ -5,25 +5,45 @@ const ARROW_COLOR := Color(1.0, 0.78, 0.2, 1.0)
 const OUTLINE_COLOR := Color(0.08, 0.08, 0.1, 1.0)
 const SHAFT_WIDTH := 30.0
 const OUTLINE_WIDTH := 48.0
+const HEAD_LENGTH := 112.0
+const HEAD_WIDTH := 152.0
+const OUTLINE_PADDING := 10.0
 
 
 func _draw() -> void:
 	var start := Vector2(30.0, size.y - 30.0)
 	var tip := Vector2(size.x - 24.0, 24.0)
-	var head_left := Vector2(tip.x - 108.0, tip.y + 12.0)
-	var head_down := Vector2(tip.x - 12.0, tip.y + 108.0)
-	_draw_arrow_lines(start, tip, head_left, head_down, OUTLINE_COLOR, OUTLINE_WIDTH)
-	_draw_arrow_lines(start, tip, head_left, head_down, ARROW_COLOR, SHAFT_WIDTH)
+	var direction := start.direction_to(tip)
+	var outline_points := _make_arrow_polygon(
+		start - direction * OUTLINE_PADDING,
+		tip + direction * OUTLINE_PADDING,
+		OUTLINE_WIDTH,
+		HEAD_LENGTH + OUTLINE_PADDING * 2.0,
+		HEAD_WIDTH + OUTLINE_PADDING * 2.0
+	)
+	var fill_points := _make_arrow_polygon(start, tip, SHAFT_WIDTH, HEAD_LENGTH, HEAD_WIDTH)
+	draw_colored_polygon(outline_points, OUTLINE_COLOR)
+	draw_colored_polygon(fill_points, ARROW_COLOR)
 
 
-func _draw_arrow_lines(
+func _make_arrow_polygon(
 	start: Vector2,
 	tip: Vector2,
-	head_left: Vector2,
-	head_down: Vector2,
-	color: Color,
-	width: float
-) -> void:
-	draw_line(start, tip, color, width, true)
-	draw_line(tip, head_left, color, width, true)
-	draw_line(tip, head_down, color, width, true)
+	shaft_width: float,
+	head_length: float,
+	head_width: float
+) -> PackedVector2Array:
+	var direction := start.direction_to(tip)
+	var normal := Vector2(-direction.y, direction.x)
+	var neck := tip - direction * head_length
+	var shaft_half := shaft_width * 0.5
+	var head_half := head_width * 0.5
+	return PackedVector2Array([
+		start + normal * shaft_half,
+		neck + normal * shaft_half,
+		neck + normal * head_half,
+		tip,
+		neck - normal * head_half,
+		neck - normal * shaft_half,
+		start - normal * shaft_half,
+	])
