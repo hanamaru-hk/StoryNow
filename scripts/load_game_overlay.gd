@@ -645,7 +645,10 @@ func _are_story_servers_ready() -> bool:
 func _show_error_popup(message: String, show_engine_status_hint := false) -> void:
 	if not show_engine_status_hint:
 		_clear_retry_load()
-	%LoadErrorMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	var popup_message := message if not message.is_empty() else I18n.translate("error_dialog_text")
+	if not show_engine_status_hint:
+		popup_message = %LoadErrorMessage.escape_bbcode(popup_message)
+	%LoadErrorMessage.text = "[center]%s[/center]" % popup_message
 	%LoadErrorOk.text = I18n.translate("btn_back") if show_engine_status_hint else "OK"
 	%LoadErrorPopup.visible = true
 	%LoadErrorRetry.visible = show_engine_status_hint and not _retry_load_uuid.is_empty()

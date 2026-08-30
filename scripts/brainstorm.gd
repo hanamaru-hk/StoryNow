@@ -107,7 +107,10 @@ func _set_child_buttons_disabled(root: Node, is_disabled: bool) -> void:
 
 func _show_error_popup(message: String, show_engine_status_hint := false, retry_action := "") -> void:
 	_pending_engine_retry_action = retry_action if show_engine_status_hint else ""
-	%ErrorPopupMessage.text = message if not message.is_empty() else I18n.translate("error_dialog_text")
+	var popup_message := message if not message.is_empty() else I18n.translate("error_dialog_text")
+	if not show_engine_status_hint:
+		popup_message = %ErrorPopupMessage.escape_bbcode(popup_message)
+	%ErrorPopupMessage.text = "[center]%s[/center]" % popup_message
 	%ErrorPopupOk.text = I18n.translate("btn_back") if show_engine_status_hint else "OK"
 	%ErrorPopup.visible = true
 	%ErrorPopupRetry.visible = not _pending_engine_retry_action.is_empty()

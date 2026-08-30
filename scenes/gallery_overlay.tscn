@@ -301,13 +301,14 @@ theme_type_variation = &"PopupTitle"
 text = "Error"
 horizontal_alignment = 1
 
-[node name="GalleryPreviewErrorMessage" type="Label" parent="GalleryPreview/GalleryPreviewErrorPopup/CenterContainer/Panel/Margin/VBox"]
+[node name="GalleryPreviewErrorMessage" type="RichTextLabel" parent="GalleryPreview/GalleryPreviewErrorPopup/CenterContainer/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+bbcode_enabled = true
 text = "Please wait for the engines to become ready."
-horizontal_alignment = 1
 vertical_alignment = 1
+scroll_active = false
 autowrap_mode = 3
 
 [node name="ButtonRow" type="HBoxContainer" parent="GalleryPreview/GalleryPreviewErrorPopup/CenterContainer/Panel/Margin/VBox"]
