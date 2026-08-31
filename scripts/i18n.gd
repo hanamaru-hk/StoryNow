@@ -376,7 +376,7 @@ var _translations := {
 		"btn_exit": "退出",
 		"prompt_title": "故事背景",
 		"prompt_desc": "描述你故事的世界、角色和氛圍。",
-		"prompt_default": "一位開發商在寧靜的午後發現竟然有人買了他的遊戲。",
+		"prompt_default": "一個寧靜的午後，一位開發商在發現竟然有人買了他的遊戲，非常開心激動。",
 		"prompt_placeholder": "例如：一個魔法正在消退的黑暗奇幻世界。主角是一位發現禁忌力量的年輕法師...",
 		"prompt_save_notice": "[left][indent]請留意[/indent]\n[ol]儲存：本遊戲（或視覺小說生成器）會自動儲存所有關卡，因此沒有儲存按鈕。\n生成速度：速度因你的電腦效能而異，但無論如何都需要一些時間。[/ol][/left]",
 		"btn_random": "隨機",
