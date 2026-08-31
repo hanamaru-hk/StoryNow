@@ -64,6 +64,10 @@ func can_open_choice() -> bool:
 	return current_status() == "running" and is_at_choice()
 
 
+func can_advance_dialogue() -> bool:
+	return current_index() < total_dialogues() - 1 or can_open_choice()
+
+
 func can_navigate_scene() -> bool:
 	return current_status() == "running"
 
@@ -147,7 +151,7 @@ func update_button_eligibility() -> void:
 	_set_disabled("PlayAudioButton", not current_wav_exists())
 	_set_disabled("HelpButton", false)
 	_set_disabled("PrevLineButton", not has_previous_dialogue())
-	_set_disabled("NextLineButton", not can_navigate_scene() and is_at_choice())
+	_set_disabled("NextLineButton", not can_advance_dialogue())
 	_set_disabled("PrevSceneButton", not can_navigate_scene() or not has_previous_scene())
 	_set_disabled("NextSceneButton", not can_navigate_scene())
 	update_continue_indicator()
@@ -167,7 +171,16 @@ func start_continue_indicator() -> void:
 func update_continue_indicator() -> void:
 	var indicator := _node("ContinueIndicator") as Control
 	if indicator:
-		indicator.visible = can_navigate_scene()
+		indicator.visible = has_current_dialogue()
+
+
+func has_current_dialogue() -> bool:
+	var interactions: Variant = SceneDataManager.scene_data.get("interactions", [])
+	if not interactions is Array or interactions.is_empty():
+		return false
+	var index := clampi(current_index(), 0, interactions.size() - 1)
+	var entry: Variant = interactions[index]
+	return entry is Dictionary and not str(entry.get("dialogue", "")).strip_edges().is_empty()
 
 
 func enable_buttons() -> void:
@@ -177,7 +190,7 @@ func enable_buttons() -> void:
 func on_dialog_area_input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton or event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
 		return
-	if not can_navigate_scene():
+	if not can_advance_dialogue():
 		return
 	next_dialogue()
 	_host.get_viewport().set_input_as_handled()
