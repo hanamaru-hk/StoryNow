@@ -5,13 +5,14 @@ const BLACK_PRELOAD_SECONDS := 0.1
 const GRADIENT_REVEAL_DELAY := 1.5
 const BUTTON_REVEAL_DELAY := 2.5
 const OVERLAY_REVEAL_SECONDS := 0.8
-var _intro_video_should_resume := false
+const MENU_BACKGROUND_PATH := "res://assets/images/trail-start.webp"
 
 
 func _ready() -> void:
 	modulate.a = 1.0
 	ServerRuntimeManager.set_chrome_visible(false)
-	_start_hidden_menu_video()
+	_load_menu_background()
+	_start_hidden_menu_background()
 	_hide_menu_overlay()
 	print_verbose("")
 	print_verbose("user data dir: " + OS.get_user_data_dir())
@@ -100,17 +101,12 @@ func _on_exit_pressed() -> void:
 
 func _check_first_time_overlay() -> void:
 	if bool(GameSettingsManager.settings.get("first_time", true)):
-		_intro_video_should_resume = true
-		_pause_intro_video()
 		%FirstTimeLanguageOverlay.open()
 
 
 func _on_first_time_language_selected(_lang: String) -> void:
 	_update_labels()
 	MusicManager.play_random_mood("main_menu")
-	if _intro_video_should_resume:
-		_intro_video_should_resume = false
-		_resume_intro_video()
 
 
 func _update_labels() -> void:
@@ -127,39 +123,31 @@ func _update_builder_mode_label() -> void:
 	%BuilderModeLabel.visible = GameSettingsManager.is_builder_mode()
 
 
-func _start_hidden_menu_video() -> void:
-	%MenuVideo.visible = false
-	%MenuVideo.modulate.a = 0.0
-	%MenuVideo.stop()
-	%MenuVideo.stream_position = 0.0
-	%MenuVideo.play()
+func _load_menu_background() -> void:
+	var image := Image.new()
+	var error := image.load(ProjectSettings.globalize_path(MENU_BACKGROUND_PATH))
+	if error != OK:
+		push_warning("Failed to load trial menu background: %s" % error_string(error))
+		return
+	%MenuBackground.texture = ImageTexture.create_from_image(image)
+
+
+func _start_hidden_menu_background() -> void:
+	%MenuBackground.visible = false
+	%MenuBackground.modulate.a = 0.0
 
 
 func _play_intro_sequence() -> void:
 	await get_tree().create_timer(BLACK_PRELOAD_SECONDS).timeout
-	%MenuVideo.visible = true
+	%MenuBackground.visible = true
 	var tween := create_tween()
-	tween.tween_property(%MenuVideo, "modulate:a", 1.0, FADE_IN_SECONDS)
+	tween.tween_property(%MenuBackground, "modulate:a", 1.0, FADE_IN_SECONDS)
 	tween.finished.connect(_on_intro_fade_finished)
 	_reveal_menu_overlay_after_delays()
 
 
 func _on_intro_fade_finished() -> void:
 	pass
-
-
-func _on_menu_video_finished() -> void:
-	%MenuVideo.paused = true
-
-
-func _pause_intro_video() -> void:
-	if %MenuVideo.is_playing():
-		%MenuVideo.paused = true
-
-
-func _resume_intro_video() -> void:
-	if %MenuVideo.stream != null:
-		%MenuVideo.paused = false
 
 
 func _hide_menu_overlay() -> void:

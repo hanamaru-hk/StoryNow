@@ -1,6 +1,7 @@
 extends Node
 
 const MUSIC_DIR := "data/music"
+const BACKGROUND_MUSIC_ENABLED := false
 
 var _player: AudioStreamPlayer
 var _current_path: String = ""
@@ -17,6 +18,9 @@ func _ready() -> void:
 
 
 func play_for_scene(scene_data: Dictionary) -> void:
+	if not BACKGROUND_MUSIC_ENABLED:
+		stop()
+		return
 	var mood: String = str(scene_data.get("bgm_mood", "")).strip_edges().to_lower()
 	if mood.is_empty():
 		mood = str(scene_data.get("music_mood", "")).strip_edges().to_lower()
@@ -27,6 +31,9 @@ func play_for_scene(scene_data: Dictionary) -> void:
 
 
 func play_random_mood(mood: String, restart_if_playing: bool = false) -> void:
+	if not BACKGROUND_MUSIC_ENABLED:
+		stop()
+		return
 	if not restart_if_playing and _player.playing:
 		return
 	var music_path: String = _pick_random_music_path(mood)

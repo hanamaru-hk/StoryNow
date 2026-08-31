@@ -1,7 +1,7 @@
 class_name GameplayImageController
 extends RefCounted
 
-const GENERATING_VIDEO_PATH := "res://assets/videos/3.ogv"
+const GENERATING_BACKGROUND_PATH := "res://assets/images/trial-load.png"
 
 var _host
 var _generating_dot_count := 1
@@ -30,17 +30,16 @@ func set_no_image_visible(is_visible: bool) -> void:
 func show_generating_background() -> void:
 	_show_generating_text()
 	var video := _node("BackgroundVideo") as VideoStreamPlayer
-	if video == null:
-		_load_placeholder_background("res://assets/images/generating.jpg", 0.5)
-		return
+	if video:
+		video.stop()
+		video.visible = false
 	set_no_image_visible(false)
 	var background := _node("BackgroundImage") as TextureRect
-	background.texture = null
+	background.texture = _load_texture_from_file(GENERATING_BACKGROUND_PATH)
 	background.modulate = Color.WHITE
-	video.visible = true
-	video.stream = load(GENERATING_VIDEO_PATH)
-	if not video.is_playing():
-		video.play()
+	if background.texture == null:
+		background.texture = _load_texture_from_file("res://assets/images/generating.jpg")
+		background.modulate = Color(1, 1, 1, 0.5)
 
 
 func hide_generating_background() -> void:
@@ -287,21 +286,28 @@ func _get_no_image_placeholder() -> Control:
 
 func _load_placeholder_background(path: String, alpha: float) -> void:
 	hide_generating_background()
-	var image := Image.new()
-	var error := image.load(ProjectSettings.globalize_path(path))
-	if error != OK:
-		error = image.load(path)
-	if error != OK:
-		error = _load_image_buffer(image, path)
 	var background := _node("BackgroundImage") as TextureRect
-	if error == OK:
-		background.texture = ImageTexture.create_from_image(image)
+	var texture := _load_texture_from_file(path)
+	if texture:
+		background.texture = texture
 		set_no_image_visible(false)
 	else:
 		var resource := load(path)
 		if resource is Texture2D:
 			background.texture = resource
 	background.modulate = Color(1, 1, 1, alpha)
+
+
+func _load_texture_from_file(path: String) -> Texture2D:
+	var image := Image.new()
+	var error := image.load(ProjectSettings.globalize_path(path))
+	if error != OK:
+		error = image.load(path)
+	if error != OK:
+		error = _load_image_buffer(image, path)
+	if error != OK:
+		return null
+	return ImageTexture.create_from_image(image)
 
 
 func _load_image_buffer(image: Image, path: String) -> Error:

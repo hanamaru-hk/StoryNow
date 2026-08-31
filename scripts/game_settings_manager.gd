@@ -234,4 +234,4 @@ func _aspect_ratio_for_resolution(size: String) -> String:
 
 
 func is_builder_mode() -> bool:
-	return not settings.get("safe_mode", false) and ( not DirAccess.get_files_at(AppPaths.external_path("data/builder")).is_empty() or not DirAccess.get_files_at(AppPaths.BUILDER_DIR).is_empty() )
+	return false

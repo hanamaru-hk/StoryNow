@@ -35,8 +35,8 @@ func _test_generation_parsing() -> void:
 
 func _test_scene_merge() -> void:
 	var merged := Service.merge_generated_scene(
-		{"uuid": "child", "prev_uuid": "parent", "version": "0.9", "current_round": 3},
-		{"uuid": "bad", "prev_uuid": "bad", "title": "Generated", "end": false},
+		{"uuid": "child", "prev_uuid": "parent", "version": "0.9", "current_round": 3, "expected_rounds": 10},
+		{"uuid": "bad", "prev_uuid": "bad", "title": "Generated", "end": false, "expected_rounds": 20},
 		"child",
 		3,
 		3,
@@ -44,6 +44,7 @@ func _test_scene_merge() -> void:
 	)
 	_expect(merged["uuid"] == "child" and merged["prev_uuid"] == "parent", "preserves navigation metadata")
 	_expect(merged["current_round"] == 3 and merged["end"], "preserves round and enforces story end")
+	_expect(not merged.has("expected_rounds"), "removes the fixed round limit from scene JSON")
 
 
 func _test_new_choice_transition() -> void:

@@ -59,6 +59,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 8)
 
 [node name="ExpectedRoundRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 24
 

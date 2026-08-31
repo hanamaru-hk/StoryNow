@@ -73,7 +73,7 @@ story-now/
 │   ├── theme.tres
 │   ├── builder/                         # Presence of any file enables builder mode when safe_mode is false
 │   ├── default_game_settings.json       # Language, display, dialogue, TTS voice, and music defaults
-│   ├── default_game_progress.json       # {current_dialogue/uuid/round, expected_rounds, minimum_*/maximum_*, game_status}
+│   ├── default_game_progress.json       # {current_dialogue/uuid/round, minimum_*/maximum_*, game_status}
 │   ├── default_llm_settings.json        # LLM port, timeout, context, fit, GPU layers, and model
 │   ├── default_image_server_settings.json # ComfyUI port, model, timeout, image size, prompt prefix/suffix
 │   ├── llama-models/
@@ -92,7 +92,10 @@ story-now/
 │   │   └── ja/… (same)
 │   └── translations/translations.csv
 ├── assets/
-│   └── images/generating.jpg            # Generating placeholder background (50% opacity)
+│   └── images/
+│       ├── generating.jpg               # Generating fallback background (50% opacity)
+│       ├── trail-start.webp             # Trial main-menu background
+│       └── trial-load.png               # Trial gameplay generating background
 ├── saves/                               # Runtime saves mirror (dev); real saves in user://saves/
 ├── server/                              # AI server binaries (gitignored: server/, .godot/, *.uid/import)
 │   ├── llama/llama-server.exe

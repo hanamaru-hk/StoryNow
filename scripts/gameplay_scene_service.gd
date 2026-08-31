@@ -51,6 +51,8 @@ static func merge_generated_scene(
 
 	for key in generated_scene:
 		merged[key] = generated_scene[key]
+	# Round limits are fixed by the application and are not part of save data.
+	merged.erase("expected_rounds")
 
 	if preserve_navigation:
 		merged["uuid"] = preserved_uuid

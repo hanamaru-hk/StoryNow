@@ -11,7 +11,6 @@ func _ready() -> void:
 	%Back.pressed.connect(_on_back_pressed)
 	%Reset.pressed.connect(_on_reset_pressed)
 	%Save.pressed.connect(_on_save_pressed)
-	%ExpectedRoundInput.text_changed.connect(_on_integer_input_changed.bind(%ExpectedRoundInput))
 	%MinDialogueRoundsInput.text_changed.connect(_on_integer_input_changed.bind(%MinDialogueRoundsInput))
 	%MinSentencesInput.text_changed.connect(_on_integer_input_changed.bind(%MinSentencesInput))
 	%MaxPlotDirectionsInput.text_changed.connect(_on_integer_input_changed.bind(%MaxPlotDirectionsInput))
@@ -71,9 +70,6 @@ func _digits_only(text: String) -> String:
 
 func _apply_pending_from_ui() -> void:
 	var v: String
-	v = %ExpectedRoundInput.text.strip_edges()
-	if SettingsValidator.is_positive_integer(v):
-		_pending["expected_rounds"] = v.to_int()
 	v = %MinDialogueRoundsInput.text.strip_edges()
 	if SettingsValidator.is_positive_integer(v):
 		_pending["minimum_dialogues_per_scene"] = v.to_int()
@@ -94,7 +90,6 @@ func _apply_pending_from_ui() -> void:
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
-	%ExpectedRoundInput.text = _integer_text(_pending.get("expected_rounds", 1))
 	%MinDialogueRoundsInput.text = _integer_text(_pending.get("minimum_dialogues_per_scene", 10))
 	%MinSentencesInput.text = _integer_text(_pending.get("minimum_sentences_per_dialogue", 10))
 	# Support both minimum_plot_directions and maximum_plot_directions keys

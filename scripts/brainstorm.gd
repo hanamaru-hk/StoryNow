@@ -171,7 +171,6 @@ func _on_start_pressed() -> void:
 		"image_prompt": "",
 		"summary": input,
 		"end": false,
-		"expected_rounds": GameProgressManager.settings.get("expected_rounds", 20),
 		"current_round": 1,
 		"language": I18n.current_lang,
 		"game_status": "new_story",

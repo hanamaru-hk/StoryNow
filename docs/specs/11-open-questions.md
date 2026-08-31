@@ -5,7 +5,7 @@
 - [x] ComfyUI workflow design → txt2img SDXL pipeline (`data/comfyui/workflow_template.json`), placeholders `__MODEL_FILENAME__`, `__PREFIX__`, `__POSITIVE_PROMPT__`, `__SUFFIX__`, `__NEGATIVE_PROMPT__`, `__SEED__`, `__FILENAME_PREFIX__`, `__IMAGE_WIDTH__/__IMAGE_HEIGHT__`
 - [x] Multiple languages → 5 languages (en, zh_CN, zh_TW, yue, ja) via `I18n` singleton + per-lang prompt dirs `data/llm/<lang>/`
 - [x] llama.cpp system prompt for reliable JSON → `data/llm/<lang>/{story,scene,random,enhance}` + `common/output_json_requirement` + `common/output_template.json` + guardrail injection; plus runtime JSON repair for `image_prompt` bare quotes
-- [x] Scene limit / ending detection → `expected_rounds` / `current_round` + `end` bool; prompt instructs LLM to set `end=true` when `current_round == expected_rounds`
+- [x] Scene limit / ending detection → fixed three-round trial limit + `current_round` / `end`; prompt instructs the LLM to end at round three
 - [x] How many save slots → unlimited: one folder per `uuid` under `user://saves/`, paginated Load (10) / Gallery (12) overlays
 - [x] Model checkpoint selection → configurable via Image Server Settings `model_filename` (default `waiIllustriousSDXL_v170.safetensors`)
 - [x] Negative prompt configuration → `data/comfyui/{safe,builder}_negative_prompt` switched by `GameSettingsManager.is_builder_mode()`

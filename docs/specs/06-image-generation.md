@@ -46,7 +46,7 @@ On success, `Gameplay` appends `filename` to `scene_data["image_filenames"]`, se
 
 ## 6.4 Image Display
 
-- `%BackgroundImage` (`TextureRect`) shows the active image. During image generation, `%BackgroundVideo` loops `res://assets/videos/3.ogv` with a centered, localized Noto Serif Bold `Generating` label whose suffix cycles through `.`, `..`, and `...`. The image fallback is `res://assets/images/generating.jpg` at 50% opacity. If a saved scene has no usable image file, it shows a black background with white `NO IMAGE` text using Arial Black when available, falling back to outlined Arial.
+- `%BackgroundImage` (`TextureRect`) shows the active image. During image generation, the trial build shows `res://assets/images/trial-load.png` with a centered, localized Noto Serif Bold `Generating` label whose suffix cycles through `.`, `..`, and `...`. The image fallback is `res://assets/images/generating.jpg` at 50% opacity. If a saved scene has no usable image file, it shows a black background with white `NO IMAGE` text using Arial Black when available, falling back to outlined Arial.
 - `_load_current_scene_image` scans `user://saves/<uuid>/images/` sorted filenames, clamps `current_image_index`, loads via `Image.load(global_path)` → `ImageTexture`.
 - **Image carousel:** `ImageActionOverlay` (New / Change) → `ImageChangeOverlay` with Prev/Next/Save shows `user://saves/<uuid>/images/` browsing; `current_image_index` persisted on Save (`scripts/gameplay.gd:703-775`).
 

@@ -90,7 +90,7 @@ func handle_generated_scene(flow: String) -> bool:
 		return false
 	var generated: Dictionary = parsed["data"]
 	var current_round := int(GameProgressManager.settings.get("current_round", SceneDataManager.scene_data.get("current_round", 1)))
-	var expected_rounds := int(GameProgressManager.settings.get("expected_rounds", SceneDataManager.scene_data.get("expected_rounds", 0)))
+	var expected_rounds := GameProgressManager.EXPECTED_ROUNDS
 	SceneDataManager.scene_data = GameplaySceneService.merge_generated_scene(
 		SceneDataManager.scene_data,
 		generated,

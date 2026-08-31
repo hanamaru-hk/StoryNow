@@ -19,18 +19,20 @@
 
 `scenes/main.tscn`, entry point `project.godot:run/main_scene`, logic `scripts/main.gd:1`:
 
+The trial main menu uses `assets/images/trail-start.webp` as its static 16:9 background. The StoryNow logo treatment is shifted 700 px left from its base layout.
+
 | Button | Action | Notes |
 |--------|--------|-------|
 | Start | → `brainstorm.tscn` | `scripts/main.gd:28` |
-| Load | Opens `LoadGameOverlay` | `%LoadGameOverlay.open()` |
-| Gallery | Opens `GalleryOverlay` | Grid of save thumbnails |
+| Load | Hidden in the trial build | Underlying overlay remains available to the application |
+| Gallery | Hidden in the trial build | Underlying overlay remains available to the application |
 | Game Setting | Opens `GameSettingsOverlay` | via `AdvancedSettingsOverlay` indirection |
 | Advanced Setting | Opens `AdvancedSettingsOverlay` | Contains Image/LLM settings shortcuts |
 | Exit | `get_tree().quit()` | |
 
-The bottom-right corner shows a small white, black-outlined **Builder Mode** label when `GameSettingsManager.is_builder_mode()` is true.
+Builder mode is disabled in the trial build, so its label and builder-only controls remain hidden.
 
-First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`. Its language buttons are generated from `I18n.LANGUAGES` in a grid of up to five per row. Choosing a language applies it immediately, then shows the minimum NVIDIA/CUDA, 8 GB VRAM, and 32 GB RAM requirements. The overlay performs an instant NVIDIA adapter vendor/name check; the separator, quick-check heading, and result remain hidden when the check passes and appear with the failure result otherwise. Confirmation always remains available and is what completes first-time setup, starts menu music, and resumes the intro.
+First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`. Its language buttons are generated from `I18n.LANGUAGES` in a grid of up to five per row. Choosing a language applies it immediately, then shows the minimum NVIDIA/CUDA, 8 GB VRAM, and 32 GB RAM requirements. The overlay performs an instant NVIDIA adapter vendor/name check; the separator, quick-check heading, and result remain hidden when the check passes and appear with the failure result otherwise. Confirmation always remains available and completes first-time setup.
 
 ## 7.4 Brainstorm Scene
 
@@ -41,7 +43,7 @@ First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`. 
 - **Readability panel:** an opaque dark panel backs the title, description, textarea, and button row over the illustrated background.
 - **Textarea** `%BackgroundInput` for story background, initialized with a localized humorous starter story.
 - **Button row:** Random, Enhance, Start, Flow Settings (→ `GameProgressOverlay`), Back. Start uses the inverted primary/secondary button palette for emphasis.
-- **Save/generation notice:** localized guidance below the button row explains that every chapter is saved automatically and generation time depends on the user's computer.
+- **Generation notice:** one localized, unnumbered note below the button row explains that generation time depends on the user's computer.
 - **LoadingOverlay** + **ErrorDialog** + **RandomConfirmDialog** (clears text).
 
 ## 7.5 Gameplay Overlays
@@ -53,7 +55,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 - **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (builder mode); **Produce** closes the overlay and requests generation through Gameplay's image controller.
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — localized Image heading with New/Change actions, then a carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).
 - **ChoiceOverlay** (`scripts/gameplay.gd:287`) — dynamic choice buttons + free-form `CustomInput` + Confirm/Cancel.
-- **GameplayMenuOverlay** — Menu hub (Load/Gallery/Game Settings/Flow Settings/Advanced/Main Menu/Quit) bridging to other overlays. Main Menu and Quit ask for confirmation when generation requests are still queued; confirming cancels the active generation work before leaving.
+- **GameplayMenuOverlay** — Menu hub (Game Settings/Flow Settings/Advanced/Main Menu/Quit) bridging to other overlays. Load and Gallery are hidden in the trial build. Main Menu and Quit ask for confirmation when generation requests are still queued; confirming cancels the active generation work before leaving.
 - **HelpOverlay** (`scripts/help_overlay.gd:1`) — troubleshooting guidance for engines that remain in the starting state, repeated generation retries, more accurate image prompting, and minimum system requirements. The Danbooru-tag guidance is shown only in builder mode.
 - **GameProgressOverlay / GameSettingsOverlay / AdvancedSettingsOverlay / LLM/Image Server Settings overlays** — settings editors (see below).
 
@@ -61,8 +63,8 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 
 | Overlay | Editable Fields | Persisted To |
 |---------|----------------|--------------|
-| **Game Settings** (`game_settings_overlay.gd`) | Scrollable settings form with language (en/zh_CN/zh_TW/yue/ja), screen size, autoplay/streaming toggles, instant dialogue toggle, dialogue text speed (5–120 characters/second), TTS voice volume/mute, music controls, and button sound-effect volume/mute | `user://game_settings.json` |
-| **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
+| **Game Settings** (`game_settings_overlay.gd`) | Scrollable settings form with language (en/zh_CN/zh_TW/yue/ja), screen size, autoplay/streaming toggles, instant dialogue toggle, dialogue text speed (5–120 characters/second), TTS voice volume/mute, and button sound-effect volume/mute. Background music and its controls are disabled in the trial build. | `user://game_settings.json` |
+| **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences. The trial's three-round limit is fixed in code and is not persisted. | `user://game_progress.json` (preset `data/default_game_progress.json`) |
 | **LLM Settings** (`llm_settings_overlay.gd`) | Scrollable settings form with model, port (1–65535, default 48763), positive timeout, non-negative context size, auto-fit, and optional GPU-layer count | `user://llm_settings.json` |
 | **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port (1–65535), positive timeout, Low VRAM toggle, and builder-mode-only image width/height (16–16384) plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
 
@@ -100,4 +102,4 @@ The PlotOverlay UI regression check runs with `godot --headless --path . --scene
 
 - `Brainstorm` uses `%LoadingOverlay` during Random/Enhance.
 - `Gameplay` uses `game_status` transitions (`generating_image` / `running`) and disables Next/Choice buttons until image/TTS ready.
-- While an illustration is being generated, the gameplay video displays a large localized Noto Serif Bold `Generating` label with a `.`, `..`, `...` animation. Server status dots continue to provide request-level loading feedback.
+- While an illustration is being generated, the trial gameplay background image displays a large localized Noto Serif Bold `Generating` label with a `.`, `..`, `...` animation. Server status dots continue to provide request-level loading feedback.
