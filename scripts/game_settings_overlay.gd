@@ -30,6 +30,10 @@ func _ready() -> void:
 		%MusicVolumeSlider.value_changed.connect(_on_music_volume_changed)
 	if has_node("%MusicMuteCheck"):
 		%MusicMuteCheck.toggled.connect(_on_music_mute_toggled)
+	if has_node("%SoundEffectVolumeSlider"):
+		%SoundEffectVolumeSlider.value_changed.connect(_on_sound_effect_volume_changed)
+	if has_node("%SoundEffectMuteCheck"):
+		%SoundEffectMuteCheck.toggled.connect(_on_sound_effect_mute_toggled)
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -61,6 +65,7 @@ func _on_save_pressed() -> void:
 	GameSettingsManager._apply_screen_size()
 	GameSettingsManager.music_settings_changed.emit()
 	GameSettingsManager.voice_settings_changed.emit()
+	GameSettingsManager.sound_effect_settings_changed.emit()
 	GameSettingsManager.save_settings()
 	_pending = {}
 	visible = false
@@ -147,6 +152,16 @@ func _on_music_mute_toggled(pressed: bool) -> void:
 	_update_labels()
 
 
+func _on_sound_effect_volume_changed(value: float) -> void:
+	_pending["sound_effect_volume"] = int(round(value))
+	_update_labels()
+
+
+func _on_sound_effect_mute_toggled(pressed: bool) -> void:
+	_pending["sound_effect_muted"] = pressed
+	_update_labels()
+
+
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
@@ -187,6 +202,13 @@ func _sync_ui_to_settings() -> void:
 	if has_node("%MusicMuteCheck"):
 		%MusicMuteCheck.button_pressed = bool(_pending.get("music_muted", false))
 		%MusicMuteCheck.text = I18n.translate("settings_on") if bool(_pending.get("music_muted", false)) else I18n.translate("settings_off")
+	if has_node("%SoundEffectVolumeSlider"):
+		%SoundEffectVolumeSlider.value = float(_pending.get("sound_effect_volume", 70))
+	if has_node("%SoundEffectVolumeValue"):
+		%SoundEffectVolumeValue.text = "%d%%" % int(_pending.get("sound_effect_volume", 70))
+	if has_node("%SoundEffectMuteCheck"):
+		%SoundEffectMuteCheck.button_pressed = bool(_pending.get("sound_effect_muted", false))
+		%SoundEffectMuteCheck.text = I18n.translate("settings_on") if bool(_pending.get("sound_effect_muted", false)) else I18n.translate("settings_off")
 	_update_dialogue_speed_enabled()
 
 
@@ -226,6 +248,14 @@ func _update_labels() -> void:
 		%MusicMuteLabel.text = I18n.translate("settings_music_mute") if I18n.translate("settings_music_mute") != "settings_music_mute" else "Mute Music"
 	if has_node("%MusicMuteCheck"):
 		%MusicMuteCheck.text = I18n.translate("settings_on") if %MusicMuteCheck.button_pressed else I18n.translate("settings_off")
+	if has_node("%SoundEffectVolumeLabel"):
+		%SoundEffectVolumeLabel.text = I18n.translate("settings_sound_effect_volume")
+	if has_node("%SoundEffectVolumeValue"):
+		%SoundEffectVolumeValue.text = "%d%%" % int(_pending.get("sound_effect_volume", 70))
+	if has_node("%SoundEffectMuteLabel"):
+		%SoundEffectMuteLabel.text = I18n.translate("settings_sound_effect_mute")
+	if has_node("%SoundEffectMuteCheck"):
+		%SoundEffectMuteCheck.text = I18n.translate("settings_on") if %SoundEffectMuteCheck.button_pressed else I18n.translate("settings_off")
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")

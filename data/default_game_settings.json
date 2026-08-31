@@ -13,5 +13,7 @@
 	"voice_volume": 100,
 	"voice_muted": false,
 	"music_volume": 70,
-	"music_muted": false
+	"music_muted": false,
+	"sound_effect_volume": 70,
+	"sound_effect_muted": false
 }

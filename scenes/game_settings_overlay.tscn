@@ -228,6 +228,49 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Off"
 
+[node name="SoundEffectVolumeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SoundEffectVolumeLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/SoundEffectVolumeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Sound Effect Volume"
+
+[node name="SoundEffectVolumeSlider" type="HSlider" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/SoundEffectVolumeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 40)
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+value = 70.0
+
+[node name="SoundEffectVolumeValue" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/SoundEffectVolumeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(48, 0)
+text = "70%"
+horizontal_alignment = 2
+
+[node name="SoundEffectMuteRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SoundEffectMuteLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/SoundEffectMuteRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Mute Sound Effects"
+
+[node name="SoundEffectMuteCheck" type="CheckButton" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/SoundEffectMuteRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Off"
+
 [node name="VoiceVolumeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
 layout_mode = 2
 theme_override_constants/separation = 16

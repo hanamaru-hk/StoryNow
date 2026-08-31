@@ -2,6 +2,7 @@ extends Node
 
 signal music_settings_changed
 signal voice_settings_changed
+signal sound_effect_settings_changed
 
 const SETTINGS_PATH := "user://game_settings.json"
 const DEFAULT_SETTINGS_PATH := "data/default_game_settings.json"
@@ -25,6 +26,8 @@ var settings := {
 	"voice_muted": false,
 	"music_volume": 70,
 	"music_muted": false,
+	"sound_effect_volume": 70,
+	"sound_effect_muted": false,
 }
 
 
@@ -80,6 +83,7 @@ func reset_to_defaults() -> void:
 			save_settings()
 			music_settings_changed.emit()
 			voice_settings_changed.emit()
+			sound_effect_settings_changed.emit()
 
 
 func set_language(lang: String) -> void:
@@ -112,6 +116,13 @@ func set_voice_settings(volume: int, muted: bool) -> void:
 	settings["voice_muted"] = muted
 	save_settings()
 	voice_settings_changed.emit()
+
+
+func set_sound_effect_settings(volume: int, muted: bool) -> void:
+	settings["sound_effect_volume"] = clampi(volume, 0, 100)
+	settings["sound_effect_muted"] = muted
+	save_settings()
+	sound_effect_settings_changed.emit()
 
 
 func dialogue_text_speed() -> int:

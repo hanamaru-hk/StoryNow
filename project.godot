@@ -25,6 +25,7 @@ config/auto_accept_quit=false
 AppPaths="*res://scripts/app_paths.gd"
 I18n="*res://scripts/i18n.gd"
 GameSettingsManager="*res://scripts/game_settings_manager.gd"
+SoundEffectManager="*res://scripts/sound_effect_manager.gd"
 ImageServerSettingsManager="*res://scripts/image_server_settings_manager.gd"
 LLMSettingsManager="*res://scripts/llm_settings_manager.gd"
 LLMManager="*res://scripts/llm_manager.gd"
