@@ -487,7 +487,7 @@ func _on_gallery_preview_input(event: InputEvent) -> void:
 	if _preview_ui_hidden:
 		_set_preview_ui_hidden(false)
 		get_viewport().set_input_as_handled()
-	elif event.button_index == MOUSE_BUTTON_RIGHT:
+	else:
 		_set_preview_ui_hidden(true)
 		get_viewport().set_input_as_handled()
 

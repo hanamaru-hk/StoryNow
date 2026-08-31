@@ -28,7 +28,7 @@ func handle_input(event: InputEvent) -> void:
 		return
 	if _has_blocking_overlay():
 		return
-	if event.button_index == MOUSE_BUTTON_RIGHT and _is_background_click(event.position):
+	if _is_background_click(event.position):
 		set_visible(false)
 		_host.get_viewport().set_input_as_handled()
 

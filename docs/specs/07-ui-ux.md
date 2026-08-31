@@ -7,7 +7,7 @@
 - Non-full-screen overlay content and modal panels use the reusable cut-corner, double-line gold frame from `scripts/ornate_gold_frame.gd`; full-screen backgrounds and dimming layers remain unframed.
 - Dialogue advances by Prev/Next buttons and optional `DialogArea` click; the side panel includes Plot, Image, Play, Help, navigation, Setting, and Menu buttons. Help opens troubleshooting and minimum-system-requirements pages and remains available while the local engines start.
 - No typewriter animation — text swaps instantly; pagination `"1 / N"` shown per dialogue.
-- Chrome can be hidden: right-click on background hides `TopBar`+`Dialogue` + `ServerStatusOverlay` (`ServerRuntimeManager.chrome_visible`), left-click restores (`scripts/gameplay.gd:503-541`).
+- Chrome can be hidden: either left- or right-click on the background hides `TopBar` + `Dialogue` + `ServerStatusOverlay` (`ServerRuntimeManager.chrome_visible`); either mouse button restores them.
 
 ## 7.2 Choice Presentation
 
@@ -82,7 +82,7 @@ The PlotOverlay UI regression check runs with `godot --headless --path . --scene
 ## 7.8 Gallery / Load Overlays
 
 - **LoadGameOverlay** (`scripts/load_game_overlay.gd:1`) — paginated `PAGE_SIZE=10` list of save dirs sorted by `timestamp` desc; each row shows thumbnail (largest image), timestamp + title, Delete and Load buttons. Loading requires confirmation. The list viewport is sized to show four save items and uses a wide, gold-accented scrollbar with clickable up/down arrows. Pagination bar shows `1 2 3 … 9 10` style.
-- **GalleryOverlay** (`scripts/gallery_overlay.gd:1`) — grid `PAGE_SIZE=12`, arranged in 4 columns by 3 rows with 230×180 thumbnail buttons and the same sorting/thumbnail logic. Clicking a thumbnail opens a full-screen image preview with a bottom bar showing the story title, UTF-8 previous/next controls that follow the gallery sort order, and Load Scene/Back actions. Right-clicking the preview image toggles an immersive view that hides the bottom bar and server-status chrome; while hidden, either left- or right-click restores both. Load Scene first requires both story engines to be healthy (otherwise it shows the same readiness error as LoadGameOverlay), then requires confirmation before loading that save as `running` with the selected image active.
+- **GalleryOverlay** (`scripts/gallery_overlay.gd:1`) — grid `PAGE_SIZE=12`, arranged in 4 columns by 3 rows with 230×180 thumbnail buttons and the same sorting/thumbnail logic. Clicking a thumbnail opens a full-screen image preview with a bottom bar showing the story title, UTF-8 previous/next controls that follow the gallery sort order, and Load Scene/Back actions. Either left- or right-clicking the preview image toggles an immersive view that hides the bottom bar and server-status chrome. Load Scene first requires both story engines to be healthy (otherwise it shows the same readiness error as LoadGameOverlay), then requires confirmation before loading that save as `running` with the selected image active.
 
 ## 7.9 Internationalization
 
