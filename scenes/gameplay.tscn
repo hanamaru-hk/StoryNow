@@ -301,11 +301,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Scene >>"
 
-[node name="SettingButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
+[node name="AutoButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Flow Settings"
+toggle_mode = true
+text = "Auto"
 
 [node name="GameplayMenuButton" type="Button" parent="Dialogue/Margin/HBox/SidePanel/Margin/Grid"]
 unique_name_in_owner = true

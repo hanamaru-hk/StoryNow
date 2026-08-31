@@ -36,7 +36,7 @@ func _ready() -> void:
 	%NextLineButton.pressed.connect(_on_next_dialog_pressed)
 	%PrevSceneButton.pressed.connect(_on_prev_scene_pressed)
 	%NextSceneButton.pressed.connect(_on_next_scene_pressed)
-	%SettingButton.pressed.connect(_on_setting_pressed)
+	%AutoButton.toggled.connect(_on_auto_toggled)
 	%GameplayMenuButton.pressed.connect(_on_gameplay_menu_pressed)
 
 	# --- Choice overlay ---
@@ -63,6 +63,7 @@ func _ready() -> void:
 		%GameplayMenuOverlay.load_requested.connect(_on_gameplay_menu_load_requested)
 		%GameplayMenuOverlay.gallery_requested.connect(_on_gameplay_menu_gallery_requested)
 		%GameplayMenuOverlay.game_settings_requested.connect(_on_gameplay_menu_game_settings_requested)
+		%GameplayMenuOverlay.flow_settings_requested.connect(_on_gameplay_menu_flow_settings_requested)
 		%GameplayMenuOverlay.advanced_settings_requested.connect(_on_gameplay_menu_advanced_settings_requested)
 		%GameplayMenuOverlay.main_menu_requested.connect(_on_back_to_main_menu_requested)
 		%GameplayMenuOverlay.quit_game_requested.connect(_on_quit_game_requested)
@@ -430,7 +431,11 @@ func _on_summary_overlay_closed() -> void:
 	_update_labels()
 
 
-func _on_setting_pressed() -> void:
+func _on_auto_toggled(_toggled_on: bool) -> void:
+	pass
+
+
+func _on_gameplay_menu_flow_settings_requested() -> void:
 	if has_node("%GameProgressOverlay"):
 		%GameProgressOverlay.open()
 
@@ -665,7 +670,7 @@ func _update_labels() -> void:
 	%NextLineButton.text = I18n.translate("btn_next_dialog") if I18n.translate("btn_next_dialog") != "btn_next_dialog" else "Dialogue >"
 	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "<< Scene"
 	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Scene >>"
-	%SettingButton.text = I18n.translate("btn_sidepanel_flow_setting") if I18n.translate("btn_sidepanel_flow_setting") != "btn_sidepanel_flow_setting" else "Flow Settings"
+	%AutoButton.text = I18n.translate("btn_auto") if I18n.translate("btn_auto") != "btn_auto" else "Auto"
 	%GameplayMenuButton.text = I18n.translate("btn_gameplay_menu") if I18n.translate("btn_gameplay_menu") != "btn_gameplay_menu" else "Menu"
 	# Choice overlay
 	var choice_title: String = I18n.translate("choice_title")

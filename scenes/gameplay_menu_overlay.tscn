@@ -72,6 +72,13 @@ custom_minimum_size = Vector2(240, 48)
 size_flags_horizontal = 4
 text = "Game Setting"
 
+[node name="FlowSetting" type="Button" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+size_flags_horizontal = 4
+text = "Flow Settings"
+
 [node name="AdvancedSetting" type="Button" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

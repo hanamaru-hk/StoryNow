@@ -5,7 +5,7 @@
 - **Classic VN** — `%BackgroundImage` fills screen; bottom `Dialogue` panel with `NameLabel`, `DialogLabel`, `DialogProgressLabel`; top bar `TitleLabel`.
 - Standard buttons, text fields, and text areas use 90%-opaque light-grey surfaces with dark-blue text and rounded dark-blue frames. The main-menu buttons keep their dedicated illustrated blue shader treatment, while gallery thumbnail cards retain Godot's original dark neutral button style.
 - Non-full-screen overlay content and modal panels use the reusable cut-corner, double-line gold frame from `scripts/ornate_gold_frame.gd`; full-screen backgrounds and dimming layers remain unframed.
-- Dialogue advances by Prev/Next buttons and optional `DialogArea` click; the side panel includes Plot, Image, Play, Help, navigation, Setting, and Menu buttons. Help opens troubleshooting and minimum-system-requirements pages and remains available while the local engines start.
+- Dialogue advances by Prev/Next buttons and optional `DialogArea` click; the side panel includes Plot, Image, Play, Help, navigation, an Auto toggle, and Menu buttons. Help opens troubleshooting and minimum-system-requirements pages and remains available while the local engines start.
 - Dialogue text appears with a typewriter animation while the character name updates instantly, unless **Show Dialogue Instantly** is enabled. Clicking the dialogue area or pressing Next during the animation reveals the full current line; the following action advances. Pagination `"1 / N"` is shown per dialogue.
 - Chrome can be hidden: either left- or right-click on the background hides `TopBar` + `Dialogue` + `ServerStatusOverlay` (`ServerRuntimeManager.chrome_visible`); either mouse button restores them.
 
@@ -53,7 +53,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 - **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (builder mode); **Produce** closes the overlay and requests generation through Gameplay's image controller.
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — localized Image heading with New/Change actions, then a carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).
 - **ChoiceOverlay** (`scripts/gameplay.gd:287`) — dynamic choice buttons + free-form `CustomInput` + Confirm/Cancel.
-- **GameplayMenuOverlay** — Menu hub (Load/Gallery/Game Settings/Advanced/Main Menu/Quit) bridging to other overlays. Main Menu and Quit ask for confirmation when generation requests are still queued; confirming cancels the active generation work before leaving.
+- **GameplayMenuOverlay** — Menu hub (Load/Gallery/Game Settings/Flow Settings/Advanced/Main Menu/Quit) bridging to other overlays. Main Menu and Quit ask for confirmation when generation requests are still queued; confirming cancels the active generation work before leaving.
 - **HelpOverlay** (`scripts/help_overlay.gd:1`) — troubleshooting guidance for engines that remain in the starting state, repeated generation retries, more accurate image prompting, and minimum system requirements. The Danbooru-tag guidance is shown only in builder mode.
 - **GameProgressOverlay / GameSettingsOverlay / AdvancedSettingsOverlay / LLM/Image Server Settings overlays** — settings editors (see below).
 
