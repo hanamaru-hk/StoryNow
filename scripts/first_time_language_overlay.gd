@@ -50,17 +50,16 @@ func _confirm_requirements() -> void:
 func _set_requirements_step_visible(show_requirements: bool) -> void:
 	for node in [%Title, %Spacer, %LanguageGrid]:
 		node.visible = not show_requirements
-	for node in [%RequirementsTitle, %RequirementsIntro, %RequirementsList, %CheckSeparator, %CheckTitle, %NvidiaResult, %CheckNote, %ConfirmButton]:
+	for node in [%RequirementsTitle, %RequirementsList, %ConfirmButton]:
 		node.visible = show_requirements
+	_update_nvidia_result()
 
 
 func _update_labels() -> void:
 	%Title.text = "Language"
 	%RequirementsTitle.text = I18n.translate("first_time_requirements_title")
-	%RequirementsIntro.text = I18n.translate("first_time_requirements_intro")
 	%RequirementsList.text = I18n.translate("first_time_requirements_list")
 	%CheckTitle.text = I18n.translate("first_time_quick_check")
-	%CheckNote.text = I18n.translate("first_time_check_note")
 	%ConfirmButton.text = I18n.translate("first_time_confirm")
 	_update_nvidia_result()
 
@@ -74,9 +73,9 @@ func _update_nvidia_result() -> void:
 	var is_nvidia := (adapter_name + " " + adapter_vendor).to_lower().contains("nvidia")
 	if adapter_description.is_empty():
 		adapter_description = I18n.translate("first_time_gpu_unknown")
-	if is_nvidia:
-		%NvidiaResult.text = I18n.translate("first_time_nvidia_pass") % adapter_description
-		%NvidiaResult.modulate = Color(0.45, 0.9, 0.55)
-	else:
+	var show_check_failure: bool = %RequirementsTitle.visible and not is_nvidia
+	for node in [%CheckSeparator, %CheckTitle, %NvidiaResult]:
+		node.visible = show_check_failure
+	if show_check_failure:
 		%NvidiaResult.text = I18n.translate("first_time_nvidia_fail") % adapter_description
 		%NvidiaResult.modulate = Color(1.0, 0.55, 0.45)
