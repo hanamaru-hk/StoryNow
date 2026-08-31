@@ -62,7 +62,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 | **Game Settings** (`game_settings_overlay.gd`) | Language (en/zh_CN/zh_TW/yue/ja), Screen size (Full/1344×768), Autoplay TTS | `user://game_settings.json` |
 | **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
 | **LLM Settings** (`llm_settings_overlay.gd`) | Port (default 48763) | `user://llm_settings.json` |
-| **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port, timeout, Low VRAM toggle, image width/height (hidden in free mode), and free-mode-only editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
+| **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port, timeout, Low VRAM toggle, and free-mode-only image width/height plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
 
 All follow **open → edit `_pending` → Save/Reset/Back** pattern; the LLM and Image Server overlays confirm Save and Reset while warning that StoryNow must restart before changes take effect. Save merges into the manager singleton and calls `save_settings()`. Flow Settings Reset restores only the editable generation parameters and preserves runtime progress such as `current_uuid`, round, dialogue, and `game_status`; the other Reset actions reload their complete defaults.
 

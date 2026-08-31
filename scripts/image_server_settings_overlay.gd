@@ -180,8 +180,8 @@ func _update_field_visibility() -> void:
 	var show_prompt_affixes := GameSettingsManager.is_free_mode()
 	%PrefixRow.visible = show_prompt_affixes
 	%SuffixRow.visible = show_prompt_affixes
-	%ImageWidthRow.visible = not show_prompt_affixes
-	%ImageHeightRow.visible = not show_prompt_affixes
+	%ImageWidthRow.visible = show_prompt_affixes
+	%ImageHeightRow.visible = show_prompt_affixes
 
 
 func _update_labels() -> void:
