@@ -18,6 +18,10 @@ func _ready() -> void:
 		%AutoplayCheck.toggled.connect(_on_autoplay_toggled)
 	if has_node("%ShowStreamingCheck"):
 		%ShowStreamingCheck.toggled.connect(_on_show_streaming_toggled)
+	if has_node("%DialogueInstantCheck"):
+		%DialogueInstantCheck.toggled.connect(_on_dialogue_instant_toggled)
+	if has_node("%DialogueSpeedSlider"):
+		%DialogueSpeedSlider.value_changed.connect(_on_dialogue_speed_changed)
 	if has_node("%MusicVolumeSlider"):
 		%MusicVolumeSlider.value_changed.connect(_on_music_volume_changed)
 	if has_node("%MusicMuteCheck"):
@@ -107,6 +111,17 @@ func _on_show_streaming_toggled(pressed: bool) -> void:
 	_update_labels()
 
 
+func _on_dialogue_instant_toggled(pressed: bool) -> void:
+	_pending["dialogue_text_instant"] = pressed
+	_update_dialogue_speed_enabled()
+	_update_labels()
+
+
+func _on_dialogue_speed_changed(value: float) -> void:
+	_pending["dialogue_text_speed"] = int(round(value))
+	_update_labels()
+
+
 func _on_music_volume_changed(value: float) -> void:
 	_pending["music_volume"] = int(round(value))
 	_update_labels()
@@ -136,6 +151,13 @@ func _sync_ui_to_settings() -> void:
 	if has_node("%ShowStreamingCheck"):
 		%ShowStreamingCheck.button_pressed = bool(_pending.get("show_streaming", true))
 		%ShowStreamingCheck.text = I18n.translate("settings_on") if bool(_pending.get("show_streaming", true)) else I18n.translate("settings_off")
+	if has_node("%DialogueInstantCheck"):
+		%DialogueInstantCheck.button_pressed = bool(_pending.get("dialogue_text_instant", false))
+		%DialogueInstantCheck.text = I18n.translate("settings_on") if bool(_pending.get("dialogue_text_instant", false)) else I18n.translate("settings_off")
+	if has_node("%DialogueSpeedSlider"):
+		%DialogueSpeedSlider.value = float(_pending.get("dialogue_text_speed", GameSettingsManager.DEFAULT_DIALOGUE_TEXT_SPEED))
+	if has_node("%DialogueSpeedValue"):
+		%DialogueSpeedValue.text = _dialogue_speed_text()
 	if has_node("%MusicVolumeSlider"):
 		%MusicVolumeSlider.value = float(_pending.get("music_volume", 70))
 	if has_node("%MusicVolumeValue"):
@@ -143,6 +165,7 @@ func _sync_ui_to_settings() -> void:
 	if has_node("%MusicMuteCheck"):
 		%MusicMuteCheck.button_pressed = bool(_pending.get("music_muted", false))
 		%MusicMuteCheck.text = I18n.translate("settings_on") if bool(_pending.get("music_muted", false)) else I18n.translate("settings_off")
+	_update_dialogue_speed_enabled()
 
 
 func _update_labels() -> void:
@@ -157,6 +180,14 @@ func _update_labels() -> void:
 		%ShowStreamingLabel.text = I18n.translate("settings_show_streaming") if I18n.translate("settings_show_streaming") != "settings_show_streaming" else "Show streaming"
 	if has_node("%ShowStreamingCheck"):
 		%ShowStreamingCheck.text = I18n.translate("settings_on") if %ShowStreamingCheck.button_pressed else I18n.translate("settings_off")
+	if has_node("%DialogueInstantLabel"):
+		%DialogueInstantLabel.text = I18n.translate("settings_dialogue_instant")
+	if has_node("%DialogueInstantCheck"):
+		%DialogueInstantCheck.text = I18n.translate("settings_on") if %DialogueInstantCheck.button_pressed else I18n.translate("settings_off")
+	if has_node("%DialogueSpeedLabel"):
+		%DialogueSpeedLabel.text = I18n.translate("settings_dialogue_speed")
+	if has_node("%DialogueSpeedValue"):
+		%DialogueSpeedValue.text = _dialogue_speed_text()
 	if has_node("%MusicVolumeLabel"):
 		%MusicVolumeLabel.text = I18n.translate("settings_music_volume") if I18n.translate("settings_music_volume") != "settings_music_volume" else "Music Volume"
 	if has_node("%MusicVolumeValue"):
@@ -178,3 +209,13 @@ func _update_labels() -> void:
 	while %ScreenSizeOption.item_count < 3:
 		%ScreenSizeOption.add_item("")
 	%ScreenSizeOption.set_item_text(2, I18n.translate("settings_screen_1600"))
+
+
+func _dialogue_speed_text() -> String:
+	var speed := int(_pending.get("dialogue_text_speed", GameSettingsManager.DEFAULT_DIALOGUE_TEXT_SPEED))
+	return I18n.translate("settings_dialogue_speed_value") % speed
+
+
+func _update_dialogue_speed_enabled() -> void:
+	if has_node("%DialogueSpeedSlider"):
+		%DialogueSpeedSlider.editable = not bool(_pending.get("dialogue_text_instant", false))

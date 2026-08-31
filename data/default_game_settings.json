@@ -8,6 +8,8 @@
 	"tried_builder_mode_yet": false,
 	"autoplay_tts": true,
 	"show_streaming": true,
+	"dialogue_text_instant": false,
+	"dialogue_text_speed": 30,
 	"music_volume": 70,
 	"music_muted": false
 }

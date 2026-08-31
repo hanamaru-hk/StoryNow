@@ -6,6 +6,9 @@ const TTS_VOICE_BUS := "TTSVoice"
 
 var _host: Control
 var _continue_indicator_tween: Tween
+var _dialogue_tween: Tween
+var _is_typewriting := false
+var _typewriter_generation := 0
 
 
 func _init(host: Control) -> void:
@@ -22,19 +25,21 @@ func update_total() -> void:
 
 
 func show_current() -> void:
+	_stop_typewriter()
 	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
 	var index := current_index()
 	var total := total_dialogues()
 	if interactions.is_empty():
 		_set_text("NameLabel", "")
-		_set_text("DialogLabel", "")
+		_set_dialogue_text_immediately("")
 		_set_text("DialogProgressLabel", "%d / %d" % [index + 1, total])
+		update_continue_indicator()
 		return
 	index = clampi(index, 0, interactions.size() - 1)
 	set_current_index(index)
 	var entry: Dictionary = interactions[index] if interactions[index] is Dictionary else {}
 	_set_text("NameLabel", str(entry.get("character", entry.get("characer", ""))))
-	_set_text("DialogLabel", str(entry.get("dialogue", "")))
+	_start_typewriter(str(entry.get("dialogue", "")))
 	_set_text("DialogProgressLabel", "%d / %d" % [index + 1, total])
 	_host.set("_scene_data", SceneDataManager.scene_data)
 
@@ -171,7 +176,7 @@ func start_continue_indicator() -> void:
 func update_continue_indicator() -> void:
 	var indicator := _node("ContinueIndicator") as Control
 	if indicator:
-		indicator.visible = has_current_dialogue()
+		indicator.visible = has_current_dialogue() and not _is_typewriting
 
 
 func has_current_dialogue() -> bool:
@@ -189,6 +194,9 @@ func enable_buttons() -> void:
 
 func on_dialog_area_input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton or event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
+		return
+	if _finish_typewriter():
+		_host.get_viewport().set_input_as_handled()
 		return
 	if not can_advance_dialogue():
 		return
@@ -208,6 +216,8 @@ func previous_dialogue() -> void:
 
 
 func next_dialogue() -> void:
+	if _finish_typewriter():
+		return
 	if current_index() >= total_dialogues() - 1:
 		if can_open_choice():
 			_host.call("_show_choice_overlay")
@@ -411,6 +421,74 @@ func _set_text(name: String, text: String) -> void:
 		(control as Label).text = text
 	elif control is RichTextLabel:
 		(control as RichTextLabel).text = text
+
+
+func _start_typewriter(text: String) -> void:
+	var label := _node("DialogLabel") as RichTextLabel
+	if label == null:
+		_set_text("DialogLabel", text)
+		return
+	label.text = text
+	if GameSettingsManager.is_dialogue_text_instant():
+		label.visible_characters = -1
+		update_continue_indicator()
+		return
+	var character_count := label.get_total_character_count()
+	if character_count <= 0:
+		label.visible_characters = -1
+		update_continue_indicator()
+		return
+	label.visible_characters = 0
+	_is_typewriting = true
+	update_continue_indicator()
+	var generation := _typewriter_generation
+	_dialogue_tween = _host.create_tween().set_trans(Tween.TRANS_LINEAR)
+	_dialogue_tween.tween_property(
+		label,
+		"visible_characters",
+		character_count,
+		float(character_count) / float(GameSettingsManager.dialogue_text_speed())
+	).from(0)
+	_dialogue_tween.finished.connect(_on_typewriter_finished.bind(generation))
+
+
+func _finish_typewriter() -> bool:
+	if not _is_typewriting:
+		return false
+	_stop_typewriter()
+	var label := _node("DialogLabel") as RichTextLabel
+	if label:
+		label.visible_characters = -1
+	update_continue_indicator()
+	return true
+
+
+func _stop_typewriter() -> void:
+	_typewriter_generation += 1
+	_is_typewriting = false
+	if is_instance_valid(_dialogue_tween):
+		_dialogue_tween.kill()
+	_dialogue_tween = null
+
+
+func _on_typewriter_finished(generation: int) -> void:
+	if generation != _typewriter_generation:
+		return
+	_is_typewriting = false
+	_dialogue_tween = null
+	var label := _node("DialogLabel") as RichTextLabel
+	if label:
+		label.visible_characters = -1
+	update_continue_indicator()
+
+
+func _set_dialogue_text_immediately(text: String) -> void:
+	var label := _node("DialogLabel") as RichTextLabel
+	if label:
+		label.text = text
+		label.visible_characters = -1
+	else:
+		_set_text("DialogLabel", text)
 
 
 func _node(unique_name: String) -> Node:

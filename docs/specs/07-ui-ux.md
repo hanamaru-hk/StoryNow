@@ -6,7 +6,7 @@
 - Standard buttons, text fields, and text areas use 90%-opaque light-grey surfaces with dark-blue text and rounded dark-blue frames. The main-menu buttons keep their dedicated illustrated blue shader treatment, while gallery thumbnail cards retain Godot's original dark neutral button style.
 - Non-full-screen overlay content and modal panels use the reusable cut-corner, double-line gold frame from `scripts/ornate_gold_frame.gd`; full-screen backgrounds and dimming layers remain unframed.
 - Dialogue advances by Prev/Next buttons and optional `DialogArea` click; the side panel includes Plot, Image, Play, Help, navigation, Setting, and Menu buttons. Help opens troubleshooting and minimum-system-requirements pages and remains available while the local engines start.
-- No typewriter animation — text swaps instantly; pagination `"1 / N"` shown per dialogue.
+- Dialogue text appears with a typewriter animation while the character name updates instantly, unless **Show Dialogue Instantly** is enabled. Clicking the dialogue area or pressing Next during the animation reveals the full current line; the following action advances. Pagination `"1 / N"` is shown per dialogue.
 - Chrome can be hidden: either left- or right-click on the background hides `TopBar` + `Dialogue` + `ServerStatusOverlay` (`ServerRuntimeManager.chrome_visible`); either mouse button restores them.
 
 ## 7.2 Choice Presentation
@@ -61,7 +61,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 
 | Overlay | Editable Fields | Persisted To |
 |---------|----------------|--------------|
-| **Game Settings** (`game_settings_overlay.gd`) | Scrollable settings form with language (en/zh_CN/zh_TW/yue/ja), screen size, autoplay/streaming toggles, and music controls | `user://game_settings.json` |
+| **Game Settings** (`game_settings_overlay.gd`) | Scrollable settings form with language (en/zh_CN/zh_TW/yue/ja), screen size, autoplay/streaming toggles, instant dialogue toggle, dialogue text speed (5–120 characters/second), and music controls | `user://game_settings.json` |
 | **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
 | **LLM Settings** (`llm_settings_overlay.gd`) | Scrollable settings form with model, port (1–65535, default 48763), positive timeout, non-negative context size, auto-fit, and optional GPU-layer count | `user://llm_settings.json` |
 | **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port (1–65535), positive timeout, Low VRAM toggle, and builder-mode-only image width/height (16–16384) plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |

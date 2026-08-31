@@ -4,6 +4,9 @@ signal music_settings_changed
 
 const SETTINGS_PATH := "user://game_settings.json"
 const DEFAULT_SETTINGS_PATH := "data/default_game_settings.json"
+const DEFAULT_DIALOGUE_TEXT_SPEED := 30
+const MIN_DIALOGUE_TEXT_SPEED := 5
+const MAX_DIALOGUE_TEXT_SPEED := 120
 
 var settings := {
 	"first_time": true,
@@ -15,6 +18,8 @@ var settings := {
 	"tried_builder_mode_yet": false,
 	"autoplay_tts": true,
 	"show_streaming": true,
+	"dialogue_text_instant": false,
+	"dialogue_text_speed": DEFAULT_DIALOGUE_TEXT_SPEED,
 	"music_volume": 70,
 	"music_muted": false,
 }
@@ -35,6 +40,8 @@ func _input(event: InputEvent) -> void:
 
 
 func save_settings() -> void:
+	settings["dialogue_text_instant"] = is_dialogue_text_instant()
+	settings["dialogue_text_speed"] = dialogue_text_speed()
 	var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(settings, "\t"))
@@ -51,6 +58,8 @@ func load_settings() -> void:
 		file.close()
 		if error == OK and json.data is Dictionary:
 			settings.merge(json.data, true)
+	settings["dialogue_text_instant"] = is_dialogue_text_instant()
+	settings["dialogue_text_speed"] = dialogue_text_speed()
 	_update_hidden_screen_fields()
 
 
@@ -92,6 +101,19 @@ func set_music_settings(volume: int, muted: bool) -> void:
 	settings["music_muted"] = muted
 	save_settings()
 	music_settings_changed.emit()
+
+
+func dialogue_text_speed() -> int:
+	var value := SettingsValueValidator.positive_integer_or_default(
+		settings.get("dialogue_text_speed", DEFAULT_DIALOGUE_TEXT_SPEED),
+		DEFAULT_DIALOGUE_TEXT_SPEED
+	)
+	return clampi(value, MIN_DIALOGUE_TEXT_SPEED, MAX_DIALOGUE_TEXT_SPEED)
+
+
+func is_dialogue_text_instant() -> bool:
+	var value: Variant = settings.get("dialogue_text_instant", false)
+	return value if value is bool else false
 
 
 func toggle_fullscreen() -> void:

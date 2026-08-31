@@ -141,6 +141,50 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "On"
 
+[node name="DialogueInstantRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="DialogueInstantLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/DialogueInstantRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Show Dialogue Instantly"
+
+[node name="DialogueInstantCheck" type="CheckButton" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/DialogueInstantRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Off"
+
+[node name="DialogueSpeedRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="DialogueSpeedLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/DialogueSpeedRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Dialogue Speed"
+
+[node name="DialogueSpeedSlider" type="HSlider" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/DialogueSpeedRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 40)
+size_flags_horizontal = 3
+min_value = 5.0
+max_value = 120.0
+step = 5.0
+value = 30.0
+
+[node name="DialogueSpeedValue" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/DialogueSpeedRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(88, 0)
+text = "30 chars/s"
+horizontal_alignment = 2
+
 [node name="MusicVolumeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
 layout_mode = 2
 theme_override_constants/separation = 16
