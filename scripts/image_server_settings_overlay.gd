@@ -2,6 +2,8 @@ extends Control
 
 signal closed
 
+const ScrollbarStyleScript := preload("res://scripts/scrollbar_style.gd")
+
 enum ConfirmAction {
 	NONE,
 	RESET,
@@ -13,6 +15,7 @@ var _confirm_action := ConfirmAction.NONE
 
 
 func _ready() -> void:
+	ScrollbarStyleScript.apply(%SettingsScroll)
 	%Back.pressed.connect(_on_back_pressed)
 	%Reset.pressed.connect(_on_reset_pressed)
 	%Save.pressed.connect(_on_save_pressed)
