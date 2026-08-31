@@ -20,10 +20,12 @@ func _ready() -> void:
 	%ConfirmOk.pressed.connect(_on_confirmed)
 	%PortInput.text_changed.connect(_on_integer_input_changed.bind(%PortInput))
 	%TimeoutInput.text_changed.connect(_on_integer_input_changed.bind(%TimeoutInput))
+	%ImageWidthInput.text_changed.connect(_on_integer_input_changed.bind(%ImageWidthInput))
+	%ImageHeightInput.text_changed.connect(_on_integer_input_changed.bind(%ImageHeightInput))
 	%LowVramCheck.toggled.connect(_on_low_vram_toggled)
 	%PortInput.text_submitted.connect(_on_port_submitted)
 	%TimeoutInput.text_submitted.connect(_on_timeout_submitted)
-	_update_prompt_affix_visibility()
+	_update_field_visibility()
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -33,7 +35,7 @@ func open() -> void:
 	_confirm_action = ConfirmAction.NONE
 	visible = true
 	_pending = ImageServerSettingsManager.settings.duplicate(true)
-	_update_prompt_affix_visibility()
+	_update_field_visibility()
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -68,6 +70,8 @@ func _on_save_pressed() -> void:
 func _save_settings() -> void:
 	_apply_port()
 	_apply_timeout()
+	_apply_image_width()
+	_apply_image_height()
 	_pending["prefix"] = %PrefixInput.text
 	_pending["suffix"] = %SuffixInput.text
 	ImageServerSettingsManager.settings = _pending.duplicate(true)
@@ -140,11 +144,25 @@ func _apply_timeout() -> void:
 			_pending["timeout"] = timeout
 
 
+func _apply_image_width() -> void:
+	var width_text: String = %ImageWidthInput.text.strip_edges()
+	if width_text.is_valid_int() and width_text.to_int() > 0:
+		_pending["image_width"] = width_text
+
+
+func _apply_image_height() -> void:
+	var height_text: String = %ImageHeightInput.text.strip_edges()
+	if height_text.is_valid_int() and height_text.to_int() > 0:
+		_pending["image_height"] = height_text
+
+
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
 	%PortInput.text = _integer_text(_pending.get("port", 56321))
 	%TimeoutInput.text = _integer_text(_pending.get("timeout", 120))
+	%ImageWidthInput.text = str(_pending["image_width"])
+	%ImageHeightInput.text = str(_pending["image_height"])
 	%LowVramCheck.button_pressed = bool(_pending["low_vram"])
 	%LowVramCheck.text = I18n.translate("settings_on") if %LowVramCheck.button_pressed else I18n.translate("settings_off")
 	%PrefixInput.text = str(_pending.get("prefix", ""))
@@ -155,10 +173,12 @@ func _integer_text(value: Variant) -> String:
 	return str(str(value).to_int())
 
 
-func _update_prompt_affix_visibility() -> void:
+func _update_field_visibility() -> void:
 	var show_prompt_affixes := GameSettingsManager.is_free_mode()
 	%PrefixRow.visible = show_prompt_affixes
 	%SuffixRow.visible = show_prompt_affixes
+	%ImageWidthRow.visible = not show_prompt_affixes
+	%ImageHeightRow.visible = not show_prompt_affixes
 
 
 func _update_labels() -> void:
@@ -166,6 +186,8 @@ func _update_labels() -> void:
 	%PortLabel.text = I18n.translate("settings_port")
 	%TimeoutLabel.text = I18n.translate("settings_timeout")
 	%LowVramLabel.text = I18n.translate("settings_low_vram")
+	%ImageWidthLabel.text = I18n.translate("settings_image_width")
+	%ImageHeightLabel.text = I18n.translate("settings_image_height")
 	%LowVramCheck.text = I18n.translate("settings_on") if %LowVramCheck.button_pressed else I18n.translate("settings_off")
 	%PrefixLabel.text = I18n.translate("settings_prompt_prefix")
 	%SuffixLabel.text = I18n.translate("settings_prompt_suffix")

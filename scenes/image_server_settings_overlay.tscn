@@ -101,6 +101,42 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Off"
 
+[node name="ImageWidthRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ImageWidthLabel" type="Label" parent="CenterContainer/VBoxContainer/ImageWidthRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Image Width"
+
+[node name="ImageWidthInput" type="LineEdit" parent="CenterContainer/VBoxContainer/ImageWidthRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 40)
+placeholder_text = "1344"
+
+[node name="ImageHeightRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ImageHeightLabel" type="Label" parent="CenterContainer/VBoxContainer/ImageHeightRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Image Height"
+
+[node name="ImageHeightInput" type="LineEdit" parent="CenterContainer/VBoxContainer/ImageHeightRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 40)
+placeholder_text = "768"
+
 [node name="PrefixRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

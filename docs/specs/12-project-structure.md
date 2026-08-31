@@ -72,10 +72,10 @@ story-now/
 ├── data/
 │   ├── theme.tres
 │   ├── builder/                         # Presence of any file enables free mode when safe_mode is false
-│   ├── default_game_settings.json       # {language, screen_size, safe_mode, image_width/height, autoplay_tts}
+│   ├── default_game_settings.json       # {language, screen_size, safe_mode, autoplay_tts}
 │   ├── default_game_progress.json       # {current_dialogue/uuid/round, expected_rounds, minimum_*/maximum_*, game_status}
 │   ├── default_llm_settings.json        # {port: 48763}
-│   ├── default_image_server_settings.json # ComfyUI port, model, timeout, prompt prefix/suffix
+│   ├── default_image_server_settings.json # ComfyUI port, model, timeout, image size, prompt prefix/suffix
 │   ├── llama-models/
 │   │   ├── cen/*.gguf
 │   │   └── ab/*.gguf
@@ -111,7 +111,7 @@ Registered in `project.godot:11-22`:
 |------|--------|---------|
 | `I18n` | `scripts/i18n.gd` | Translations (en, zh_CN, zh_TW, yue, ja) |
 | `GameSettingsManager` | `scripts/game_settings_manager.gd` | Display/TTS/safe_mode settings (`user://game_settings.json`) |
-| `ImageServerSettingsManager` | `scripts/image_server_settings_manager.gd` | ComfyUI port, timeout, model, and prompt prefix/suffix |
+| `ImageServerSettingsManager` | `scripts/image_server_settings_manager.gd` | ComfyUI port, timeout, model, image size, and prompt prefix/suffix |
 | `LLMSettingsManager` | `scripts/llm_settings_manager.gd` | llama.cpp port |
 | `LLMManager` | `scripts/llm_manager.gd` | llama.cpp process + prompt/HTTP |
 | `ImageServerManager` | `scripts/image_server_manager.gd` | ComfyUI process + image pipeline |

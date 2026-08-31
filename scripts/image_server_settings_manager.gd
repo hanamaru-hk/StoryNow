@@ -12,6 +12,8 @@ var settings := {
 	"timeout": 240,
 	"low_vram": false,
 	"model_filename": "waiIllustriousSDXL_v170.safetensors",
+	"image_width": "1344",
+	"image_height": "768",
 	"prefix": DEFAULT_PREFIX,
 	"suffix": DEFAULT_SUFFIX,
 }

@@ -13,8 +13,6 @@ var settings := {
 	"last_aspect_ratio": "16:9",
 	"safe_mode": false,
 	"tried_free_mode_yet": false,
-	"image_width": "1344",
-	"image_height": "768",
 	"autoplay_tts": true,
 	"show_streaming": true,
 	"music_volume": 70,

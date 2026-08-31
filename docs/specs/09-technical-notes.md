@@ -37,7 +37,7 @@
 | `__NEGATIVE_PROMPT__` | `6` CLIPTextEncode | `text` | `"(white_skin:1.5), ${negative_prompt}"` (free vs safe file) |
 | `__SEED__` | `2` KSampler | `seed` | random int |
 | `__FILENAME_PREFIX__` | `5` SaveImage | `filename_prefix` | `"SN"` |
-| `__IMAGE_WIDTH__` / `__IMAGE_HEIGHT__` | `7` EmptyLatentImage | `width/height` | `GameSettingsManager.settings.image_width/height` |
+| `__IMAGE_WIDTH__` / `__IMAGE_HEIGHT__` | `7` EmptyLatentImage | `width/height` | `ImageServerSettingsManager.settings.image_width/height` |
 
 ### 9.2.2 Negative Prompt Files
 

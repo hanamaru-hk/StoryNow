@@ -18,7 +18,7 @@
 | `__NEGATIVE_PROMPT__` | `6` (`CLIPTextEncode`) | `inputs.text` | `"(white_skin:1.5), ${safe/free_negative_prompt}"` loaded in `scripts/image_server_manager.gd:170` |
 | `__SEED__` | `2` (`KSampler`) | `inputs.seed` | Random 0–2147483647 |
 | `__FILENAME_PREFIX__` | `5` (`SaveImage`) | `inputs.filename_prefix` | `"SN"` (`FILENAME_PREFIX`) |
-| `__IMAGE_WIDTH__` / `__IMAGE_HEIGHT__` | `7` (`EmptyLatentImage`) | `inputs.width/height` | From `GameSettingsManager.settings.image_width/height` (defaults `1344` / `768`) |
+| `__IMAGE_WIDTH__` / `__IMAGE_HEIGHT__` | `7` (`EmptyLatentImage`) | `inputs.width/height` | Required `ImageServerSettingsManager.settings.image_width/height` values (defaults `1344` / `768`) |
 
 ### Pipeline Nodes
 

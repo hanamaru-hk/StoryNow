@@ -3,6 +3,8 @@
 	"timeout": 240,
 	"low_vram": false,
 	"model_filename": "waiIllustriousSDXL_v170.safetensors",
+	"image_width": "1344",
+	"image_height": "768",
 	"prefix": "score_9, score_8_up, score_7_up, masterpiece",
 	"suffix": "4k"
 }

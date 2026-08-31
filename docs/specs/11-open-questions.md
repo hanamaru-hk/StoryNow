@@ -9,7 +9,7 @@
 - [x] How many save slots → unlimited: one folder per `uuid` under `user://saves/`, paginated Load (10) / Gallery (12) overlays
 - [x] Model checkpoint selection → configurable via Image Server Settings `model_filename` (default `waiIllustriousSDXL_v170.safetensors`)
 - [x] Negative prompt configuration → `data/comfyui/{safe,free}_negative_prompt` switched by `GameSettingsManager.is_free_mode()`
-- [x] Image generation resolution → configurable via `GameSettingsManager.settings.image_width/height` (defaults 1344×768), injected into `EmptyLatentImage`
+- [x] Image generation resolution → configurable via `ImageServerSettingsManager.settings.image_width/height` (defaults 1344×768), injected into `EmptyLatentImage`
 - [x] Brainstorm Random / Enhance / Start flows → implemented in `scripts/brainstorm.gd:1`
 - [x] Save/Load system → `SceneDataManager` + `GameProgressManager` + overlays implemented
 - [x] TTS auto-play → Sherpa-ONNX Piper VITS implemented (`scripts/tts_manager.gd:1`)
