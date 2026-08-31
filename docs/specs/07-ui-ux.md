@@ -74,7 +74,7 @@ The PlotOverlay UI regression check runs with `godot --headless --path . --scene
 
 - Two colored dots: **Green** healthy, **Red** unhealthy, **Gray** starting (driven by `ServerRuntimeManager.llm_state` / `image_state` via `status_changed` signals; no polling).
 - Engine-readiness error popups flash a gold arrow toward these indicators and offer Retry. A failed retry accelerates the flash; a successful retry resumes the blocked action.
-- Request queue list: rows of `kind` + `label` + timeout circle (`scripts/request_timeout_circle.gd:1`) driven by `ServerRuntimeManager.request_queue_changed`.
+- Request queue list: rows of `kind` + `label` + timeout circle (`scripts/request_timeout_circle.gd:1`) driven by `ServerRuntimeManager.request_queue_changed`. Active LLM and image generation rows show elapsed seconds (`0s`, `1s`, …); queued ComfyUI prompts continue to show their queue position.
 - Hides with chrome (`chrome_visibility_changed`).
 
 ## 7.8 Gallery / Load Overlays

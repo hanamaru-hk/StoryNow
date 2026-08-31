@@ -307,7 +307,7 @@ func _queue_comfy_prompt(workflow_dict: Dictionary, request_timeout: float) -> S
 	return prompt_id
 
 
-func _poll_comfy_history(prompt_id: String, queue_id: int, request_timeout: float) -> Dictionary:
+func _poll_comfy_history(prompt_id: String, queue_id: int, request_timeout: float, request_started_at_msec: int) -> Dictionary:
 	var port: int = int(ImageServerSettingsManager.settings.get("port", 56321))
 	var url := "http://127.0.0.1:%d/history/%s" % [port, prompt_id]
 	var max_attempts: int = maxi(1, int(ceil(request_timeout / 0.5)))
@@ -318,7 +318,7 @@ func _poll_comfy_history(prompt_id: String, queue_id: int, request_timeout: floa
 		var remaining_seconds := float(deadline_msec - Time.get_ticks_msec()) / 1000.0
 		if remaining_seconds <= 0.0:
 			break
-		await _update_comfy_queue_progress(prompt_id, queue_id, attempt, max_attempts)
+		await _update_comfy_queue_progress(prompt_id, queue_id, attempt, max_attempts, request_started_at_msec)
 		var http := HTTPRequest.new()
 		add_child(http)
 		http.timeout = maxf(0.5, minf(5.0, remaining_seconds))
@@ -369,14 +369,14 @@ func _poll_comfy_history(prompt_id: String, queue_id: int, request_timeout: floa
 	return {}
 
 
-func _update_comfy_queue_progress(prompt_id: String, queue_id: int, attempt: int, max_attempts: int) -> void:
+func _update_comfy_queue_progress(prompt_id: String, queue_id: int, attempt: int, max_attempts: int, request_started_at_msec: int) -> void:
 	var queue_state := await _get_comfy_queue_state(prompt_id)
 	var progress := 0.1
 	var status_text := "Queued"
 	match str(queue_state.get("state", "")):
 		"running":
 			progress = 0.25 + 0.65 * clampf(float(attempt) / maxf(float(max_attempts), 1.0), 0.0, 1.0)
-			status_text = "Running"
+			status_text = "%ds" % int((Time.get_ticks_msec() - request_started_at_msec) / 1000.0)
 		"pending":
 			var position := int(queue_state.get("position", 0))
 			progress = 0.1
@@ -507,6 +507,7 @@ func _download_comfy_image(filename: String, subfolder: String, img_type: String
 func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 	_cancel_requested = false
 	var request_timeout := _get_image_timeout()
+	var request_started_at_msec := Time.get_ticks_msec()
 	var queue_id := ServerRuntimeManager.push_request("image", I18n.translate("request_generating_image"), request_timeout)
 	var workflow_text := _load_workflow_template_text()
 	if workflow_text.is_empty():
@@ -550,7 +551,7 @@ func generate_scene_image(image_prompt: String, uuid: String) -> Dictionary:
 			return {"success": false, "cancelled": true, "error": "Cancelled", "prompt": image_prompt}
 		return {"success": false, "error": "Failed to queue ComfyUI prompt", "prompt": image_prompt}
 	ServerRuntimeManager.update_request(queue_id, {"status": "Queued", "progress": 0.1})
-	var image_info := await _poll_comfy_history(prompt_id, queue_id, request_timeout)
+	var image_info := await _poll_comfy_history(prompt_id, queue_id, request_timeout, request_started_at_msec)
 	if image_info.is_empty():
 		ServerRuntimeManager.pop_request(queue_id)
 		if _cancel_requested:
