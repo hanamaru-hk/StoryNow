@@ -14,6 +14,11 @@ static func is_non_negative_integer(value: Variant) -> bool:
 	return parsed.get("valid", false) and int(parsed["value"]) >= 0
 
 
+static func is_positive_integer(value: Variant) -> bool:
+	var parsed := _parse_integer(value)
+	return parsed.get("valid", false) and int(parsed["value"]) > 0
+
+
 static func is_valid_port(value: Variant) -> bool:
 	var parsed := _parse_integer(value)
 	if not parsed.get("valid", false):
@@ -40,6 +45,11 @@ static func is_valid_image_dimension(value: Variant) -> bool:
 static func non_negative_integer_or_default(value: Variant, default_value: int) -> int:
 	var parsed := _parse_integer(value)
 	return int(parsed["value"]) if parsed.get("valid", false) and int(parsed["value"]) >= 0 else default_value
+
+
+static func positive_integer_or_default(value: Variant, default_value: int) -> int:
+	var parsed := _parse_integer(value)
+	return int(parsed["value"]) if parsed.get("valid", false) and int(parsed["value"]) > 0 else default_value
 
 
 static func port_or_default(value: Variant, default_value: int) -> int:

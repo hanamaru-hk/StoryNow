@@ -72,22 +72,22 @@ func _digits_only(text: String) -> String:
 func _apply_pending_from_ui() -> void:
 	var v: String
 	v = %ExpectedRoundInput.text.strip_edges()
-	if SettingsValidator.is_non_negative_integer(v):
+	if SettingsValidator.is_positive_integer(v):
 		_pending["expected_rounds"] = v.to_int()
 	v = %MinDialogueRoundsInput.text.strip_edges()
-	if SettingsValidator.is_non_negative_integer(v):
+	if SettingsValidator.is_positive_integer(v):
 		_pending["minimum_dialogues_per_scene"] = v.to_int()
 	v = %MinSentencesInput.text.strip_edges()
-	if SettingsValidator.is_non_negative_integer(v):
+	if SettingsValidator.is_positive_integer(v):
 		_pending["minimum_sentences_per_dialogue"] = v.to_int()
 	v = %MaxPlotDirectionsInput.text.strip_edges()
-	if SettingsValidator.is_non_negative_integer(v):
+	if SettingsValidator.is_positive_integer(v):
 		var plot_directions := v.to_int()
 		_pending["minimum_plot_directions"] = plot_directions
 		# also support alias maximum_plot_directions if used
 		_pending["maximum_plot_directions"] = plot_directions
 	v = %MinSummaryInput.text.strip_edges()
-	if SettingsValidator.is_non_negative_integer(v):
+	if SettingsValidator.is_positive_integer(v):
 		_pending["minimum_sentences_in_summary"] = v.to_int()
 
 

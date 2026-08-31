@@ -21,6 +21,9 @@ func _test_non_negative_values() -> void:
 	_expect(not SettingsValidator.is_non_negative_integer("-1"), "negative values are rejected")
 	_expect(not SettingsValidator.is_non_negative_integer(1.5), "fractional values are rejected")
 	_expect(SettingsValidator.non_negative_integer_or_default("-1", 7) == 7, "invalid progress values use their default")
+	_expect(SettingsValidator.is_positive_integer(1.0), "whole positive JSON numbers are accepted")
+	_expect(not SettingsValidator.is_positive_integer("0"), "zero is not a positive value")
+	_expect(SettingsValidator.positive_integer_or_default(0.0, 3) == 3, "zero flow values use their positive default")
 
 
 func _test_ports_and_timeouts() -> void:

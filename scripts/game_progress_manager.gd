@@ -11,15 +11,25 @@ const FLOW_SETTING_KEYS := [
 	"maximum_plot_directions",
 	"minimum_sentences_in_summary",
 ]
+const FLOW_SETTING_DEFAULTS := {
+	"expected_rounds": 10,
+	"minimum_dialogues_per_scene": 10,
+	"minimum_sentences_per_dialogue": 2,
+	"minimum_plot_directions": 3,
+	"maximum_plot_directions": 3,
+	"minimum_sentences_in_summary": 3,
+}
 
 var settings := {
 	"current_dialogue": 0,
 	"current_uuid": "",
-	"expected_rounds": 1,
+	"current_round": 1,
+	"expected_rounds": 10,
+	"player_input": "",
 	"minimum_dialogues_per_scene": 10,
-	"minimum_sentences_per_dialogue": 10,
-	"minimum_plot_directions": 10,
-	"minimum_sentences_in_summary": 10,
+	"minimum_sentences_per_dialogue": 2,
+	"minimum_plot_directions": 3,
+	"minimum_sentences_in_summary": 3,
 	"game_status": ""
 }
 
@@ -85,15 +95,8 @@ func _load_default_settings() -> Dictionary:
 
 
 func _normalize_integer_settings() -> void:
-	for key in [
-		"current_dialogue",
-		"current_round",
-		"expected_rounds",
-		"minimum_dialogues_per_scene",
-		"minimum_sentences_per_dialogue",
-		"minimum_plot_directions",
-		"maximum_plot_directions",
-		"minimum_sentences_in_summary",
-	]:
+	settings["current_dialogue"] = SettingsValidator.non_negative_integer_or_default(settings.get("current_dialogue", 0), 0)
+	settings["current_round"] = SettingsValidator.positive_integer_or_default(settings.get("current_round", 1), 1)
+	for key in FLOW_SETTING_KEYS:
 		if settings.has(key):
-			settings[key] = SettingsValidator.non_negative_integer_or_default(settings[key], 0)
+			settings[key] = SettingsValidator.positive_integer_or_default(settings[key], int(FLOW_SETTING_DEFAULTS[key]))
