@@ -1,5 +1,6 @@
 extends Node
 
+const SettingsValidator := preload("res://scripts/settings_value_validator.gd")
 const SETTINGS_PATH := "user://llm_settings.json"
 const DEFAULT_SETTINGS_PATH := "data/default_llm_settings.json"
 const LLAMA_MODELS_DIR_CEN := "data/llama-models/cen"
@@ -119,6 +120,6 @@ func _ensure_selected_model_is_available() -> void:
 
 
 func _normalize_integer_settings() -> void:
-	for key in ["port", "timeout", "context_size"]:
-		if settings.has(key):
-			settings[key] = str(settings[key]).to_int()
+	settings["port"] = SettingsValidator.port_or_default(settings.get("port", 48763), 48763)
+	settings["timeout"] = SettingsValidator.timeout_or_default(settings.get("timeout", 240), 240)
+	settings["context_size"] = SettingsValidator.non_negative_integer_or_default(settings.get("context_size", 0), 0)

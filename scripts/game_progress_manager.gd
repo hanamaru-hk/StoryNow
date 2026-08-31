@@ -1,5 +1,6 @@
 extends Node
 
+const SettingsValidator := preload("res://scripts/settings_value_validator.gd")
 const SETTINGS_PATH := "user://game_progress.json"
 const DEFAULT_SETTINGS_PATH := "data/default_game_progress.json"
 const FLOW_SETTING_KEYS := [
@@ -95,4 +96,4 @@ func _normalize_integer_settings() -> void:
 		"minimum_sentences_in_summary",
 	]:
 		if settings.has(key):
-			settings[key] = maxi(str(settings[key]).to_int(), 0)
+			settings[key] = SettingsValidator.non_negative_integer_or_default(settings[key], 0)

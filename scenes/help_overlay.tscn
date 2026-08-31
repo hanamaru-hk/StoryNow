@@ -33,7 +33,7 @@ grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="HubCenter"]
 layout_mode = 2
-custom_minimum_size = Vector2(760, 500)
+custom_minimum_size = Vector2(760, 570)
 script = ExtResource("2_gold_frame")
 draw_background = false
 
@@ -70,6 +70,12 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(640, 56)
 text = "Generation Often Asks Me to Retry"
+
+[node name="ImageAccuracyButton" type="Button" parent="HubCenter/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(640, 56)
+text = "How to Generate More Accurate Images"
 
 [node name="MinimumRequirementsButton" type="Button" parent="HubCenter/Panel/Margin/VBox"]
 unique_name_in_owner = true
@@ -203,6 +209,65 @@ vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="GenerationRetryBack" type="Button" parent="GenerationRetryOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+size_flags_horizontal = 4
+text = "Back"
+
+[node name="ImageAccuracyOverlay" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="ImageAccuracyOverlay"]
+layout_mode = 2
+custom_minimum_size = Vector2(960, 500)
+script = ExtResource("2_gold_frame")
+draw_background = false
+
+[node name="Margin" type="MarginContainer" parent="ImageAccuracyOverlay/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 40
+
+[node name="VBox" type="VBoxContainer" parent="ImageAccuracyOverlay/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="ImageAccuracyTitle" type="Label" parent="ImageAccuracyOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PopupTitle"
+text = "How to Generate More Accurate Images"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ImageAccuracyDescription" type="Label" parent="ImageAccuracyOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 110)
+text = "1. When starting a story or entering your own choice, begin your description with \"The image shows that...\" to guide image generation more precisely."
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ImageAccuracyDanbooru" type="Label" parent="ImageAccuracyOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 90)
+size_flags_vertical = 3
+text = "2. You can regenerate an image with your own Danbooru tags by selecting Image > New."
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ImageAccuracyBack" type="Button" parent="ImageAccuracyOverlay/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(240, 48)

@@ -2,6 +2,8 @@ extends Control
 
 signal closed
 
+const SettingsValidator := preload("res://scripts/settings_value_validator.gd")
+
 var _pending := {}
 
 
@@ -70,23 +72,23 @@ func _digits_only(text: String) -> String:
 func _apply_pending_from_ui() -> void:
 	var v: String
 	v = %ExpectedRoundInput.text.strip_edges()
-	if v.is_valid_int():
-		_pending["expected_rounds"] = maxi(v.to_int(), 0)
+	if SettingsValidator.is_non_negative_integer(v):
+		_pending["expected_rounds"] = v.to_int()
 	v = %MinDialogueRoundsInput.text.strip_edges()
-	if v.is_valid_int():
-		_pending["minimum_dialogues_per_scene"] = maxi(v.to_int(), 0)
+	if SettingsValidator.is_non_negative_integer(v):
+		_pending["minimum_dialogues_per_scene"] = v.to_int()
 	v = %MinSentencesInput.text.strip_edges()
-	if v.is_valid_int():
-		_pending["minimum_sentences_per_dialogue"] = maxi(v.to_int(), 0)
+	if SettingsValidator.is_non_negative_integer(v):
+		_pending["minimum_sentences_per_dialogue"] = v.to_int()
 	v = %MaxPlotDirectionsInput.text.strip_edges()
-	if v.is_valid_int():
-		var plot_directions := maxi(v.to_int(), 0)
+	if SettingsValidator.is_non_negative_integer(v):
+		var plot_directions := v.to_int()
 		_pending["minimum_plot_directions"] = plot_directions
 		# also support alias maximum_plot_directions if used
 		_pending["maximum_plot_directions"] = plot_directions
 	v = %MinSummaryInput.text.strip_edges()
-	if v.is_valid_int():
-		_pending["minimum_sentences_in_summary"] = maxi(v.to_int(), 0)
+	if SettingsValidator.is_non_negative_integer(v):
+		_pending["minimum_sentences_in_summary"] = v.to_int()
 
 
 func _sync_ui_to_settings() -> void:

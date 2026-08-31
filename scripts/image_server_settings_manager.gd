@@ -1,5 +1,6 @@
 extends Node
 
+const SettingsValidator := preload("res://scripts/settings_value_validator.gd")
 const SETTINGS_PATH := "user://image_server_settings.json"
 const DEFAULT_SETTINGS_PATH := "data/default_image_server_settings.json"
 const LEGACY_DEFAULT_PREFIX := "score_9, score_8_up, score_7_up, masterpiece,"
@@ -69,9 +70,10 @@ func reset_to_defaults() -> void:
 
 
 func _normalize_integer_settings() -> void:
-	for key in ["port", "timeout"]:
-		if settings.has(key):
-			settings[key] = str(settings[key]).to_int()
+	settings["port"] = SettingsValidator.port_or_default(settings.get("port", 56321), 56321)
+	settings["timeout"] = SettingsValidator.timeout_or_default(settings.get("timeout", 240), 240)
+	settings["image_width"] = SettingsValidator.image_dimension_or_default(settings.get("image_width", 1344), 1344)
+	settings["image_height"] = SettingsValidator.image_dimension_or_default(settings.get("image_height", 768), 768)
 
 
 func _migrate_legacy_prompt_affixes() -> void:

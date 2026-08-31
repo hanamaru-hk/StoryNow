@@ -2,6 +2,8 @@ extends Control
 
 signal closed
 
+const SettingsValidator := preload("res://scripts/settings_value_validator.gd")
+
 enum ConfirmAction {
 	NONE,
 	RESET,
@@ -131,10 +133,8 @@ func _digits_only(text: String) -> String:
 
 func _apply_port() -> void:
 	var port_text: String = %PortInput.text.strip_edges()
-	if port_text.is_valid_int():
-		var port: int = port_text.to_int()
-		if port > 0 and port <= 65535:
-			_pending["port"] = port
+	if SettingsValidator.is_valid_port(port_text):
+		_pending["port"] = port_text.to_int()
 
 
 func _apply_model_filename() -> void:
@@ -145,18 +145,14 @@ func _apply_model_filename() -> void:
 
 func _apply_timeout() -> void:
 	var timeout_text: String = %TimeoutInput.text.strip_edges()
-	if timeout_text.is_valid_int():
-		var timeout: int = timeout_text.to_int()
-		if timeout > 0:
-			_pending["timeout"] = timeout
+	if SettingsValidator.is_valid_timeout(timeout_text):
+		_pending["timeout"] = timeout_text.to_int()
 
 
 func _apply_context_size() -> void:
 	var context_size_text: String = %ContextSizeInput.text.strip_edges()
-	if context_size_text.is_valid_int():
-		var context_size: int = context_size_text.to_int()
-		if context_size >= 0:
-			_pending["context_size"] = context_size
+	if SettingsValidator.is_non_negative_integer(context_size_text):
+		_pending["context_size"] = context_size_text.to_int()
 
 
 func _sync_ui_to_settings() -> void:

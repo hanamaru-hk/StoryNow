@@ -54,7 +54,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — localized Image heading with New/Change actions, then a carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).
 - **ChoiceOverlay** (`scripts/gameplay.gd:287`) — dynamic choice buttons + free-form `CustomInput` + Confirm/Cancel.
 - **GameplayMenuOverlay** — Menu hub (Load/Gallery/Game Settings/Advanced/Main Menu/Quit) bridging to other overlays. Main Menu and Quit ask for confirmation when generation requests are still queued; confirming cancels the active generation work before leaving.
-- **HelpOverlay** (`scripts/help_overlay.gd:1`) — troubleshooting guidance for engines that remain in the starting state, repeated generation retries, and minimum system requirements.
+- **HelpOverlay** (`scripts/help_overlay.gd:1`) — troubleshooting guidance for engines that remain in the starting state, repeated generation retries, more accurate image prompting, and minimum system requirements. The Danbooru-tag guidance is shown only in builder mode.
 - **GameProgressOverlay / GameSettingsOverlay / AdvancedSettingsOverlay / LLM/Image Server Settings overlays** — settings editors (see below).
 
 ## 7.6 Settings Overlays
@@ -63,10 +63,10 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 |---------|----------------|--------------|
 | **Game Settings** (`game_settings_overlay.gd`) | Language (en/zh_CN/zh_TW/yue/ja), Screen size (Full/1344×768), Autoplay TTS | `user://game_settings.json` |
 | **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
-| **LLM Settings** (`llm_settings_overlay.gd`) | Port (default 48763) | `user://llm_settings.json` |
-| **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port, timeout, Low VRAM toggle, and builder-mode-only image width/height plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
+| **LLM Settings** (`llm_settings_overlay.gd`) | Port (1–65535, default 48763), positive timeout, non-negative context size | `user://llm_settings.json` |
+| **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port (1–65535), positive timeout, Low VRAM toggle, and builder-mode-only image width/height (16–16384, multiples of 8) plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
 
-All follow **open → edit `_pending` → Save/Reset/Back** pattern; the LLM and Image Server overlays confirm Save and Reset while warning that StoryNow must restart before changes take effect. Save merges into the manager singleton and calls `save_settings()`. Flow Settings Reset restores only the editable generation parameters and preserves runtime progress such as `current_uuid`, round, dialogue, and `game_status`; the other Reset actions reload their complete defaults.
+All follow **open → edit `_pending` → Save/Reset/Back** pattern; the LLM and Image Server overlays confirm Save and Reset while warning that StoryNow must restart before changes take effect. Save merges into the manager singleton and calls `save_settings()`. Flow settings accept only non-negative integers. Invalid persisted numeric values are replaced with safe defaults when loaded or saved. Flow Settings Reset restores only the editable generation parameters and preserves runtime progress such as `current_uuid`, round, dialogue, and `game_status`; the other Reset actions reload their complete defaults.
 
 The PlotOverlay UI regression check runs with `godot --headless --path . --scene res://tools/test_plot_overlay.tscn`.
 
