@@ -38,6 +38,7 @@ func _ready() -> void:
 	if has_node("%HelpOverlay"):
 		%HelpOverlay.closed.connect(_on_settings_closed)
 	_update_labels()
+	_update_builder_mode_label()
 	_check_first_time_overlay()
 	if not bool(GameSettingsManager.settings.get("first_time", true)):
 		MusicManager.play_random_mood("main_menu")
@@ -83,6 +84,7 @@ func _on_llm_setting_pressed() -> void:
 
 func _on_settings_closed() -> void:
 	_update_labels()
+	_update_builder_mode_label()
 	_update_main_menu_chrome_visibility()
 
 
@@ -119,6 +121,10 @@ func _update_labels() -> void:
 	%Setting.text = I18n.translate("main_btn_game_setting")
 	%AdvancedSetting.text = I18n.translate("main_btn_advanced_setting")
 	%Exit.text = I18n.translate("main_btn_exit")
+
+
+func _update_builder_mode_label() -> void:
+	%BuilderModeLabel.visible = GameSettingsManager.is_builder_mode()
 
 
 func _start_hidden_menu_video() -> void:

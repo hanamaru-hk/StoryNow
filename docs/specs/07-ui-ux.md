@@ -28,6 +28,8 @@
 | Advanced Setting | Opens `AdvancedSettingsOverlay` | Contains Image/LLM settings shortcuts |
 | Exit | `get_tree().quit()` | |
 
+The bottom-right corner shows a small white, black-outlined **Builder Mode** label when `GameSettingsManager.is_builder_mode()` is true.
+
 First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`. Its language buttons are generated from `I18n.LANGUAGES` in a grid of up to five per row. Choosing a language applies it immediately, then shows the minimum NVIDIA/CUDA, 8 GB VRAM, and 32 GB RAM requirements. The overlay performs an instant NVIDIA adapter vendor/name check; the separator, quick-check heading, and result remain hidden when the check passes and appear with the failure result otherwise. Confirmation always remains available and is what completes first-time setup, starts menu music, and resumes the intro.
 
 ## 7.4 Brainstorm Scene
