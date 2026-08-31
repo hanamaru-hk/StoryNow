@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://game_scene"]
+[gd_scene load_steps=19 format=3 uid="uid://game_scene"]
 
 [ext_resource type="Script" path="res://scripts/gameplay.gd" id="1_1"]
 [ext_resource type="PackedScene" path="res://scenes/game_progress_overlay.tscn" id="2_m7w2a"]
@@ -24,6 +24,22 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_auto_pressed"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.0352941, 0.145098, 0.298039, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.82, 0.66, 0.28, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="Gameplay" type="Control"]
 layout_mode = 3
@@ -305,6 +321,10 @@ text = "Scene >>"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_pressed_color = Color(0.901961, 0.917647, 0.937255, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/pressed = SubResource("StyleBoxFlat_auto_pressed")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_auto_pressed")
 toggle_mode = true
 text = "Auto"
 

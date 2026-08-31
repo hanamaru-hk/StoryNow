@@ -147,7 +147,7 @@ func disable_buttons_for_loading() -> void:
 		var button := _node(name) as Button
 		if button:
 			button.disabled = true
-	for name in ["HelpButton", "SettingButton", "GameplayMenuButton"]:
+	for name in ["HelpButton", "AutoButton", "GameplayMenuButton"]:
 		var button := _node(name) as Button
 		if button:
 			button.disabled = false
@@ -189,6 +189,19 @@ func has_current_dialogue() -> bool:
 	var index := clampi(current_index(), 0, interactions.size() - 1)
 	var entry: Variant = interactions[index]
 	return entry is Dictionary and not str(entry.get("dialogue", "")).strip_edges().is_empty()
+
+
+func is_typewriting() -> bool:
+	return _is_typewriting
+
+
+func is_waiting_for_current_voice() -> bool:
+	var player := _tts_player()
+	if player and player.playing:
+		return true
+	if not bool(GameSettingsManager.settings.get("autoplay_tts", true)) or current_wav_exists():
+		return false
+	return has_current_dialogue() and current_status() in ["generating_voice", "generating_both"]
 
 
 func enable_buttons() -> void:

@@ -1,5 +1,7 @@
 extends Control
 
+const AUTO_DIALOGUE_PAUSE_SECONDS := 0.8
+
 var _choice_controller: GameplayChoiceController
 var _dialogue_controller: GameplayDialogueController
 var _image_controller: GameplayImageController
@@ -19,6 +21,7 @@ var _pending_retry_action: String = ""  # "new_story" or "new_scene"
 var _retry_in_progress: bool = false
 var _chrome_visible: bool = true
 var _is_leaving_scene: bool = false
+var _auto_advance_generation := 0
 
 func _ready() -> void:
 	_choice_controller = GameplayChoiceController.new(self)
@@ -431,8 +434,53 @@ func _on_summary_overlay_closed() -> void:
 	_update_labels()
 
 
-func _on_auto_toggled(_toggled_on: bool) -> void:
-	pass
+func _on_auto_toggled(toggled_on: bool) -> void:
+	_auto_advance_generation += 1
+	if toggled_on:
+		_run_auto_advance(_auto_advance_generation)
+
+
+func _run_auto_advance(generation: int) -> void:
+	while _auto_advance_is_current(generation):
+		if _auto_advance_is_paused() or not _dialogue_controller.has_current_dialogue():
+			await get_tree().process_frame
+			continue
+		var dialogue_index := current_dialogue_index
+		while _auto_advance_is_current(generation) and dialogue_index == current_dialogue_index:
+			if not _dialogue_controller.is_typewriting() and not _dialogue_controller.is_waiting_for_current_voice():
+				break
+			await get_tree().process_frame
+		if not _auto_advance_is_current(generation):
+			return
+		if dialogue_index != current_dialogue_index:
+			continue
+		await get_tree().create_timer(AUTO_DIALOGUE_PAUSE_SECONDS).timeout
+		if not _auto_advance_is_current(generation) or dialogue_index != current_dialogue_index:
+			continue
+		if _auto_advance_is_paused():
+			continue
+		_dialogue_controller.next_dialogue()
+		if %ChoiceOverlay.visible:
+			_stop_auto_advance()
+			return
+
+
+func _auto_advance_is_current(generation: int) -> bool:
+	return is_inside_tree() and not _is_leaving_scene and %AutoButton.button_pressed and generation == _auto_advance_generation
+
+
+func _auto_advance_is_paused() -> bool:
+	if %ErrorReturnPopup.visible:
+		return true
+	for child in get_children():
+		if child is Control and child != %Dialogue and str(child.name).ends_with("Overlay") and child.visible:
+			return true
+	return false
+
+
+func _stop_auto_advance() -> void:
+	_auto_advance_generation += 1
+	%AutoButton.set_pressed_no_signal(false)
 
 
 func _on_gameplay_menu_flow_settings_requested() -> void:
