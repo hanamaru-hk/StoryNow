@@ -515,7 +515,7 @@ func _update_labels() -> void:
 	if has_node("%RegenerateAllButton") and not _is_regenerating:
 		%RegenerateAllButton.text = I18n.translate("dialogue_hub_regenerate") if I18n.translate("dialogue_hub_regenerate") != "dialogue_hub_regenerate" else "Regenerate Scene"
 	if has_node("%SummaryButton"):
-		%SummaryButton.text = I18n.translate("btn_summary") if I18n.translate("btn_summary") != "btn_summary" else "Summary"
+		%SummaryButton.text = I18n.translate("plot_summary_button") if I18n.translate("plot_summary_button") != "plot_summary_button" else "AI's Current Memory"
 	if has_node("%DialogueBack"):
 		%DialogueBack.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	if has_node("%RegenerateConfirmLabel"):

@@ -51,7 +51,7 @@ theme_override_constants/separation = 24
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"PopupTitle"
-text = "Plot Summary"
+text = "AI's Current Memory"
 horizontal_alignment = 1
 
 [node name="SummaryInput" type="TextEdit" parent="CenterContainer/Panel/Margin/VBox"]

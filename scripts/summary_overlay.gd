@@ -42,7 +42,7 @@ func _on_save_pressed() -> void:
 
 func _update_labels() -> void:
 	if has_node("%Title"):
-		%Title.text = I18n.translate("summary_overlay_title") if I18n.translate("summary_overlay_title") != "summary_overlay_title" else "Summary"
+		%Title.text = I18n.translate("summary_overlay_title") if I18n.translate("summary_overlay_title") != "summary_overlay_title" else "AI's Current Memory"
 	if has_node("%Back"):
 		%Back.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	if has_node("%Save"):
