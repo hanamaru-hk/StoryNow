@@ -14,7 +14,7 @@ func open() -> void:
 	visible = true
 	var prompt: String = str(SceneDataManager.scene_data.get("image_prompt", ""))
 	%ImagePromptInput.text = prompt
-	%ImagePromptInput.editable = GameSettingsManager.is_free_mode()
+	%ImagePromptInput.editable = GameSettingsManager.is_builder_mode()
 	_update_labels()
 	# Always allow produce, only editable state changes
 	%Produce.disabled = false
@@ -27,7 +27,7 @@ func _on_back_pressed() -> void:
 
 
 func _on_produce_pressed() -> void:
-	# If free mode, textarea edit persists back to scene_data["image_prompt"] before generation.
+	# In builder mode, textarea edits persist back to scene_data["image_prompt"] before generation.
 	var prompt_text: String = %ImagePromptInput.text.strip_edges() if %ImagePromptInput.text != null else ""
 	if prompt_text.is_empty():
 		prompt_text = str(SceneDataManager.scene_data.get("image_prompt", "")).strip_edges()

@@ -30,7 +30,7 @@ StoryNow is a Godot visual-novel client that generates story text with a local l
 4. Search usages with `rg` before renaming signals, node paths, dictionary keys, settings, or save fields.
 5. Prefer a small change in the existing architecture over a broad rewrite.
 
-Do not edit generated/imported content in `.godot/`, `*.uid`, or `*.import`. Do not commit machine-local models, server installations, build output, or `data/free_mode`; see `.gitignore`.
+Do not edit generated/imported content in `.godot/`, `*.uid`, or `*.import`. Do not commit machine-local models, server installations, build output, or `data/builder`; see `.gitignore`.
 
 ## Coding conventions
 

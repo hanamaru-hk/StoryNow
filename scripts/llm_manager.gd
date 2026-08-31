@@ -22,8 +22,8 @@ const DEVELOPMENT_CHOICES := "common/choices"
 const DEVELOPMENT_ENDING := "common/ending"
 const SAFE_GUARDRAIL := "common/safe_guardrail"
 const SAFE_DANBOORU_GUARDRAIL := "common/safe_danbooru_guardrail"
-const FREE_GUARDRAIL := "common/free_guardrail"
-const FREE_DANBOORU_GUARDRAIL := "common/free_danbooru_guardrail"
+const BUILDER_GUARDRAIL := "common/builder_guardrail"
+const BUILDER_DANBOORU_GUARDRAIL := "common/builder_danbooru_guardrail"
 
 
 signal status_changed(status: Dictionary)
@@ -202,9 +202,9 @@ func request_random() -> Dictionary:
 	if requirement.is_empty():
 		return {"success": false, "error": "Failed to load requirement template"}
 	
-	if GameSettingsManager.is_free_mode():
-		print_verbose("Free mode: using free guardrail")
-		var guardrail := _load_prompt(FREE_GUARDRAIL)
+	if GameSettingsManager.is_builder_mode():
+		print_verbose("Builder mode: using builder guardrail")
+		var guardrail := _load_prompt(BUILDER_GUARDRAIL)
 		prompt = prompt.replace("__GUARDRAIL__", guardrail)
 	else:
 		print_verbose("Safe mode: using safe guardrail")
@@ -225,9 +225,9 @@ func request_enhance(input: String) -> Dictionary:
 	var requirement := _load_prompt(STORY_BACKGROUND_REQUIREMENT)
 	if requirement.is_empty():
 		return {"success": false, "error": "Failed to load requirement template"}
-	if GameSettingsManager.is_free_mode():
-		print_verbose("Free mode: using free guardrail")
-		var guardrail := _load_prompt(FREE_GUARDRAIL)
+	if GameSettingsManager.is_builder_mode():
+		print_verbose("Builder mode: using builder guardrail")
+		var guardrail := _load_prompt(BUILDER_GUARDRAIL)
 		prompt = prompt.replace("__GUARDRAIL__", guardrail)
 	else:
 		print_verbose("Safe mode: using safe guardrail")
@@ -303,8 +303,8 @@ func _replace_requirement_placeholders(text: String) -> String:
 	result = result.replace("__MINIMUM_SENTENCES_PER_DIALOGUE__", min_sent_val)
 	result = result.replace("__MAXIMUM_PLOT_DIRECTIONS__", plot_val)
 	result = result.replace("__MINIMUM_SENTENCES_IN_SUMMARY__", summ_val)
-	if GameSettingsManager.is_free_mode():
-		var guardrail := _load_prompt(FREE_DANBOORU_GUARDRAIL)
+	if GameSettingsManager.is_builder_mode():
+		var guardrail := _load_prompt(BUILDER_DANBOORU_GUARDRAIL)
 		result = result.replace("__DANBOORU_GUARDRAIL__", guardrail)
 	else:
 		var guardrail := _load_prompt(SAFE_DANBOORU_GUARDRAIL)
@@ -334,8 +334,8 @@ func request_new_story() -> Dictionary:
 	var template_str := _load_template(lang)
 	if template_str.is_empty():
 		return {"success": false, "error": "Failed to load template.json"}
-	if GameSettingsManager.is_free_mode():
-		var guardrail := _load_prompt(FREE_GUARDRAIL)
+	if GameSettingsManager.is_builder_mode():
+		var guardrail := _load_prompt(BUILDER_GUARDRAIL)
 		prompt_story = prompt_story.replace("__GUARDRAIL__", guardrail)
 	else:
 		var guardrail := _load_prompt(SAFE_GUARDRAIL)
@@ -365,8 +365,8 @@ func request_new_scene() -> Dictionary:
 	var template_str := _load_template(lang)
 	if template_str.is_empty():
 		return {"success": false, "error": "Failed to load template.json"}
-	if GameSettingsManager.is_free_mode():
-		var guardrail := _load_prompt(FREE_GUARDRAIL)
+	if GameSettingsManager.is_builder_mode():
+		var guardrail := _load_prompt(BUILDER_GUARDRAIL)
 		prompt_scene = prompt_scene.replace("__GUARDRAIL__", guardrail)
 	else:
 		var guardrail := _load_prompt(SAFE_GUARDRAIL)

@@ -68,8 +68,8 @@ data/llm/<lang>/{random, enhance, story, scene}
   + common/story_background_requirement
   + common/output_json_requirement  (with __MINIMUM_*__ placeholders)
   + common/output_template.json
-  + common/{safe,free}_guardrail
-  + common/{safe,free}_danbooru_guardrail (via requirement)
+  + common/{safe,builder}_guardrail
+  + common/{safe,builder}_danbooru_guardrail (via requirement)
 ```
 
 `_load_prompt` (`scripts/llm_manager.gd:222`) resolves per `I18n.current_lang`. `_load_template` falls back to `en`. `_request_completion` posts to `http://127.0.0.1:<port>/v1/chat/completions` with `messages:[{role:"user", content:prompt}]`, `stream:false`, `thinking:false` (`scripts/llm_manager.gd:370`).

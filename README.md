@@ -23,7 +23,7 @@ AI-generated visual novel — Godot client that drives local **llama.cpp**, **Co
 | LLM port | 48763 | LLM Settings → `user://llm_settings.json` |
 | ComfyUI port | 56321 | Image Server Settings → `user://image_server_settings.json` |
 | Checkpoint | `waiIllustriousSDXL_v170.safetensors` | Image Server Settings `model_filename` |
-| Resolution | 1920×1080 viewport; images 1344×768 | Game Settings controls the viewport; Image Server Settings controls `image_width`/`height` in free mode |
+| Resolution | 1920×1080 viewport; images 1344×768 | Game Settings controls the viewport; Image Server Settings controls `image_width`/`height` in builder mode |
 | Rounds | expected 20 | Advanced Settings → `user://game_progress.json` |
 
 ## How It Works

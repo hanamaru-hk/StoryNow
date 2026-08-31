@@ -4,7 +4,7 @@
 
 - **One image per scene** (plus user can generate more and cycle via carousel).
 - `Gameplay._execute_new_story_flow` / `_execute_new_scene_flow` calls `_generate_comfyui_image` → `ImageServerManager.generate_scene_image(image_prompt, uuid)` after LLM succeeds (`scripts/gameplay.gd:417`).
-- Image prompt is also editable via `ImageOverlay` (free mode). Produce saves the prompt, closes the overlay immediately, and hands the asynchronous request to Gameplay's normal image-generation flow.
+- Image prompt is also editable via `ImageOverlay` (builder mode). Produce saves the prompt, closes the overlay immediately, and hands the asynchronous request to Gameplay's normal image-generation flow.
 
 ## 6.2 Workflow Template
 
@@ -15,7 +15,7 @@
 | `__MODEL_FILENAME__` / `__MODEL_NAME__` | `1` (`CheckpointLoaderSimple`) | `inputs.ckpt_name` | Checkpoint filename from `ImageServerSettingsManager.settings.model_filename` (default `waiIllustriousSDXL_v170.safetensors`) |
 | `__PREFIX__` / `__SUFFIX__` | `3` (`CLIPTextEncode`) | `inputs.text` | Editable prefix/suffix from Image Server Settings, wrapped around the generated image prompt; defaults omit boundary commas |
 | `__POSITIVE_PROMPT__` | `3` (`CLIPTextEncode`) | `inputs.text` | Trimmed generated image prompt; leading/trailing commas are added when missing |
-| `__NEGATIVE_PROMPT__` | `6` (`CLIPTextEncode`) | `inputs.text` | `"(white_skin:1.5), ${safe/free_negative_prompt}"` loaded in `scripts/image_server_manager.gd:170` |
+| `__NEGATIVE_PROMPT__` | `6` (`CLIPTextEncode`) | `inputs.text` | `"(white_skin:1.5), ${safe/builder_negative_prompt}"` loaded in `scripts/image_server_manager.gd:196` |
 | `__SEED__` | `2` (`KSampler`) | `inputs.seed` | Random 0–2147483647 |
 | `__FILENAME_PREFIX__` | `5` (`SaveImage`) | `inputs.filename_prefix` | `"SN"` (`FILENAME_PREFIX`) |
 | `__IMAGE_WIDTH__` / `__IMAGE_HEIGHT__` | `7` (`EmptyLatentImage`) | `inputs.width/height` | Required `ImageServerSettingsManager.settings.image_width/height` values (defaults `1344` / `768`) |
@@ -63,4 +63,4 @@ On success, `Gameplay` appends `filename` to `scene_data["image_filenames"]`, se
 | ComfyUI API call (queue, poll, download) | ✅ `scripts/image_server_manager.gd:375` |
 | Image display + placeholder | ✅ `scripts/gameplay.gd:155-495` |
 | Image carousel / change overlay | ✅ `scripts/gameplay.gd:703` + `scenes/gameplay.tscn` |
-| Free-mode prompt editing | ✅ `scripts/image_overlay.gd:1` |
+| Builder-mode prompt editing | ✅ `scripts/image_overlay.gd:1` |

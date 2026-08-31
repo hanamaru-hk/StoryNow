@@ -48,7 +48,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 
 - **PlotOverlay** (`scripts/plot_overlay.gd:1`) — hub (Edit/Add/Regenerate All/Summary/Back) → Edit list (indexed buttons) → Edit dialog (character/dialogue/gender fields plus delete) → Add overlay (character, gender/custom value, dialogue, left-aligned before/after controls, then the position dropdown). Confirming a new dialogue closes the overlay and returns to gameplay. Gender stores `male`, `female`, or the custom value entered for Other. Delete is blocked when only one dialogue remains. Summary opens `SummaryOverlay`; Regenerate All calls LLM in retry loop, replaces only `interactions[]`, resets `current_dialogue=0`, triggers TTS.
 - **SummaryOverlay** (`scripts/summary_overlay.gd:1`) — shows and edits `summary`.
-- **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (free mode); **Produce** closes the overlay and requests generation through Gameplay's image controller.
+- **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (builder mode); **Produce** closes the overlay and requests generation through Gameplay's image controller.
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — localized Image heading with New/Change actions, then a carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).
 - **ChoiceOverlay** (`scripts/gameplay.gd:287`) — dynamic choice buttons + free-form `CustomInput` + Confirm/Cancel.
 - **GameplayMenuOverlay** — Menu hub (Load/Gallery/Game Settings/Advanced/Main Menu/Quit) bridging to other overlays. Main Menu and Quit ask for confirmation when generation requests are still queued; confirming cancels the active generation work before leaving.
@@ -62,7 +62,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 | **Game Settings** (`game_settings_overlay.gd`) | Language (en/zh_CN/zh_TW/yue/ja), Screen size (Full/1344×768), Autoplay TTS | `user://game_settings.json` |
 | **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
 | **LLM Settings** (`llm_settings_overlay.gd`) | Port (default 48763) | `user://llm_settings.json` |
-| **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port, timeout, Low VRAM toggle, and free-mode-only image width/height plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
+| **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port, timeout, Low VRAM toggle, and builder-mode-only image width/height plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
 
 All follow **open → edit `_pending` → Save/Reset/Back** pattern; the LLM and Image Server overlays confirm Save and Reset while warning that StoryNow must restart before changes take effect. Save merges into the manager singleton and calls `save_settings()`. Flow Settings Reset restores only the editable generation parameters and preserves runtime progress such as `current_uuid`, round, dialogue, and `game_status`; the other Reset actions reload their complete defaults.
 

@@ -177,7 +177,7 @@ func _integer_text(value: Variant) -> String:
 
 
 func _update_field_visibility() -> void:
-	var show_prompt_affixes := GameSettingsManager.is_free_mode()
+	var show_prompt_affixes := GameSettingsManager.is_builder_mode()
 	%PrefixRow.visible = show_prompt_affixes
 	%SuffixRow.visible = show_prompt_affixes
 	%ImageWidthRow.visible = show_prompt_affixes

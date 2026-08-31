@@ -8,7 +8,7 @@
 - [x] Scene limit / ending detection → `expected_rounds` / `current_round` + `end` bool; prompt instructs LLM to set `end=true` when `current_round == expected_rounds`
 - [x] How many save slots → unlimited: one folder per `uuid` under `user://saves/`, paginated Load (10) / Gallery (12) overlays
 - [x] Model checkpoint selection → configurable via Image Server Settings `model_filename` (default `waiIllustriousSDXL_v170.safetensors`)
-- [x] Negative prompt configuration → `data/comfyui/{safe,free}_negative_prompt` switched by `GameSettingsManager.is_free_mode()`
+- [x] Negative prompt configuration → `data/comfyui/{safe,builder}_negative_prompt` switched by `GameSettingsManager.is_builder_mode()`
 - [x] Image generation resolution → configurable via `ImageServerSettingsManager.settings.image_width/height` (defaults 1344×768), injected into `EmptyLatentImage`
 - [x] Brainstorm Random / Enhance / Start flows → implemented in `scripts/brainstorm.gd:1`
 - [x] Save/Load system → `SceneDataManager` + `GameProgressManager` + overlays implemented
@@ -21,5 +21,5 @@
 - [ ] Music / sound design beyond TTS
 - [ ] Pagination UX polish for very large save collections (100+ saves → current `pages_set` + ellipsis handles up to ~tens, may need virtualized list)
 - [ ] Windows-only `taskkill` / PowerShell assumption — portability to Linux/macOS (`pkill`, `pwsh` fallback exists but untested)
-- [ ] Free-mode content policy — files in `data/builder` enable the separate guardrails when `safe_mode == false`, but there is no user-facing toggle beyond `safe_mode`
+- [ ] Builder-mode content policy — files in `data/builder` enable the separate guardrails when `safe_mode == false`, but there is no user-facing toggle beyond `safe_mode`
 - [ ] Image history limit per scene — carousel grows unbounded; no cap or cleanup

@@ -34,17 +34,17 @@
 | `__MODEL_FILENAME__` / `__MODEL_NAME__` | `1` CheckpointLoaderSimple | `ckpt_name` | `ImageServerSettingsManager.settings.model_filename` or `waiIllustriousSDXL_v170.safetensors` |
 | `__PREFIX__` / `__SUFFIX__` | `3` CLIPTextEncode | `text` | Configurable positive-prompt prefix/suffix from `ImageServerSettingsManager` |
 | `__POSITIVE_PROMPT__` | `3` CLIPTextEncode | `text` | Trimmed generated image prompt with leading/trailing commas added when missing |
-| `__NEGATIVE_PROMPT__` | `6` CLIPTextEncode | `text` | `"(white_skin:1.5), ${negative_prompt}"` (free vs safe file) |
+| `__NEGATIVE_PROMPT__` | `6` CLIPTextEncode | `text` | `"(white_skin:1.5), ${negative_prompt}"` (builder vs safe file) |
 | `__SEED__` | `2` KSampler | `seed` | random int |
 | `__FILENAME_PREFIX__` | `5` SaveImage | `filename_prefix` | `"SN"` |
 | `__IMAGE_WIDTH__` / `__IMAGE_HEIGHT__` | `7` EmptyLatentImage | `width/height` | `ImageServerSettingsManager.settings.image_width/height` |
 
 ### 9.2.2 Negative Prompt Files
 
-`_load_negative_prompt()` (`scripts/image_server_manager.gd:170`) — free vs safe switch, with typo aliases `free_negatvie_prompt`:
+`_load_negative_prompt()` (`scripts/image_server_manager.gd:196`) — builder vs safe switch:
 
 - Safe: `res://data/comfyui/safe_negative_prompt` (content: `(nude:1.5), (blood:1.5)`)
-- Free: `res://data/comfyui/free_negatvie_prompt` / `free_negative_prompt`
+- Builder: `data/comfyui/builder_negative_prompt`
 
 ### 9.2.3 Request Structure
 

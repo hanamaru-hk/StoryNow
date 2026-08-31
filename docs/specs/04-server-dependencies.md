@@ -71,11 +71,11 @@ TTS uses the native `SherpaOfflineTTS` GDExtension. The extension links to Sherp
 - Japanese male uses a 0.76x pitch shift plus 0.92x playback speed (about 0.7x combined pitch); Japanese female/other dialogue uses the source voice unchanged.
 - UTF-8 safe: dialogue text is passed to the native GDExtension as a Godot `String`, converted to UTF-8 in C++, and synthesized through Sherpa-ONNX without a Python subprocess.
 
-### Free vs Safe Mode
+### Builder vs Safe Mode
 
-`GameSettingsManager.is_free_mode()` returns `true` when `safe_mode == false` and `data/builder` contains at least one file. This switches:
+`GameSettingsManager.is_builder_mode()` returns `true` when `safe_mode == false` and `data/builder` contains at least one file. This switches:
 
-- LLM guardrail: `data/llm/<lang>/common/free_guardrail` vs `safe_guardrail`
-- Danbooru guardrail: `free_danbooru_guardrail` vs `safe_danbooru_guardrail`
-- ComfyUI negative prompt: `free_negative_prompt` (typo alias `free_negatvie_prompt`) vs `safe_negative_prompt`
+- LLM guardrail: `data/llm/<lang>/common/builder_guardrail` vs `safe_guardrail`
+- Danbooru guardrail: `builder_danbooru_guardrail` vs `safe_danbooru_guardrail`
+- ComfyUI negative prompt: `builder_negative_prompt` vs `safe_negative_prompt`
 - Image prompt editability in `ImageOverlay`

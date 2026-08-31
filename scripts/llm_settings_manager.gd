@@ -18,7 +18,7 @@ var available_model_filenames: Array[String] = []
 func _ready() -> void:
 	load_settings()
 	startup_refresh_model_filename_list()
-	startup_apply_first_free_mode_model()
+	startup_apply_first_builder_mode_model()
 
 
 func save_settings() -> void:
@@ -69,22 +69,22 @@ func reset_to_defaults() -> void:
 
 func startup_refresh_model_filename_list() -> void:
 	available_model_filenames = _get_model_filenames_in_dir(LLAMA_MODELS_DIR_CEN, "cen")
-	if GameSettingsManager.is_free_mode():
+	if GameSettingsManager.is_builder_mode():
 		available_model_filenames.append_array(_get_model_filenames_in_dir(LLAMA_MODELS_DIR_AB, "ab"))
 	_ensure_selected_model_is_available()
 
 
-func startup_apply_first_free_mode_model() -> void:
-	if not GameSettingsManager.is_free_mode():
+func startup_apply_first_builder_mode_model() -> void:
+	if not GameSettingsManager.is_builder_mode():
 		return
-	if GameSettingsManager.has_tried_free_mode_yet():
+	if GameSettingsManager.has_tried_builder_mode_yet():
 		return
 	var ab_models := _get_model_filenames_in_dir(LLAMA_MODELS_DIR_AB, "ab")
 	if ab_models.is_empty():
 		return
 	settings["llm_model_filename"] = ab_models[0]
 	save_settings()
-	GameSettingsManager.mark_tried_free_mode_yet()
+	GameSettingsManager.mark_tried_builder_mode_yet()
 
 
 func get_available_model_filenames() -> Array[String]:

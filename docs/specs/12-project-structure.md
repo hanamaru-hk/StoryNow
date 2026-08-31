@@ -71,7 +71,7 @@ story-now/
 │   └── request_timeout_circle.gd        # Circular timeout indicator
 ├── data/
 │   ├── theme.tres
-│   ├── builder/                         # Presence of any file enables free mode when safe_mode is false
+│   ├── builder/                         # Presence of any file enables builder mode when safe_mode is false
 │   ├── default_game_settings.json       # {language, screen_size, safe_mode, autoplay_tts}
 │   ├── default_game_progress.json       # {current_dialogue/uuid/round, expected_rounds, minimum_*/maximum_*, game_status}
 │   ├── default_llm_settings.json        # {port: 48763}
@@ -82,10 +82,10 @@ story-now/
 │   ├── comfyui/
 │   │   ├── workflow_template.json       # SDXL txt2img workflow (client_id + 7 nodes)
 │   │   ├── safe_negative_prompt
-│   │   └── free_negatvie_prompt         # (note typo alias) + free_negative_prompt fallback
+│   │   └── builder_negative_prompt
 │   ├── llm/
 │   │   ├── en/{random,enhance,story,scene}
-│   │   ├── en/common/{output_template.json, output_json_requirement, story_background_requirement, safe_guardrail, free_guardrail, safe_danbooru_guardrail, free_danbooru_guardrail}
+│   │   ├── en/common/{output_template.json, output_json_requirement, story_background_requirement, safe_guardrail, builder_guardrail, safe_danbooru_guardrail, builder_danbooru_guardrail}
 │   │   ├── zh_CN/… (same)
 │   │   ├── zh_TW/… (same)
 │   │   ├── yue/… (same)

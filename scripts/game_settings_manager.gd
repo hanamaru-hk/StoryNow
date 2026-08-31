@@ -12,7 +12,7 @@ var settings := {
 	"last_windows_resolution": "1344x768",
 	"last_aspect_ratio": "16:9",
 	"safe_mode": false,
-	"tried_free_mode_yet": false,
+	"tried_builder_mode_yet": false,
 	"autoplay_tts": true,
 	"show_streaming": true,
 	"music_volume": 70,
@@ -115,12 +115,12 @@ func toggle_fullscreen() -> void:
 	save_settings()
 
 
-func has_tried_free_mode_yet() -> bool:
-	return bool(settings.get("tried_free_mode_yet", false))
+func has_tried_builder_mode_yet() -> bool:
+	return bool(settings.get("tried_builder_mode_yet", false))
 
 
-func mark_tried_free_mode_yet() -> void:
-	settings["tried_free_mode_yet"] = true
+func mark_tried_builder_mode_yet() -> void:
+	settings["tried_builder_mode_yet"] = true
 	save_settings()
 
 
@@ -189,5 +189,5 @@ func _aspect_ratio_for_resolution(size: String) -> String:
 			return "16:9"
 
 
-func is_free_mode() -> bool:
+func is_builder_mode() -> bool:
 	return not settings.get("safe_mode", false) and not DirAccess.get_files_at(AppPaths.external_path("data/builder")).is_empty()
