@@ -68,6 +68,7 @@ TTS uses the native `SherpaOfflineTTS` GDExtension. The extension links to Sherp
 - Attaches `sound_filename` to each interaction and saves to `user://saves/<uuid>/sounds/tts_<idx>_<hash>.wav` (`scripts/tts_manager.gd:222`).
 - Auto-plays via `Gameplay/TTSPlayer` (`AudioStreamPlayer`) when `current_dialogue_index == generated idx` and `GameSettingsManager.settings.autoplay_tts == true` (interrupt previous). Also on `Prev/Next Dialogue` and `Prev Scene` reload if wav exists (`scripts/gameplay.gd:993`).
 - Cantonese male uses pitch 0.7x via `TTSVoice` bus `AudioEffectPitchShift` (`scripts/gameplay.gd:4-5`).
+- Japanese male uses a 0.76x pitch shift plus 0.92x playback speed (about 0.7x combined pitch); Japanese female/other dialogue uses the source voice unchanged.
 - UTF-8 safe: dialogue text is passed to the native GDExtension as a Godot `String`, converted to UTF-8 in C++, and synthesized through Sherpa-ONNX without a Python subprocess.
 
 ### Free vs Safe Mode

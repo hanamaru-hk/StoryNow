@@ -1,7 +1,7 @@
 class_name GameplayDialogueController
 extends RefCounted
 
-const CANTONESE_MALE_PITCH_SCALE := 0.7
+const TTSVoiceProfile = preload("res://scripts/tts_voice_profile.gd")
 const TTS_VOICE_BUS := "TTSVoice"
 
 var _host: Control
@@ -259,7 +259,7 @@ func play_wav(global_path: String) -> void:
 		return
 	if player.playing:
 		player.stop()
-	player.pitch_scale = 1.0
+	player.pitch_scale = _playback_scale()
 	var pitch_effect := _pitch_effect(player)
 	if pitch_effect:
 		pitch_effect.pitch_scale = _pitch_scale()
@@ -349,14 +349,20 @@ func _pitch_effect(player: AudioStreamPlayer) -> AudioEffectPitchShift:
 
 
 func _pitch_scale() -> float:
-	var language := str(SceneDataManager.scene_data.get("language", I18n.current_lang)).strip_edges().to_lower()
-	if language != "yue" and language != "zh_hk" and not language.contains("cantonese"):
-		return 1.0
+	return float(_voice_profile().get("pitch_scale", 1.0))
+
+
+func _playback_scale() -> float:
+	return float(_voice_profile().get("playback_scale", 1.0))
+
+
+func _voice_profile() -> Dictionary:
+	var language := str(SceneDataManager.scene_data.get("language", I18n.current_lang))
 	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
 	if current_index() < 0 or current_index() >= interactions.size() or not interactions[current_index()] is Dictionary:
-		return 1.0
-	var sex := str(interactions[current_index()].get("sex", "male")).strip_edges().to_lower()
-	return CANTONESE_MALE_PITCH_SCALE if sex in ["male", "man", "boy"] else 1.0
+		return TTSVoiceProfile.resolve(language, "other")
+	var sex := str(interactions[current_index()].get("sex", "male"))
+	return TTSVoiceProfile.resolve(language, sex)
 
 
 func _load_wav(global_path: String) -> AudioStreamWAV:
