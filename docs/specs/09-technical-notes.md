@@ -87,5 +87,5 @@ var save_path = await _download_comfy_image(filename, subfolder, type, uuid)
 ## 9.6 TTS Internals
 
 - `_synthesize` (`scripts/tts_manager.gd:273`) requires the native `SherpaOfflineTTS` GDExtension, normalizes CJK punctuation, globalizes model paths, and runs synthesis on a Godot `Thread`. Rate-limited by 6s timer between queue items (`scripts/tts_manager.gd:211`).
-- Model resolution by `language`/`sex` (`scripts/tts_manager.gd:39`), with `espeak-ng-data` vs `lexicon + rule.fst` branching.
+- Model resolution by `language`/`gender` (`scripts/tts_manager.gd:39`), with `espeak-ng-data` vs `lexicon + rule.fst` branching.
 - Queue dedup: same `uuid+idx` enqueued replaces previous entry (`scripts/tts_manager.gd:152`).

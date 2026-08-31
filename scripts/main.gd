@@ -31,8 +31,10 @@ func _ready() -> void:
 	%FirstTimeLanguageOverlay.language_selected.connect(_on_first_time_language_selected)
 	if has_node("%LoadGameOverlay"):
 		%LoadGameOverlay.closed.connect(_on_settings_closed)
+		%LoadGameOverlay.help_requested.connect(_on_help_pressed)
 	if has_node("%GalleryOverlay"):
 		%GalleryOverlay.closed.connect(_on_settings_closed)
+		%GalleryOverlay.help_requested.connect(_on_help_pressed)
 	if has_node("%HelpOverlay"):
 		%HelpOverlay.closed.connect(_on_settings_closed)
 	_update_labels()

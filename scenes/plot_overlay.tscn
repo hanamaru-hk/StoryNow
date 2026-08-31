@@ -246,23 +246,23 @@ layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Character"
 
-[node name="AddSexRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
+[node name="AddGenderRow" type="HBoxContainer" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AddSexLabel" type="Label" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddSexRow"]
+[node name="AddGenderLabel" type="Label" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddGenderRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(100, 0)
-text = "Sex"
+text = "Gender"
 vertical_alignment = 1
 
-[node name="AddSexDropdown" type="OptionButton" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddSexRow"]
+[node name="AddGenderDropdown" type="OptionButton" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddGenderRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(180, 40)
 
-[node name="AddCustomSexInput" type="LineEdit" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddSexRow"]
+[node name="AddCustomGenderInput" type="LineEdit" parent="AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox/AddGenderRow"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -390,23 +390,23 @@ custom_minimum_size = Vector2(0, 140)
 placeholder_text = "Dialogue..."
 wrap_mode = 1
 
-[node name="SexRow" type="HBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
+[node name="GenderRow" type="HBoxContainer" parent="EditPopup/CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="SexLabel" type="Label" parent="EditPopup/CenterContainer/Panel/Margin/VBox/SexRow"]
+[node name="GenderLabel" type="Label" parent="EditPopup/CenterContainer/Panel/Margin/VBox/GenderRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(100, 0)
-text = "Sex"
+text = "Gender"
 vertical_alignment = 1
 
-[node name="SexDropdown" type="OptionButton" parent="EditPopup/CenterContainer/Panel/Margin/VBox/SexRow"]
+[node name="GenderDropdown" type="OptionButton" parent="EditPopup/CenterContainer/Panel/Margin/VBox/GenderRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(180, 40)
 
-[node name="CustomSexInput" type="LineEdit" parent="EditPopup/CenterContainer/Panel/Margin/VBox/SexRow"]
+[node name="CustomGenderInput" type="LineEdit" parent="EditPopup/CenterContainer/Panel/Margin/VBox/GenderRow"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

@@ -5,9 +5,9 @@ signal dialogue_updated
 signal summary_requested
 
 const TRIM_LEN := 20
-const SEX_MALE_ID := 0
-const SEX_FEMALE_ID := 1
-const SEX_OTHER_ID := 2
+const GENDER_MALE_ID := 0
+const GENDER_FEMALE_ID := 1
+const GENDER_OTHER_ID := 2
 
 var _editing_index: int = -1
 var _is_regenerating: bool = false
@@ -39,10 +39,10 @@ func _ready() -> void:
 		%EditSave.pressed.connect(_on_edit_save_pressed)
 	if has_node("%EditDelete"):
 		%EditDelete.pressed.connect(_on_edit_delete_pressed)
-	if has_node("%SexDropdown"):
-		%SexDropdown.item_selected.connect(_on_sex_selected)
-	if has_node("%AddSexDropdown"):
-		%AddSexDropdown.item_selected.connect(_on_add_sex_selected)
+	if has_node("%GenderDropdown"):
+		%GenderDropdown.item_selected.connect(_on_gender_selected)
+	if has_node("%AddGenderDropdown"):
+		%AddGenderDropdown.item_selected.connect(_on_add_gender_selected)
 	visible = false
 	if has_node("%EditOverlay"):
 		%EditOverlay.visible = false
@@ -297,12 +297,12 @@ func _on_item_pressed(index: int) -> void:
 	var dict: Dictionary = entry if entry is Dictionary else {}
 	var character_name: String = str(dict.get("character", dict.get("characer", "")))
 	var dialogue_text: String = str(dict.get("dialogue", ""))
-	var sex: String = str(dict.get("sex", "male")).strip_edges()
+	var gender: String = str(dict.get("gender", "male")).strip_edges()
 	if has_node("%EditCharacter"):
 		%EditCharacter.text = character_name
 	if has_node("%EditDialogue"):
 		%EditDialogue.text = dialogue_text
-	_set_sex_editor_value(sex)
+	_set_gender_editor_value(gender)
 	if has_node("%EditPopup"):
 		%EditPopup.visible = true
 	_update_labels()
@@ -314,42 +314,42 @@ func _on_edit_back_pressed() -> void:
 	_editing_index = -1
 
 
-func _set_sex_editor_value(sex: String) -> void:
-	if not has_node("%SexDropdown"):
+func _set_gender_editor_value(gender: String) -> void:
+	if not has_node("%GenderDropdown"):
 		return
-	var normalized := sex.to_lower()
-	var selected_id := SEX_OTHER_ID
+	var normalized := gender.to_lower()
+	var selected_id := GENDER_OTHER_ID
 	if normalized == "male":
-		selected_id = SEX_MALE_ID
+		selected_id = GENDER_MALE_ID
 	elif normalized == "female":
-		selected_id = SEX_FEMALE_ID
-	for i in %SexDropdown.item_count:
-		if %SexDropdown.get_item_id(i) == selected_id:
-			%SexDropdown.selected = i
+		selected_id = GENDER_FEMALE_ID
+	for i in %GenderDropdown.item_count:
+		if %GenderDropdown.get_item_id(i) == selected_id:
+			%GenderDropdown.selected = i
 			break
-	if has_node("%CustomSexInput"):
-		%CustomSexInput.text = sex if selected_id == SEX_OTHER_ID else ""
-		%CustomSexInput.visible = selected_id == SEX_OTHER_ID
+	if has_node("%CustomGenderInput"):
+		%CustomGenderInput.text = gender if selected_id == GENDER_OTHER_ID else ""
+		%CustomGenderInput.visible = selected_id == GENDER_OTHER_ID
 
 
-func _on_sex_selected(item_index: int) -> void:
-	if not has_node("%SexDropdown") or not has_node("%CustomSexInput"):
+func _on_gender_selected(item_index: int) -> void:
+	if not has_node("%GenderDropdown") or not has_node("%CustomGenderInput"):
 		return
-	%CustomSexInput.visible = %SexDropdown.get_item_id(item_index) == SEX_OTHER_ID
-	if %CustomSexInput.visible:
-		%CustomSexInput.grab_focus()
+	%CustomGenderInput.visible = %GenderDropdown.get_item_id(item_index) == GENDER_OTHER_ID
+	if %CustomGenderInput.visible:
+		%CustomGenderInput.grab_focus()
 
 
-func _get_edited_sex() -> String:
-	if not has_node("%SexDropdown") or %SexDropdown.selected < 0:
+func _get_edited_gender() -> String:
+	if not has_node("%GenderDropdown") or %GenderDropdown.selected < 0:
 		return "male"
-	match %SexDropdown.get_selected_id():
-		SEX_MALE_ID:
+	match %GenderDropdown.get_selected_id():
+		GENDER_MALE_ID:
 			return "male"
-		SEX_FEMALE_ID:
+		GENDER_FEMALE_ID:
 			return "female"
 		_:
-			var custom_value: String = %CustomSexInput.text.strip_edges() if has_node("%CustomSexInput") else ""
+			var custom_value: String = %CustomGenderInput.text.strip_edges() if has_node("%CustomGenderInput") else ""
 			return custom_value if not custom_value.is_empty() else "other"
 
 
@@ -358,34 +358,34 @@ func _reset_add_fields() -> void:
 		%AddCharacter.text = ""
 	if has_node("%AddDialogue"):
 		%AddDialogue.text = ""
-	if has_node("%AddSexDropdown"):
-		for i in %AddSexDropdown.item_count:
-			if %AddSexDropdown.get_item_id(i) == SEX_MALE_ID:
-				%AddSexDropdown.selected = i
+	if has_node("%AddGenderDropdown"):
+		for i in %AddGenderDropdown.item_count:
+			if %AddGenderDropdown.get_item_id(i) == GENDER_MALE_ID:
+				%AddGenderDropdown.selected = i
 				break
-	if has_node("%AddCustomSexInput"):
-		%AddCustomSexInput.text = ""
-		%AddCustomSexInput.visible = false
+	if has_node("%AddCustomGenderInput"):
+		%AddCustomGenderInput.text = ""
+		%AddCustomGenderInput.visible = false
 
 
-func _on_add_sex_selected(item_index: int) -> void:
-	if not has_node("%AddSexDropdown") or not has_node("%AddCustomSexInput"):
+func _on_add_gender_selected(item_index: int) -> void:
+	if not has_node("%AddGenderDropdown") or not has_node("%AddCustomGenderInput"):
 		return
-	%AddCustomSexInput.visible = %AddSexDropdown.get_item_id(item_index) == SEX_OTHER_ID
-	if %AddCustomSexInput.visible:
-		%AddCustomSexInput.grab_focus()
+	%AddCustomGenderInput.visible = %AddGenderDropdown.get_item_id(item_index) == GENDER_OTHER_ID
+	if %AddCustomGenderInput.visible:
+		%AddCustomGenderInput.grab_focus()
 
 
-func _get_add_sex() -> String:
-	if not has_node("%AddSexDropdown") or %AddSexDropdown.selected < 0:
+func _get_add_gender() -> String:
+	if not has_node("%AddGenderDropdown") or %AddGenderDropdown.selected < 0:
 		return "male"
-	match %AddSexDropdown.get_selected_id():
-		SEX_MALE_ID:
+	match %AddGenderDropdown.get_selected_id():
+		GENDER_MALE_ID:
 			return "male"
-		SEX_FEMALE_ID:
+		GENDER_FEMALE_ID:
 			return "female"
 		_:
-			var custom_value: String = %AddCustomSexInput.text.strip_edges() if has_node("%AddCustomSexInput") else ""
+			var custom_value: String = %AddCustomGenderInput.text.strip_edges() if has_node("%AddCustomGenderInput") else ""
 			return custom_value if not custom_value.is_empty() else "other"
 
 
@@ -403,7 +403,7 @@ func _on_edit_save_pressed() -> void:
 	if dict.has("characer"):
 		dict.erase("characer")
 	dict["dialogue"] = dialogue_text
-	dict["sex"] = _get_edited_sex()
+	dict["gender"] = _get_edited_gender()
 	# Clear old sound_filename to force regeneration
 	dict.erase("sound_filename")
 	interactions[_editing_index] = dict
@@ -473,7 +473,7 @@ func _on_confirm_pressed() -> void:
 	var new_entry: Dictionary = {
 		"character": %AddCharacter.text.strip_edges() if has_node("%AddCharacter") else "",
 		"dialogue": %AddDialogue.text if has_node("%AddDialogue") else "",
-		"sex": _get_add_sex()
+		"gender": _get_add_gender()
 	}
 	interactions.insert(insert_at, new_entry)
 	SceneDataManager.scene_data["interactions"] = interactions
@@ -504,8 +504,8 @@ func _on_back_pressed() -> void:
 
 
 func _update_labels() -> void:
-	_update_sex_dropdown_labels()
-	_update_add_sex_dropdown_labels()
+	_update_gender_dropdown_labels()
+	_update_add_gender_dropdown_labels()
 	if has_node("%Title"):
 		%Title.text = I18n.translate("plot_overlay_title") if I18n.translate("plot_overlay_title") != "plot_overlay_title" else "Plot"
 	if has_node("%HubEditButton"):
@@ -542,20 +542,20 @@ func _update_labels() -> void:
 		%AddCharacter.placeholder_text = I18n.translate("dialogue_character_placeholder") if I18n.translate("dialogue_character_placeholder") != "dialogue_character_placeholder" else "Character"
 	if has_node("%AddDialogue"):
 		%AddDialogue.placeholder_text = I18n.translate("dialogue_text_placeholder") if I18n.translate("dialogue_text_placeholder") != "dialogue_text_placeholder" else "Dialogue..."
-	if has_node("%AddSexLabel"):
-		%AddSexLabel.text = I18n.translate("dialogue_sex_label") if I18n.translate("dialogue_sex_label") != "dialogue_sex_label" else "Sex"
-	if has_node("%AddCustomSexInput"):
-		%AddCustomSexInput.placeholder_text = I18n.translate("dialogue_sex_custom_placeholder") if I18n.translate("dialogue_sex_custom_placeholder") != "dialogue_sex_custom_placeholder" else "Enter a value"
+	if has_node("%AddGenderLabel"):
+		%AddGenderLabel.text = I18n.translate("dialogue_gender_label") if I18n.translate("dialogue_gender_label") != "dialogue_gender_label" else "Gender"
+	if has_node("%AddCustomGenderInput"):
+		%AddCustomGenderInput.placeholder_text = I18n.translate("dialogue_gender_custom_placeholder") if I18n.translate("dialogue_gender_custom_placeholder") != "dialogue_gender_custom_placeholder" else "Enter a value"
 	if has_node("%EditTitle"):
 		%EditTitle.text = I18n.translate("dialogue_edit_title") if I18n.translate("dialogue_edit_title") != "dialogue_edit_title" else "Edit Dialogue"
 	if has_node("%EditCharacter"):
 		%EditCharacter.placeholder_text = I18n.translate("dialogue_character_placeholder") if I18n.translate("dialogue_character_placeholder") != "dialogue_character_placeholder" else "Character"
 	if has_node("%EditDialogue"):
 		%EditDialogue.placeholder_text = I18n.translate("dialogue_text_placeholder") if I18n.translate("dialogue_text_placeholder") != "dialogue_text_placeholder" else "Dialogue..."
-	if has_node("%SexLabel"):
-		%SexLabel.text = I18n.translate("dialogue_sex_label") if I18n.translate("dialogue_sex_label") != "dialogue_sex_label" else "Sex"
-	if has_node("%CustomSexInput"):
-		%CustomSexInput.placeholder_text = I18n.translate("dialogue_sex_custom_placeholder") if I18n.translate("dialogue_sex_custom_placeholder") != "dialogue_sex_custom_placeholder" else "Enter a value"
+	if has_node("%GenderLabel"):
+		%GenderLabel.text = I18n.translate("dialogue_gender_label") if I18n.translate("dialogue_gender_label") != "dialogue_gender_label" else "Gender"
+	if has_node("%CustomGenderInput"):
+		%CustomGenderInput.placeholder_text = I18n.translate("dialogue_gender_custom_placeholder") if I18n.translate("dialogue_gender_custom_placeholder") != "dialogue_gender_custom_placeholder" else "Enter a value"
 	if has_node("%EditBack"):
 		%EditBack.text = I18n.translate("btn_back") if I18n.translate("btn_back") != "btn_back" else "Back"
 	if has_node("%EditSave"):
@@ -567,33 +567,33 @@ func _update_labels() -> void:
 		%LastDialogueError.dialog_text = I18n.translate("dialogue_delete_last_error") if I18n.translate("dialogue_delete_last_error") != "dialogue_delete_last_error" else "The last dialogue cannot be deleted."
 
 
-func _update_sex_dropdown_labels() -> void:
-	if not has_node("%SexDropdown"):
+func _update_gender_dropdown_labels() -> void:
+	if not has_node("%GenderDropdown"):
 		return
-	var selected_id := SEX_MALE_ID
-	if %SexDropdown.selected >= 0:
-		selected_id = %SexDropdown.get_selected_id()
-	%SexDropdown.clear()
-	%SexDropdown.add_item(I18n.translate("dialogue_sex_male"), SEX_MALE_ID)
-	%SexDropdown.add_item(I18n.translate("dialogue_sex_female"), SEX_FEMALE_ID)
-	%SexDropdown.add_item(I18n.translate("dialogue_sex_other"), SEX_OTHER_ID)
-	for i in %SexDropdown.item_count:
-		if %SexDropdown.get_item_id(i) == selected_id:
-			%SexDropdown.selected = i
+	var selected_id := GENDER_MALE_ID
+	if %GenderDropdown.selected >= 0:
+		selected_id = %GenderDropdown.get_selected_id()
+	%GenderDropdown.clear()
+	%GenderDropdown.add_item(I18n.translate("dialogue_gender_male"), GENDER_MALE_ID)
+	%GenderDropdown.add_item(I18n.translate("dialogue_gender_female"), GENDER_FEMALE_ID)
+	%GenderDropdown.add_item(I18n.translate("dialogue_gender_other"), GENDER_OTHER_ID)
+	for i in %GenderDropdown.item_count:
+		if %GenderDropdown.get_item_id(i) == selected_id:
+			%GenderDropdown.selected = i
 			break
 
 
-func _update_add_sex_dropdown_labels() -> void:
-	if not has_node("%AddSexDropdown"):
+func _update_add_gender_dropdown_labels() -> void:
+	if not has_node("%AddGenderDropdown"):
 		return
-	var selected_id := SEX_MALE_ID
-	if %AddSexDropdown.selected >= 0:
-		selected_id = %AddSexDropdown.get_selected_id()
-	%AddSexDropdown.clear()
-	%AddSexDropdown.add_item(I18n.translate("dialogue_sex_male"), SEX_MALE_ID)
-	%AddSexDropdown.add_item(I18n.translate("dialogue_sex_female"), SEX_FEMALE_ID)
-	%AddSexDropdown.add_item(I18n.translate("dialogue_sex_other"), SEX_OTHER_ID)
-	for i in %AddSexDropdown.item_count:
-		if %AddSexDropdown.get_item_id(i) == selected_id:
-			%AddSexDropdown.selected = i
+	var selected_id := GENDER_MALE_ID
+	if %AddGenderDropdown.selected >= 0:
+		selected_id = %AddGenderDropdown.get_selected_id()
+	%AddGenderDropdown.clear()
+	%AddGenderDropdown.add_item(I18n.translate("dialogue_gender_male"), GENDER_MALE_ID)
+	%AddGenderDropdown.add_item(I18n.translate("dialogue_gender_female"), GENDER_FEMALE_ID)
+	%AddGenderDropdown.add_item(I18n.translate("dialogue_gender_other"), GENDER_OTHER_ID)
+	for i in %AddGenderDropdown.item_count:
+		if %AddGenderDropdown.get_item_id(i) == selected_id:
+			%AddGenderDropdown.selected = i
 			break

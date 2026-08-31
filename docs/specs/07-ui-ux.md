@@ -46,7 +46,7 @@ First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`. 
 
 All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `open()/closed` signal pattern:
 
-- **PlotOverlay** (`scripts/plot_overlay.gd:1`) — hub (Edit/Add/Regenerate All/Summary/Back) → Edit list (indexed buttons) → Edit dialog (character/dialogue/sex fields plus delete) → Add overlay (character, sex/custom value, dialogue, left-aligned before/after controls, then the position dropdown). Confirming a new dialogue closes the overlay and returns to gameplay. Sex stores `male`, `female`, or the custom value entered for Other. Delete is blocked when only one dialogue remains. Summary opens `SummaryOverlay`; Regenerate All calls LLM in retry loop, replaces only `interactions[]`, resets `current_dialogue=0`, triggers TTS.
+- **PlotOverlay** (`scripts/plot_overlay.gd:1`) — hub (Edit/Add/Regenerate All/Summary/Back) → Edit list (indexed buttons) → Edit dialog (character/dialogue/gender fields plus delete) → Add overlay (character, gender/custom value, dialogue, left-aligned before/after controls, then the position dropdown). Confirming a new dialogue closes the overlay and returns to gameplay. Gender stores `male`, `female`, or the custom value entered for Other. Delete is blocked when only one dialogue remains. Summary opens `SummaryOverlay`; Regenerate All calls LLM in retry loop, replaces only `interactions[]`, resets `current_dialogue=0`, triggers TTS.
 - **SummaryOverlay** (`scripts/summary_overlay.gd:1`) — shows and edits `summary`.
 - **ImageOverlay** (`scripts/image_overlay.gd:1`) — shows/editable `image_prompt` (free mode); **Produce** closes the overlay and requests generation through Gameplay's image controller.
 - **ImageActionOverlay / ImageChangeOverlay** (`scripts/gameplay.gd:668`) — localized Image heading with New/Change actions, then a carousel (Prev/Next/Save shows `user://saves/<uuid>/images/`).
@@ -73,7 +73,7 @@ The PlotOverlay UI regression check runs with `godot --headless --path . --scene
 `scenes/server_status_overlay.tscn` / `scripts/server_status_overlay.gd:1` — `CanvasLayer` always-on-top top-right:
 
 - Two colored dots: **Green** healthy, **Red** unhealthy, **Gray** starting (driven by `ServerRuntimeManager.llm_state` / `image_state` via `status_changed` signals; no polling).
-- Engine-readiness error popups flash a gold arrow toward these indicators and offer Retry. A failed retry accelerates the flash; a successful retry resumes the blocked action.
+- Engine-readiness and generation-retry error popups place Help between Back and Retry. Help opens the troubleshooting overlay; a failed retry accelerates the gold-arrow flash toward the status indicators, and a successful retry resumes the blocked action.
 - Request queue list: rows of `kind` + `label` + timeout circle (`scripts/request_timeout_circle.gd:1`) driven by `ServerRuntimeManager.request_queue_changed`. Active LLM and image generation rows show elapsed seconds (`0s`, `1s`, …); queued ComfyUI prompts continue to show their queue position.
 - Hides with chrome (`chrome_visibility_changed`).
 

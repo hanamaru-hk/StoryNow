@@ -3,7 +3,7 @@
     {
       "character": "John",
       "dialogue": "I want an ice cream.",
-      "sex": "male"
+      "gender": "male"
     }
   ],
   "choices": [

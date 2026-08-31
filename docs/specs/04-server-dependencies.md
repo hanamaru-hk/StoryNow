@@ -56,7 +56,7 @@ Bundled under `data/sherpa-models/` (gitignored, preserved on upgrade):
 - `vits-cantonese-hf-xiaomaiiwn` (yue fallback)
 - `vits-melo-tts-ja` (ja fallback — `MODEL_JA_FALLBACK`; install with `scripts/download_japanese_tts.ps1`)
 
-Model selection in `scripts/tts_manager.gd:39-57` by `language` + `sex`. Each needs `*.onnx`, `tokens.txt`, and either `espeak-ng-data/` or `lexicon.txt` + `*.fst`.
+Model selection in `scripts/tts_manager.gd:39-57` by `language` + `gender`. Each needs `*.onnx`, `tokens.txt`, and either `espeak-ng-data/` or `lexicon.txt` + `*.fst`.
 
 Japanese TTS uses the single-speaker Japanese MeloTTS ONNX export from `MiaoMint/MeloTTS-ONNX`, pinned by revision and SHA-256 in `scripts/download_japanese_tts.ps1`. Sherpa 1.13.5 only selects its tone-aware Melo frontend for Chinese or English model metadata, so the installer changes the frontend-routing `language` metadata to `English` while retaining the Japanese `language_code`, `lang_id`, speaker, tone input, and synthesis graph. The original lexicon is preserved. MeloTTS is MIT licensed. Model files and installer build artifacts remain machine-local in gitignored directories, like the Cantonese voice.
 

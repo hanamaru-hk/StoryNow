@@ -21,7 +21,7 @@ const MODEL_ZH_FALLBACK := "vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.o
 const MODEL_YUE_FALLBACK := "vits-cantonese-hf-xiaomaiiwn/vits-cantonese-hf-xiaomaiiwn.onnx"
 const MODEL_JA_FALLBACK := "vits-melo-tts-ja/model.onnx"
 
-var _queue: Array = [] # Array[Dictionary] {uuid, idx, dialogue, sex, language}
+var _queue: Array = [] # Array[Dictionary] {uuid, idx, dialogue, gender, language}
 var _generating: bool = false
 var _current_task: Dictionary = {}
 var _native_extension: Resource = null
@@ -49,23 +49,23 @@ func is_available() -> bool:
 	return _has_native_tts()
 
 
-func _model_for(sex: String, language: String) -> Dictionary:
-	var s := sex.strip_edges().to_lower()
+func _model_for(gender: String, language: String) -> Dictionary:
+	var normalized_gender := gender.strip_edges().to_lower()
 	var lang := language.strip_edges().to_lower()
 	if lang == "ja" or lang.begins_with("ja_") or lang.begins_with("ja-") or lang.contains("japanese"):
 		return _resolve_model(MODEL_JA_FALLBACK)
 	elif lang == "yue" or lang == "zh_hk" or lang.contains("cantonese"):
 		return _resolve_model(MODEL_YUE_FALLBACK)
 	elif lang.begins_with("zh"):
-		if s == "female" or s == "woman" or s == "girl":
+		if normalized_gender == "female" or normalized_gender == "woman" or normalized_gender == "girl":
 			return _resolve_model(MODEL_ZH_FEMALE)
-		elif s == "male" or s == "man" or s == "boy":
+		elif normalized_gender == "male" or normalized_gender == "man" or normalized_gender == "boy":
 			return _resolve_model(MODEL_ZH_MALE)
 		else:
 			return _resolve_model(MODEL_ZH_FALLBACK)
 	else:
 		# en and fallback
-		if s == "female" or s == "woman" or s == "girl":
+		if normalized_gender == "female" or normalized_gender == "woman" or normalized_gender == "girl":
 			return _resolve_model(MODEL_EN_FEMALE)
 		else:
 			return _resolve_model(MODEL_EN_MALE)
@@ -129,9 +129,9 @@ func generate_all_for_scene(scene_data: Dictionary) -> void:
 		var dialogue: String = str(d.get("dialogue", "")).strip_edges()
 		if dialogue.is_empty():
 			continue
-		var sex: String = str(d.get("sex", "male"))
+		var gender: String = str(d.get("gender", "male"))
 		# skip if already has sound_filename and file exists and dialogue unchanged? For now always enqueue but dedup later
-		if _enqueue(uuid, i, dialogue, sex, language):
+		if _enqueue(uuid, i, dialogue, gender, language):
 			_add_sound_request_items(1)
 	_process_queue_deferred()
 
@@ -155,14 +155,14 @@ func generate_single_interaction(uuid: String, idx: int) -> void:
 	var dialogue: String = str(d.get("dialogue", "")).strip_edges()
 	if dialogue.is_empty():
 		return
-	var sex: String = str(d.get("sex", "male"))
+	var gender: String = str(d.get("gender", "male"))
 	var language := str(SceneDataManager.scene_data.get("language", I18n.current_lang))
-	if _enqueue(u, idx, dialogue, sex, language):
+	if _enqueue(u, idx, dialogue, gender, language):
 		_add_sound_request_items(1)
 	_process_queue_deferred()
 
 
-func generate_for_interaction(uuid: String, idx: int, dialogue: String, sex: String) -> void:
+func generate_for_interaction(uuid: String, idx: int, dialogue: String, gender: String) -> void:
 	if _shutting_down:
 		return
 	_cancel_requested = false
@@ -170,19 +170,19 @@ func generate_for_interaction(uuid: String, idx: int, dialogue: String, sex: Str
 	if d2.is_empty():
 		return
 	var language := str(SceneDataManager.scene_data.get("language", I18n.current_lang))
-	if _enqueue(uuid, idx, d2, sex, language):
+	if _enqueue(uuid, idx, d2, gender, language):
 		_add_sound_request_items(1)
 	_process_queue_deferred()
 
 
-func _enqueue(uuid: String, idx: int, dialogue: String, sex: String, language: String) -> bool:
+func _enqueue(uuid: String, idx: int, dialogue: String, gender: String, language: String) -> bool:
 	if _shutting_down:
 		return false
-	# dedup: if same uuid+idx already queued, replace dialogue/sex
+	# dedup: if same uuid+idx already queued, replace dialogue/gender
 	for q in _queue:
 		if str(q.get("uuid", "")) == uuid and int(q.get("idx", -1)) == idx:
 			q["dialogue"] = dialogue
-			q["sex"] = sex
+			q["gender"] = gender
 			q["language"] = language
 			return false
 	if _generating and _current_task.get("uuid", "") == uuid and int(_current_task.get("idx", -999)) == idx:
@@ -190,7 +190,7 @@ func _enqueue(uuid: String, idx: int, dialogue: String, sex: String, language: S
 		for q in _queue:
 			if str(q.get("uuid", "")) == uuid and int(q.get("idx", -1)) == idx:
 				return false
-	_queue.append({"uuid": uuid, "idx": idx, "dialogue": dialogue, "sex": sex, "language": language})
+	_queue.append({"uuid": uuid, "idx": idx, "dialogue": dialogue, "gender": gender, "language": language})
 	return true
 
 
@@ -248,11 +248,11 @@ func _process_queue() -> void:
 		var uuid: String = str(task.get("uuid", ""))
 		var idx: int = int(task.get("idx", 0))
 		var dialogue: String = str(task.get("dialogue", ""))
-		var sex: String = str(task.get("sex", "male"))
+		var gender: String = str(task.get("gender", "male"))
 		var language: String = str(task.get("language", "en"))
 		if dialogue.strip_edges().is_empty():
 			continue
-		var model := _model_for(sex, language)
+		var model := _model_for(gender, language)
 		if not _is_sherpa_ready(model):
 			push_warning("TTSManager: not ready, skip idx %d" % idx)
 			continue

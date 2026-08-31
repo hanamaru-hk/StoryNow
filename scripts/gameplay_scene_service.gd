@@ -30,14 +30,11 @@ static func parse_generation_result(result: Dictionary) -> Dictionary:
 			"error": "invalid_json",
 			"title": title,
 		}
-
 	return {
 		"success": true,
 		"data": parsed,
 		"title": title,
 	}
-
-
 static func merge_generated_scene(
 	existing_scene: Dictionary,
 	generated_scene: Dictionary,

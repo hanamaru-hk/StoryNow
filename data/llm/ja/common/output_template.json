@@ -3,7 +3,7 @@
     {
       "character": "太郎",
       "dialogue": "アイスクリームが食べたいな。",
-      "sex": "male"
+      "gender": "male"
     }
   ],
   "choices": [
@@ -23,4 +23,3 @@
   "title": "太郎とアイスクリームの悩み",
   "bgm_mood": "joyful"
 }
-

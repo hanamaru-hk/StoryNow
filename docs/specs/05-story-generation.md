@@ -17,7 +17,7 @@ The LLM returns **raw JSON** (no Markdown) conforming to `data/llm/<lang>/common
 ```json
 {
   "interactions": [
-    { "character": "John", "dialogue": "I want an ice cream.", "sex": "male" }
+    { "character": "John", "dialogue": "I want an ice cream.", "gender": "male" }
   ],
   "choices": [
     { "plot": "Go to the ice cream shop" },
@@ -36,7 +36,7 @@ The LLM returns **raw JSON** (no Markdown) conforming to `data/llm/<lang>/common
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `interactions` | Array of `{character, dialogue, sex}` | Ordered dialogue lines. `character` may be empty for narration; `sex` drives TTS voice selection. Supports legacy typo `characer`. `sound_filename` is added locally by `TTSManager`. |
+| `interactions` | Array of `{character, dialogue, gender}` | Ordered dialogue lines. `character` may be empty for narration; `gender` drives TTS voice selection. Supports legacy typo `characer`. `sound_filename` is added locally by `TTSManager`. |
 | `choices` | Array of `{plot, uuid?}` | 1–N plot directions. When a choice is selected, its `plot` becomes `player_input` and `uuid` is later stamped to mark "previously selected". |
 | `image_prompt` | String | Danbooru tag list (English, comma-separated) for ComfyUI. Prefixed at runtime with `score_9, …` and suffixed with guardrail handling. Repaired if LLM emits bare quotes. |
 | `summary` | String | Compressed story state, ≤ `minimum_sentences_in_summary` sentences (default 3), simple clauses. Used as `story_background` for next scene. |

@@ -55,6 +55,8 @@ func _test_prompt_contract() -> void:
 		_expect(parsed is Dictionary, "%s template is valid JSON" % language)
 		if parsed is Dictionary:
 			_expect(str(parsed.get("language", "")) == language, "%s template preserves its language code" % language)
+			var interactions: Array = parsed.get("interactions", [])
+			_expect(not interactions.is_empty() and interactions[0] is Dictionary and interactions[0].has("gender"), "%s template uses the gender interaction field" % language)
 
 
 func _expect(condition: bool, message: String) -> void:

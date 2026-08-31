@@ -361,8 +361,9 @@ func _voice_profile() -> Dictionary:
 	var interactions: Array = SceneDataManager.scene_data.get("interactions", [])
 	if current_index() < 0 or current_index() >= interactions.size() or not interactions[current_index()] is Dictionary:
 		return TTSVoiceProfile.resolve(language, "other")
-	var sex := str(interactions[current_index()].get("sex", "male"))
-	return TTSVoiceProfile.resolve(language, sex)
+	var interaction := interactions[current_index()] as Dictionary
+	var gender := str(interaction.get("gender", "male"))
+	return TTSVoiceProfile.resolve(language, gender)
 
 
 func _load_wav(global_path: String) -> AudioStreamWAV:

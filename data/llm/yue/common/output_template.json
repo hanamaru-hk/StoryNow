@@ -3,7 +3,7 @@
     {
       "character": "阿 John",
       "dialogue": "我想食雪糕。",
-      "sex": "male"
+      "gender": "male"
     }
   ],
   "choices": [

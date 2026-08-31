@@ -25,10 +25,12 @@ func _test_generation_parsing() -> void:
 	var result := Service.parse_generation_result({
 		"success": true,
 		"title": "Arrival",
-		"text": "```json\n{\"title\":\"Arrival\",\"interactions\":[],\"image_prompt\":\"city\"}\n```",
+		"text": "```json\n{\"title\":\"Arrival\",\"interactions\":[{\"dialogue\":\"Hello\",\"gender\":\"female\"}],\"image_prompt\":\"city\"}\n```",
 	})
 	_expect(result.get("success", false), "parses fenced LLM JSON")
 	_expect(result.get("data", {}).get("title", "") == "Arrival", "returns parsed scene data")
+	var interaction: Dictionary = result.get("data", {}).get("interactions", [])[0]
+	_expect(interaction.get("gender", "") == "female", "preserves the gender field")
 
 
 func _test_scene_merge() -> void:

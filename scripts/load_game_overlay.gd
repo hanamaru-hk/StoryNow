@@ -1,6 +1,7 @@
 extends Control
 
 signal closed
+signal help_requested
 
 const ScrollbarStyleScript := preload("res://scripts/scrollbar_style.gd")
 const PAGE_SIZE := 10
@@ -19,6 +20,7 @@ func _ready() -> void:
 	if has_node("%LoadBackground"):
 		%LoadBackground.gui_input.connect(_on_background_input)
 	%LoadErrorOk.pressed.connect(_on_load_error_ok_pressed)
+	%LoadErrorHelp.pressed.connect(_on_load_error_help_pressed)
 	%LoadErrorRetry.pressed.connect(_on_load_error_retry_pressed)
 	%LoadDeleteCancel.pressed.connect(_on_delete_canceled)
 	%LoadDeleteConfirm.pressed.connect(_on_delete_confirmed)
@@ -71,6 +73,7 @@ func _update_labels() -> void:
 		%LoadCloseButton.text = b
 	%LoadErrorTitle.text = I18n.translate("error_dialog_title")
 	%LoadErrorOk.text = "OK"
+	%LoadErrorHelp.text = I18n.translate("btn_help")
 	%LoadErrorRetry.text = I18n.translate("btn_retry")
 	%LoadDeleteConfirmTitle.text = I18n.translate("confirm_dialog_title")
 	%LoadDeleteConfirm.text = I18n.translate("btn_confirm")
@@ -657,6 +660,7 @@ func _show_error_popup(message: String, show_engine_status_hint := false) -> voi
 	%LoadErrorMessage.text = "[center]%s[/center]" % popup_message
 	%LoadErrorOk.text = I18n.translate("btn_back") if show_engine_status_hint else "OK"
 	%LoadErrorPopup.visible = true
+	%LoadErrorHelp.visible = show_engine_status_hint
 	%LoadErrorRetry.visible = show_engine_status_hint and not _retry_load_uuid.is_empty()
 	ServerRuntimeManager.set_engine_status_hint_visible(show_engine_status_hint)
 
@@ -664,6 +668,7 @@ func _show_error_popup(message: String, show_engine_status_hint := false) -> voi
 func _on_load_error_ok_pressed() -> void:
 	_clear_retry_load()
 	%LoadErrorPopup.visible = false
+	%LoadErrorHelp.visible = false
 	%LoadErrorRetry.visible = false
 	ServerRuntimeManager.set_engine_status_hint_visible(false)
 
@@ -676,10 +681,15 @@ func _on_load_error_retry_pressed() -> void:
 	var entry := _retry_load_entry.duplicate(true)
 	_clear_retry_load()
 	%LoadErrorPopup.visible = false
+	%LoadErrorHelp.visible = false
 	%LoadErrorRetry.visible = false
 	ServerRuntimeManager.set_engine_status_hint_visible(false)
 	if not uuid.is_empty():
 		await _load_save(uuid, entry)
+
+
+func _on_load_error_help_pressed() -> void:
+	help_requested.emit()
 
 
 func _clear_retry_load() -> void:

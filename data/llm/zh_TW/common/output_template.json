@@ -3,7 +3,7 @@
     {
       "character": "約翰",
       "dialogue": "我想吃冰淇淋。",
-      "sex": "male"
+      "gender": "male"
     }
   ],
   "choices": [

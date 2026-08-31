@@ -1,6 +1,7 @@
 extends Control
 
 signal closed
+signal help_requested
 
 const PAGE_SIZE := 12
 const GRID_COLUMNS := 4
@@ -27,6 +28,7 @@ func _ready() -> void:
 	%GalleryPreviewConfirmCancel.pressed.connect(_on_preview_load_canceled)
 	%GalleryPreviewConfirmLoad.pressed.connect(_on_preview_load_confirmed)
 	%GalleryPreviewErrorOk.pressed.connect(_on_preview_error_ok_pressed)
+	%GalleryPreviewErrorHelp.pressed.connect(_on_preview_error_help_pressed)
 	%GalleryPreviewErrorRetry.pressed.connect(_on_preview_error_retry_pressed)
 	_update_labels()
 
@@ -72,6 +74,7 @@ func _update_labels() -> void:
 	%GalleryPreviewConfirmCancel.text = I18n.translate("btn_cancel")
 	%GalleryPreviewErrorTitle.text = I18n.translate("error_dialog_title")
 	%GalleryPreviewErrorOk.text = "OK"
+	%GalleryPreviewErrorHelp.text = I18n.translate("btn_help")
 	%GalleryPreviewErrorRetry.text = I18n.translate("btn_retry")
 
 
@@ -471,6 +474,7 @@ func _hide_preview() -> void:
 	%GalleryPreviewBackButton.disabled = false
 	%GalleryPreviewConfirmPopup.visible = false
 	%GalleryPreviewErrorPopup.visible = false
+	%GalleryPreviewErrorHelp.visible = false
 	%GalleryPreviewErrorRetry.visible = false
 	%GalleryPreview.visible = false
 
@@ -560,6 +564,7 @@ func _show_preview_error(message: String, show_engine_status_hint := false, retr
 	%GalleryPreviewErrorMessage.text = "[center]%s[/center]" % popup_message
 	%GalleryPreviewErrorOk.text = I18n.translate("btn_back") if show_engine_status_hint else "OK"
 	%GalleryPreviewErrorPopup.visible = true
+	%GalleryPreviewErrorHelp.visible = show_engine_status_hint
 	%GalleryPreviewErrorRetry.visible = not _pending_engine_retry_action.is_empty()
 	if %GalleryPreviewErrorRetry.visible:
 		%GalleryPreviewErrorRetry.grab_focus()
@@ -571,6 +576,7 @@ func _show_preview_error(message: String, show_engine_status_hint := false, retr
 func _on_preview_error_ok_pressed() -> void:
 	_pending_engine_retry_action = ""
 	%GalleryPreviewErrorPopup.visible = false
+	%GalleryPreviewErrorHelp.visible = false
 	%GalleryPreviewErrorRetry.visible = false
 	ServerRuntimeManager.set_engine_status_hint_visible(false)
 	%GalleryPreviewLoadButton.grab_focus()
@@ -583,12 +589,17 @@ func _on_preview_error_retry_pressed() -> void:
 	var action := _pending_engine_retry_action
 	_pending_engine_retry_action = ""
 	%GalleryPreviewErrorPopup.visible = false
+	%GalleryPreviewErrorHelp.visible = false
 	%GalleryPreviewErrorRetry.visible = false
 	ServerRuntimeManager.set_engine_status_hint_visible(false)
 	if action == "load":
 		await _on_preview_load_confirmed()
 	elif action == "show_confirmation":
 		_on_preview_load_pressed()
+
+
+func _on_preview_error_help_pressed() -> void:
+	help_requested.emit()
 
 
 func _load_gallery_entry(uuid: String, entry: Dictionary) -> bool:

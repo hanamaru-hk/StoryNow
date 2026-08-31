@@ -385,6 +385,13 @@ layout_mode = 2
 custom_minimum_size = Vector2(180, 48)
 text = "Return to Menu"
 
+[node name="ErrorReturnHelp" type="Button" parent="ErrorReturnPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Help"
+
 [node name="ErrorReturnRetry" type="Button" parent="ErrorReturnPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
 unique_name_in_owner = true
 visible = false

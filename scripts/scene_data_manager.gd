@@ -65,8 +65,6 @@ func load_data(uuid: String) -> bool:
 	if not scene_data.has("current_image_index"):
 		scene_data["current_image_index"] = 0
 	return true
-
-
 # Alias for compatibility: load(uuid) — GDScript `load` is reserved, so use load_data
 # Keep a wrapper named `load_scene` if needed, but expose `load_data` as primary.
 # To allow `SceneDataManager.load(uuid)` calls, provide a callable via `call` trick:

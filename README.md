@@ -30,7 +30,7 @@ AI-generated visual novel — Godot client that drives local **llama.cpp**, **Co
 
 - **Story:** `data/llm/<lang>/{story,scene}` + `common/` templates → `LLMManager._request_completion` → `POST /v1/chat/completions` → JSON (`interactions`/`choices`/`image_prompt`/`summary`/`title`/`end`/`language`) → repair `image_prompt` bare quotes → merge into `SceneDataManager.scene_data`.
 - **Image:** `data/comfyui/workflow_template.json` placeholders replaced → `POST /prompt` → poll `/history/<id>` → `GET /view` → `user://saves/<uuid>/images/`.
-- **TTS:** `TTSManager` queues Sherpa synthesis per `interactions[].dialogue` (sex+language model select), uses the native `SherpaOfflineTTS` GDExtension in `addons/sherpa_tts/`, saves `sounds/tts_<idx>_<hash>.wav`, and auto-plays on dialogue change.
+- **TTS:** `TTSManager` queues Sherpa synthesis per `interactions[].dialogue` (gender+language model select), uses the native `SherpaOfflineTTS` GDExtension in `addons/sherpa_tts/`, saves `sounds/tts_<idx>_<hash>.wav`, and auto-plays on dialogue change.
 
 Chrome hides on right-click background, restores on left-click; `ServerStatusOverlay` shows health dots + request queue.
 

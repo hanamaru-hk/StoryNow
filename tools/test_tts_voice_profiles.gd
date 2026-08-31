@@ -17,10 +17,10 @@ func _initialize() -> void:
 	quit(_failures)
 
 
-func _test_profile(language: String, sex: String, expected_pitch: float, expected_playback: float) -> void:
-	var profile: Dictionary = VoiceProfile.resolve(language, sex)
-	_expect(is_equal_approx(float(profile.get("pitch_scale", 0.0)), expected_pitch), "%s/%s pitch" % [language, sex])
-	_expect(is_equal_approx(float(profile.get("playback_scale", 0.0)), expected_playback), "%s/%s playback" % [language, sex])
+func _test_profile(language: String, gender: String, expected_pitch: float, expected_playback: float) -> void:
+	var profile: Dictionary = VoiceProfile.resolve(language, gender)
+	_expect(is_equal_approx(float(profile.get("pitch_scale", 0.0)), expected_pitch), "%s/%s pitch" % [language, gender])
+	_expect(is_equal_approx(float(profile.get("playback_scale", 0.0)), expected_playback), "%s/%s playback" % [language, gender])
 
 
 func _expect(condition: bool, message: String) -> void:

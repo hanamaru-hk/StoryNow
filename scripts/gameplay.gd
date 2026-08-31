@@ -104,6 +104,7 @@ func _ready() -> void:
 
 	# --- ErrorReturnPopup ---
 	%ErrorReturnBack.pressed.connect(_on_error_return)
+	%ErrorReturnHelp.pressed.connect(_on_error_help_pressed)
 	%ErrorReturnRetry.pressed.connect(_on_error_retry_pressed)
 
 	# Clicking on DialogArea advances dialogue (optional convenience)
@@ -600,6 +601,7 @@ func _on_choice_cancel() -> void:
 # Error handling — common error return popup for returning to main menu
 # ------------------------------------------------------------------
 func _update_error_popup_retry_visibility(allow_retry: bool) -> void:
+	%ErrorReturnHelp.visible = allow_retry
 	%ErrorReturnRetry.visible = allow_retry
 	%ErrorReturnRetry.disabled = not allow_retry or _retry_in_progress
 	var retry_text: String = I18n.translate("btn_retry")
@@ -634,6 +636,10 @@ func _on_error_retry_pressed() -> void:
 	retry_requested.emit()
 
 
+func _on_error_help_pressed() -> void:
+	%HelpOverlay.open()
+
+
 func _on_error_return() -> void:
 	_is_leaving_scene = true
 	_pending_retry_action = ""
@@ -663,7 +669,7 @@ func _update_labels() -> void:
 	%NextLineButton.text = I18n.translate("btn_next_dialog") if I18n.translate("btn_next_dialog") != "btn_next_dialog" else "Dialogue >"
 	%PrevSceneButton.text = I18n.translate("btn_prev_scene") if I18n.translate("btn_prev_scene") != "btn_prev_scene" else "<< Scene"
 	%NextSceneButton.text = I18n.translate("btn_next_scene") if I18n.translate("btn_next_scene") != "btn_next_scene" else "Scene >>"
-	%SettingButton.text = I18n.translate("btn_flow_setting") if I18n.translate("btn_flow_setting") != "btn_flow_setting" else "Flow Settings"
+	%SettingButton.text = I18n.translate("btn_sidepanel_flow_setting") if I18n.translate("btn_sidepanel_flow_setting") != "btn_sidepanel_flow_setting" else "Flow Settings"
 	%GameplayMenuButton.text = I18n.translate("btn_gameplay_menu") if I18n.translate("btn_gameplay_menu") != "btn_gameplay_menu" else "Menu"
 	# Choice overlay
 	var choice_title: String = I18n.translate("choice_title")
@@ -717,3 +723,4 @@ func _update_labels() -> void:
 			%ErrorReturnMessage.text = t_dlg if t_dlg != "error_dialog_text" else "Something went wrong. Returning to main menu."
 		var retry_text: String = I18n.translate("btn_retry")
 		%ErrorReturnRetry.text = retry_text if retry_text != "btn_retry" else "Retry"
+		%ErrorReturnHelp.text = I18n.translate("btn_help")

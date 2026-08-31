@@ -45,7 +45,7 @@ Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions
 | **GameplayChoiceController** | `scripts/gameplay_choice_controller.gd:1` | Choice rendering, visited branches, deletion, overlay state, and branch confirmation. |
 | **GameplayChromeController** | `scripts/gameplay_chrome_controller.gd:1` | Background input, chrome visibility, and blocking-overlay detection. |
 | **GameProgressManager** | `scripts/game_progress_manager.gd:1` | Global progress (`user://game_progress.json`): `current_uuid`, `current_round`, `expected_rounds`, tunables (`minimum_dialogues_per_scene`, etc.), `game_status` state machine. |
-| **TTSManager** | `scripts/tts_manager.gd:1` | Queue-based native Sherpa synthesis, model selection by `language`/`sex`, `sound_filename` attachment + `tts_generated` signal for auto-play. |
+| **TTSManager** | `scripts/tts_manager.gd:1` | Queue-based native Sherpa synthesis, model selection by `language`/`gender`, `sound_filename` attachment + `tts_generated` signal for auto-play. |
 | **I18n / GameSettingsManager** | `scripts/i18n.gd:1`, `scripts/game_settings_manager.gd:1` | i18n (en, zh_CN, zh_TW, yue, ja) + display/TTS settings (`user://game_settings.json`; free mode requires `safe_mode == false` and a file in `data/builder`). |
 | **ServerStatusOverlay** | `scripts/server_status_overlay.gd:1` | CanvasLayer always-on-top dot indicator + request queue list; listens to `ServerRuntimeManager` signals. |
 

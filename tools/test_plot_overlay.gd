@@ -11,7 +11,7 @@ func _ready() -> void:
 	var overlay := PlotOverlayScene.instantiate()
 	add_child(overlay)
 	_test_layout(overlay)
-	_test_sex_values(overlay)
+	_test_gender_values(overlay)
 	_test_add_dialogue_form(overlay)
 	_test_last_dialogue_guard(overlay)
 	SceneDataManager.scene_data = _original_scene_data
@@ -25,13 +25,13 @@ func _test_layout(overlay: Control) -> void:
 	var panel := overlay.get_node("EditOverlay/CenterContainer/Panel") as PanelContainer
 	_expect(panel.custom_minimum_size.x >= 900.0, "edit dialogue list is widened")
 	_expect(overlay.has_node("%EditDelete"), "edit popup has a delete button")
-	_expect(overlay.has_node("%SexDropdown"), "edit popup has a sex dropdown")
-	_expect(overlay.has_node("%CustomSexInput"), "edit popup has a custom sex input")
+	_expect(overlay.has_node("%GenderDropdown"), "edit popup has a gender dropdown")
+	_expect(overlay.has_node("%CustomGenderInput"), "edit popup has a custom gender input")
 	var add_panel := overlay.get_node("AddOverlay/CenterContainer/Panel") as PanelContainer
 	_expect(add_panel.custom_minimum_size.x == 960.0, "add dialogue overlay is widened by 50 percent")
 	_expect(overlay.has_node("%AddCharacter"), "add dialogue form has a character field")
-	_expect(overlay.has_node("%AddSexDropdown"), "add dialogue form has a sex dropdown")
-	_expect(overlay.has_node("%AddCustomSexInput"), "add dialogue form has a custom sex input")
+	_expect(overlay.has_node("%AddGenderDropdown"), "add dialogue form has a gender dropdown")
+	_expect(overlay.has_node("%AddCustomGenderInput"), "add dialogue form has a custom gender input")
 	_expect(overlay.has_node("%AddDialogue"), "add dialogue form has a dialogue textarea")
 	var form := overlay.get_node("AddOverlay/CenterContainer/Panel/Margin/VBox/AddGroup/Margin/VBox")
 	var dropdown_row := form.get_node("DropdownRow")
@@ -41,30 +41,30 @@ func _test_layout(overlay: Control) -> void:
 	_expect(radio_row.alignment == BoxContainer.ALIGNMENT_BEGIN, "before and after radio buttons align left")
 
 
-func _test_sex_values(overlay: Control) -> void:
-	overlay.call("_set_sex_editor_value", "male")
-	_expect(overlay.call("_get_edited_sex") == "male", "male label stores the English male value")
-	overlay.call("_set_sex_editor_value", "female")
-	_expect(overlay.call("_get_edited_sex") == "female", "female label stores the English female value")
-	overlay.call("_set_sex_editor_value", "nonbinary")
-	_expect(overlay.call("_get_edited_sex") == "nonbinary", "Other stores the user's custom value")
+func _test_gender_values(overlay: Control) -> void:
+	overlay.call("_set_gender_editor_value", "male")
+	_expect(overlay.call("_get_edited_gender") == "male", "male label stores the English male value")
+	overlay.call("_set_gender_editor_value", "female")
+	_expect(overlay.call("_get_edited_gender") == "female", "female label stores the English female value")
+	overlay.call("_set_gender_editor_value", "nonbinary")
+	_expect(overlay.call("_get_edited_gender") == "nonbinary", "Other stores the user's custom value")
 
 
 func _test_add_dialogue_form(overlay: Control) -> void:
-	var dropdown := overlay.get_node("%AddSexDropdown") as OptionButton
-	var custom_input := overlay.get_node("%AddCustomSexInput") as LineEdit
+	var dropdown := overlay.get_node("%AddGenderDropdown") as OptionButton
+	var custom_input := overlay.get_node("%AddCustomGenderInput") as LineEdit
 	for i in dropdown.item_count:
 		if dropdown.get_item_id(i) == 2:
 			dropdown.select(i)
-			overlay.call("_on_add_sex_selected", i)
+			overlay.call("_on_add_gender_selected", i)
 			break
 	custom_input.text = "nonbinary"
-	_expect(overlay.call("_get_add_sex") == "nonbinary", "add form Other stores the user's custom value")
+	_expect(overlay.call("_get_add_gender") == "nonbinary", "add form Other stores the user's custom value")
 
 
 func _test_last_dialogue_guard(overlay: Control) -> void:
 	SceneDataManager.scene_data = {
-		"interactions": [{"character": "Narrator", "dialogue": "Only line", "sex": "male"}]
+		"interactions": [{"character": "Narrator", "dialogue": "Only line", "gender": "male"}]
 	}
 	overlay.set("_editing_index", 0)
 	overlay.call("_on_edit_delete_pressed")

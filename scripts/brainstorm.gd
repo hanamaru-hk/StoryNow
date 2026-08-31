@@ -13,6 +13,7 @@ func _ready() -> void:
 	%Start.pressed.connect(_on_start_pressed)
 	%Back.pressed.connect(_on_back_pressed)
 	%ErrorPopupOk.pressed.connect(_on_error_popup_ok_pressed)
+	%ErrorPopupHelp.pressed.connect(_on_error_popup_help_pressed)
 	%ErrorPopupRetry.pressed.connect(_on_error_popup_retry_pressed)
 	%RandomConfirmCancel.pressed.connect(_on_random_confirm_canceled)
 	%RandomConfirmOk.pressed.connect(_on_random_confirmed)
@@ -113,12 +114,17 @@ func _show_error_popup(message: String, show_engine_status_hint := false, retry_
 	%ErrorPopupMessage.text = "[center]%s[/center]" % popup_message
 	%ErrorPopupOk.text = I18n.translate("btn_back") if show_engine_status_hint else "OK"
 	%ErrorPopup.visible = true
+	%ErrorPopupHelp.visible = show_engine_status_hint
 	%ErrorPopupRetry.visible = not _pending_engine_retry_action.is_empty()
 	ServerRuntimeManager.set_engine_status_hint_visible(show_engine_status_hint)
 
 
 func _on_error_popup_ok_pressed() -> void:
 	_close_error_popup()
+
+
+func _on_error_popup_help_pressed() -> void:
+	%HelpOverlay.open()
 
 
 func _on_error_popup_retry_pressed() -> void:
@@ -142,6 +148,7 @@ func _on_error_popup_retry_pressed() -> void:
 func _close_error_popup() -> void:
 	_pending_engine_retry_action = ""
 	%ErrorPopup.visible = false
+	%ErrorPopupHelp.visible = false
 	%ErrorPopupRetry.visible = false
 	ServerRuntimeManager.set_engine_status_hint_visible(false)
 
@@ -251,6 +258,7 @@ func _update_labels() -> void:
 	%ErrorPopupTitle.text = I18n.translate("error_dialog_title")
 	%ErrorPopupOk.text = "OK"
 	%ErrorPopupRetry.text = I18n.translate("btn_retry")
+	%ErrorPopupHelp.text = I18n.translate("btn_help")
 	%RandomConfirmTitle.text = I18n.translate("confirm_dialog_title")
 	%RandomConfirmMessage.text = I18n.translate("confirm_random_clear_text")
 	%RandomConfirmCancel.text = I18n.translate("btn_cancel")
