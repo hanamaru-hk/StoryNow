@@ -10,7 +10,7 @@ All persistent data lives under `user://` (Godot user data dir, `OS.get_user_dat
 user://
 ├── game_settings.json          # GameSettingsManager (language, screen, autoplay, safe_mode)
 ├── game_progress.json          # GameProgressManager (current_uuid/round/dialogue, expected_rounds, tunables, game_status)
-├── llm_settings.json           # LLMSettingsManager {port}
+├── llm_settings.json           # LLMSettingsManager {port, timeout, context_size, fit, ngl, ngl_value, llm_model_filename}
 ├── image_server_settings.json  # ImageServerSettingsManager {port, timeout, low_vram, model_filename, image_width/height, prefix, suffix}
 ├── llm_status.json             # LLMManager {pid, running, healthy}
 ├── image_server_status.json    # ImageServerManager {pid, running, healthy}

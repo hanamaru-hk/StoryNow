@@ -1,6 +1,7 @@
 extends Node
 ## Library functions for managing the Ollama (LLM) server process.
 
+const LLMServerArgs := preload("res://scripts/llm_server_args.gd")
 const STATUS_PATH := "user://llm_status.json"
 const LLAMA_DIR := "server/llama"
 const LLAMA_MODELS_DIR_CEN := "data/llama-models/cen"
@@ -45,7 +46,6 @@ func start_server() -> void:
 	if status["running"]:
 		return
 	var port: int = LLMSettingsManager.settings["port"]
-	var context_size: int = int(LLMSettingsManager.settings.get("context_size", 0))
 	var port_number := str(port)
 	var exe_path := AppPaths.external_path(LLAMA_DIR + "/llama-server.exe")
 	var model_filename := str(LLMSettingsManager.settings.get("llm_model_filename", ""))
@@ -55,7 +55,7 @@ func start_server() -> void:
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
 		return
-	var args := PackedStringArray(["-c", str(context_size), "-ngl", "99", "-m", model_path, "--port", port_number])
+	var args := LLMServerArgs.build(LLMSettingsManager.settings, model_path, port_number)
 	var pid: int = OS.create_process(exe_path, args, OS.is_stdout_verbose())
 	if pid < 0:
 		push_error("Failed to start Ollama process")

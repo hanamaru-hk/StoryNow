@@ -2,6 +2,7 @@ extends Control
 
 signal closed
 
+const ScrollbarStyleScript := preload("res://scripts/scrollbar_style.gd")
 const SettingsValidator := preload("res://scripts/settings_value_validator.gd")
 
 enum ConfirmAction {
@@ -15,6 +16,7 @@ var _confirm_action := ConfirmAction.NONE
 
 
 func _ready() -> void:
+	ScrollbarStyleScript.apply(%SettingsScroll)
 	%Back.pressed.connect(_on_back_pressed)
 	%Reset.pressed.connect(_on_reset_pressed)
 	%Save.pressed.connect(_on_save_pressed)
@@ -24,9 +26,13 @@ func _ready() -> void:
 	%PortInput.text_changed.connect(_on_integer_input_changed.bind(%PortInput))
 	%TimeoutInput.text_changed.connect(_on_integer_input_changed.bind(%TimeoutInput))
 	%ContextSizeInput.text_changed.connect(_on_integer_input_changed.bind(%ContextSizeInput))
+	%NglValueInput.text_changed.connect(_on_integer_input_changed.bind(%NglValueInput))
+	%FitCheck.toggled.connect(_on_fit_toggled)
+	%NglCheck.toggled.connect(_on_ngl_toggled)
 	%PortInput.text_submitted.connect(_on_port_submitted)
 	%TimeoutInput.text_submitted.connect(_on_timeout_submitted)
 	%ContextSizeInput.text_submitted.connect(_on_context_size_submitted)
+	%NglValueInput.text_submitted.connect(_on_ngl_value_submitted)
 	_sync_ui_to_settings()
 	_update_labels()
 
@@ -73,6 +79,7 @@ func _save_settings() -> void:
 	_apply_port()
 	_apply_timeout()
 	_apply_context_size()
+	_apply_ngl_value()
 	LLMSettingsManager.settings = _pending.duplicate(true)
 	LLMSettingsManager.save_settings()
 	_pending = {}
@@ -111,6 +118,21 @@ func _on_timeout_submitted(_text: String) -> void:
 
 func _on_context_size_submitted(_text: String) -> void:
 	_apply_context_size()
+
+
+func _on_fit_toggled(pressed: bool) -> void:
+	_pending["fit"] = pressed
+	%FitCheck.text = I18n.translate("settings_on") if pressed else I18n.translate("settings_off")
+
+
+func _on_ngl_toggled(pressed: bool) -> void:
+	_pending["ngl"] = pressed
+	%NglCheck.text = I18n.translate("settings_on") if pressed else I18n.translate("settings_off")
+	%NglValueInput.editable = pressed
+
+
+func _on_ngl_value_submitted(_text: String) -> void:
+	_apply_ngl_value()
 
 
 func _on_integer_input_changed(text: String, input: LineEdit) -> void:
@@ -155,6 +177,12 @@ func _apply_context_size() -> void:
 		_pending["context_size"] = context_size_text.to_int()
 
 
+func _apply_ngl_value() -> void:
+	var ngl_value_text: String = %NglValueInput.text.strip_edges()
+	if SettingsValidator.is_non_negative_integer(ngl_value_text):
+		_pending["ngl_value"] = ngl_value_text.to_int()
+
+
 func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
@@ -169,6 +197,12 @@ func _sync_ui_to_settings() -> void:
 	%PortInput.text = _integer_text(_pending.get("port", 48763))
 	%TimeoutInput.text = _integer_text(_pending.get("timeout", 60))
 	%ContextSizeInput.text = _integer_text(_pending.get("context_size", 0))
+	%FitCheck.button_pressed = bool(_pending["fit"])
+	%FitCheck.text = I18n.translate("settings_on") if %FitCheck.button_pressed else I18n.translate("settings_off")
+	%NglCheck.button_pressed = bool(_pending["ngl"])
+	%NglCheck.text = I18n.translate("settings_on") if %NglCheck.button_pressed else I18n.translate("settings_off")
+	%NglValueInput.text = _integer_text(_pending["ngl_value"])
+	%NglValueInput.editable = %NglCheck.button_pressed
 
 
 func _integer_text(value: Variant) -> String:
@@ -181,6 +215,11 @@ func _update_labels() -> void:
 	%PortLabel.text = I18n.translate("settings_port")
 	%TimeoutLabel.text = I18n.translate("settings_timeout")
 	%ContextSizeLabel.text = I18n.translate("settings_context_size")
+	%FitLabel.text = I18n.translate("settings_llm_fit")
+	%NglLabel.text = I18n.translate("settings_llm_ngl")
+	%NglValueLabel.text = I18n.translate("settings_llm_ngl_value")
+	%FitCheck.text = I18n.translate("settings_on") if %FitCheck.button_pressed else I18n.translate("settings_off")
+	%NglCheck.text = I18n.translate("settings_on") if %NglCheck.button_pressed else I18n.translate("settings_off")
 	%Back.text = I18n.translate("btn_back")
 	%Reset.text = I18n.translate("btn_reset")
 	%Save.text = I18n.translate("btn_save")

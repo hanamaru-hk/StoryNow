@@ -2,5 +2,8 @@
 	"port": 48763,
 	"timeout": 240,
 	"context_size": 0,
+	"fit": true,
+	"ngl": false,
+	"ngl_value": 99,
 	"llm_model_filename": "cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf"
 }

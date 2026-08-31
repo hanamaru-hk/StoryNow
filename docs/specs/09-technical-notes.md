@@ -5,7 +5,7 @@
 - Health: `GET http://127.0.0.1:<port>/health` (`HTTPClient`, 5s timeout, `scripts/llm_manager.gd:72`)
 - Chat: `POST http://127.0.0.1:<port>/v1/chat/completions` with `{"messages":[{"role":"user","content":prompt}], "stream":false, "thinking":false, "cache_prompt":false, "chat_template_kwargs":{"enable_thinking":false}}` (`HTTPRequest`, 120s timeout, `scripts/llm_manager.gd:370`)
 - Default port **48763** (configurable via LLM Settings → `user://llm_settings.json`).
-- Model ≤9B GGUF invoked as `llama-server.exe -c 0 -ngl 99 -m <gguf> --port <port>` (`scripts/llm_manager.gd:42`).
+- Model ≤9B GGUF is invoked with configurable llama.cpp fit and GPU-layer arguments. Defaults produce `llama-server.exe -c 0 --fit on -m <gguf> --port <port>`; enabling `ngl` adds `-ngl 99` by default (`scripts/llm_manager.gd`).
 - Request queue: `ServerRuntimeManager.push_request("llm","generate gameplay",120.0)` / `pop_request` for overlay display.
 - JSON repair: `GameplaySceneService.parse_generation_result()` sanitizes `image_prompt` bare quotes before its second parse attempt; the request result keeps the best-effort title as a fallback.
 
@@ -68,7 +68,7 @@ var save_path = await _download_comfy_image(filename, subfolder, type, uuid)
   - `ServerStatusOverlay` added deferred to `get_tree().root`.
   - `set_chrome_visible` and `request_queue` signals drive overlay.
   - On `_exit_tree` / `WM_CLOSE_REQUEST` kills owned processes via `taskkill /T /F /PID` (Windows).
-- **LLMManager / ImageServerManager**: status persisted to `user://*_status.json`; started via `OS.create_process` (llama: `llama-server.exe -c 0 -ngl 99 …`; ComfyUI: `python_embeded/python.exe -s ComfyUI/main.py --port <port> --windows-standalone-build --disable-auto-launch`, plus `--lowvram` when enabled in image settings).
+- **LLMManager / ImageServerManager**: status persisted to `user://*_status.json`; started via `OS.create_process` (llama defaults: `llama-server.exe -c 0 --fit on …`; ComfyUI: `python_embeded/python.exe -s ComfyUI/main.py --port <port> --windows-standalone-build --disable-auto-launch`, plus `--lowvram` when enabled in image settings).
 - Health uses `HTTPClient` raw polling with frame-await loop and timeout accounting (`get_process_delta_time()`).
 
 ## 9.4 Display

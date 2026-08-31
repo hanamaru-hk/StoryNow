@@ -10,6 +10,9 @@ var settings := {
 	"port": 48763,
 	"timeout": 240,
 	"context_size": 0,
+	"fit": true,
+	"ngl": false,
+	"ngl_value": 99,
 	"llm_model_filename": "cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf",
 }
 
@@ -123,3 +126,6 @@ func _normalize_integer_settings() -> void:
 	settings["port"] = SettingsValidator.port_or_default(settings.get("port", 48763), 48763)
 	settings["timeout"] = SettingsValidator.timeout_or_default(settings.get("timeout", 240), 240)
 	settings["context_size"] = SettingsValidator.non_negative_integer_or_default(settings.get("context_size", 0), 0)
+	settings["fit"] = settings["fit"] if settings["fit"] is bool else true
+	settings["ngl"] = settings["ngl"] if settings["ngl"] is bool else false
+	settings["ngl_value"] = SettingsValidator.non_negative_integer_or_default(settings["ngl_value"], 99)

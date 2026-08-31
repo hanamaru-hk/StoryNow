@@ -74,7 +74,7 @@ story-now/
 │   ├── builder/                         # Presence of any file enables builder mode when safe_mode is false
 │   ├── default_game_settings.json       # {language, screen_size, safe_mode, autoplay_tts}
 │   ├── default_game_progress.json       # {current_dialogue/uuid/round, expected_rounds, minimum_*/maximum_*, game_status}
-│   ├── default_llm_settings.json        # {port: 48763}
+│   ├── default_llm_settings.json        # LLM port, timeout, context, fit, GPU layers, and model
 │   ├── default_image_server_settings.json # ComfyUI port, model, timeout, image size, prompt prefix/suffix
 │   ├── llama-models/
 │   │   ├── cen/*.gguf
