@@ -28,6 +28,7 @@ var _heartbeat_timer: Timer
 var _llm_started_this_session := false
 var _image_started_this_session := false
 var _next_request_id := 1
+var _is_quit_requested := false
 var _is_shutting_down := false
 
 
@@ -258,9 +259,23 @@ func cancel_active_generation_tasks() -> void:
 	clear_requests_by_kinds(["llm", "image", "sound"])
 
 
+func request_app_quit() -> void:
+	if _is_quit_requested or _is_shutting_down:
+		return
+	_is_quit_requested = true
+	if has_generation_requests():
+		await cancel_active_generation_tasks()
+	if is_inside_tree():
+		get_tree().quit()
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		get_tree().quit()
+		call_deferred("_quit_from_window_close")
+
+
+func _quit_from_window_close() -> void:
+	await request_app_quit()
 
 
 func _exit_tree() -> void:

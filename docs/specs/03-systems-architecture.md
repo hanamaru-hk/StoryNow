@@ -34,7 +34,7 @@ Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions
 
 | Component | File | Role |
 |-----------|------|------|
-| **ServerRuntimeManager** | `scripts/server_runtime_manager.gd:1` | Autoload coordinator: reconciles stale status, starts both servers, 2s heartbeat until both services are healthy, 10s heartbeat after connected, 2s initial check, request queue (`push_request`/`pop_request`), `chrome_visibility_changed`, and `ServerStatusOverlay` injection. Owns shutdown on `NOTIFICATION_WM_CLOSE_REQUEST`. |
+| **ServerRuntimeManager** | `scripts/server_runtime_manager.gd:1` | Autoload coordinator: reconciles stale status, starts both servers, 2s heartbeat until both services are healthy, 10s heartbeat after connected, 2s initial check, request queue (`push_request`/`pop_request`), `chrome_visibility_changed`, and `ServerStatusOverlay` injection. Owns the shared application shutdown path, including window-close generation cancellation. |
 | **LLMManager** | `scripts/llm_manager.gd:1` | llama-server lifecycle (`status` → `user://llm_status.json`), prompt assembly (`data/llm/<lang>/{random,enhance,story,scene}` + `common/`), `_request_completion` (120s timeout), repair of malformed `image_prompt` JSON. |
 | **ImageServerManager** | `scripts/image_server_manager.gd:1` | ComfyUI lifecycle (`user://image_server_status.json`), workflow templating (`data/comfyui/workflow_template.json`), `generate_scene_image` (queue → poll history → download to `user://saves/<uuid>/images/`). |
 | **SceneDataManager** | `scripts/scene_data_manager.gd:1` | Per-scene persistence (`SAVE_DIR = user://saves`): `save()` / `load_data(uuid)` for `scene_data` JSON. Aliases `load(uuid)` for compatibility. |

@@ -486,11 +486,7 @@ func _on_quit_game_requested() -> void:
 	if _is_leaving_scene:
 		return
 	_is_leaving_scene = true
-	if ServerRuntimeManager.has_generation_requests():
-		await ServerRuntimeManager.cancel_active_generation_tasks()
-	if not is_inside_tree():
-		return
-	get_tree().quit()
+	await ServerRuntimeManager.request_app_quit()
 
 
 func _on_play_audio_pressed() -> void:

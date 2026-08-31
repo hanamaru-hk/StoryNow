@@ -93,7 +93,7 @@ func _update_main_menu_chrome_visibility() -> void:
 
 
 func _on_exit_pressed() -> void:
-	get_tree().quit()
+	await ServerRuntimeManager.request_app_quit()
 
 
 func _check_first_time_overlay() -> void:

@@ -18,6 +18,7 @@ config/name="StoryNow"
 config/icon="res://assets/images/logo.png"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7")
+config/auto_accept_quit=false
 
 [autoload]
 
