@@ -1,0 +1,17 @@
+Markdown形式を使わず、必ず生のJSONだけで応答してください。
+以下の物語背景を基に、ビジュアルノベルの冒頭場面を生成してください。
+
+__GUARDRAIL__
+
+<story_background>
+__STORY_BACKGROUND__
+</story_background>
+
+<output_json_requirement>
+__OUTPUT_JSON_REQUIREMENT__
+</output_json_requirement>
+
+<output_json_template>
+__OUTPUT_JSON_TEMPLATE__
+</output_json_template>
+

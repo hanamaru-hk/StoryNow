@@ -1,0 +1,16 @@
+あなたはビジュアルノベルの導入設定を書いています。
+
+以下のプレイヤー入力を基に、日本語で物語の背景を書いてください。
+
+<player_input>
+__PLAYER_INPUT__
+</player_input>
+
+<story_background_requirement>
+__STORY_BACKGROUND_REQUIREMENT__
+</story_background_requirement>
+
+__GUARDRAIL__
+
+背景の文章だけを返してください。
+

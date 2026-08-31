@@ -44,7 +44,7 @@ story-now/
 │   ├── gameplay_choice_controller.gd    # Choice UI and branch transitions
 │   ├── gameplay_chrome_controller.gd    # Chrome visibility and background input
 │   ├── gameplay_scene_service.gd        # Pure scene parsing, merge, and branch rules
-│   ├── i18n.gd                          # Internationalization (en, zh_CN, zh_TW, yue)
+│   ├── i18n.gd                          # Internationalization (en, zh_CN, zh_TW, yue, ja)
 │   ├── game_settings_manager.gd         # Game settings persistence & apply (language, display, TTS)
 │   ├── game_settings_overlay.gd
 │   ├── advanced_settings_overlay.gd
@@ -67,6 +67,7 @@ story-now/
 │   ├── image_server_settings_overlay.gd
 │   ├── tts_manager.gd                   # Sherpa-ONNX offline TTS queue
 │   ├── download_sherpa.ps1
+│   ├── download_japanese_tts.ps1
 │   └── request_timeout_circle.gd        # Circular timeout indicator
 ├── data/
 │   ├── theme.tres
@@ -87,7 +88,8 @@ story-now/
 │   │   ├── en/common/{output_template.json, output_json_requirement, story_background_requirement, safe_guardrail, free_guardrail, safe_danbooru_guardrail, free_danbooru_guardrail}
 │   │   ├── zh_CN/… (same)
 │   │   ├── zh_TW/… (same)
-│   │   └── yue/… (same)
+│   │   ├── yue/… (same)
+│   │   └── ja/… (same)
 │   └── translations/translations.csv
 ├── assets/
 │   └── images/generating.jpg            # Generating placeholder background (50% opacity)
@@ -107,7 +109,7 @@ Registered in `project.godot:11-22`:
 
 | Name | Script | Purpose |
 |------|--------|---------|
-| `I18n` | `scripts/i18n.gd` | Translations (en, zh_CN, zh_TW, yue) |
+| `I18n` | `scripts/i18n.gd` | Translations (en, zh_CN, zh_TW, yue, ja) |
 | `GameSettingsManager` | `scripts/game_settings_manager.gd` | Display/TTS/safe_mode settings (`user://game_settings.json`) |
 | `ImageServerSettingsManager` | `scripts/image_server_settings_manager.gd` | ComfyUI port, timeout, model, and prompt prefix/suffix |
 | `LLMSettingsManager` | `scripts/llm_settings_manager.gd` | llama.cpp port |

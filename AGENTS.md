@@ -48,7 +48,7 @@ Do not edit generated/imported content in `.godot/`, `*.uid`, or `*.import`. Do 
 ## Prompts, settings, and localization
 
 - Prompt fragments under `data/llm/<language>/` form a shared contract with the parsers. If output shape changes, update prompt templates, parsing/repair logic, and tests together.
-- Supported languages are `en`, `zh_CN`, `zh_TW`, and `yue`. When changing user-facing prompt behavior, verify whether all four language directories need equivalent updates.
+- Supported languages are `en`, `zh_CN`, `zh_TW`, `yue`, and `ja`. When changing user-facing prompt behavior, verify whether all five language directories need equivalent updates.
 - Preserve valid JSON in `data/default_*.json`, `data/comfyui/workflow_template.json`, and all `output_template.json` files.
 - Never add secrets, API keys, absolute paths, model files, or local port overrides to committed defaults.
 

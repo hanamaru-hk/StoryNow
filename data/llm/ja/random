@@ -1,0 +1,12 @@
+日本語で、独創的なビジュアルノベルの物語背景を作成してください。
+
+テーマ：__THEME__
+
+<story_background_requirement>
+__STORY_BACKGROUND_REQUIREMENT__
+</story_background_requirement>
+
+__GUARDRAIL__
+
+背景の文章だけを返してください。
+

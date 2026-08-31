@@ -1,0 +1,25 @@
+Markdown形式を使わず、必ず生のJSONだけで応答してください。
+以下の情報を基に、ビジュアルノベルの次の場面を生成してください。
+previous_scene_jsonは補助的な参考情報とし、player_inputを最優先してください。player_inputがどれほど突飛でも、物語の本筋と画像プロンプトは必ずplayer_inputを最優先にしてください。
+
+__GUARDRAIL__
+
+<player_input>
+__PLAYER_INPUT__
+</player_input>
+
+<story_background>
+__STORY_BACKGROUND__
+</story_background>
+
+current_round : __CURRENT_ROUND__
+expected_rounds : __EXPECTED_ROUNDS__
+
+<output_json_requirement>
+__OUTPUT_JSON_REQUIREMENT__
+</output_json_requirement>
+
+<output_json_template>
+__OUTPUT_JSON_TEMPLATE__
+</output_json_template>
+

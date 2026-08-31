@@ -1,0 +1,7 @@
+- `image_prompt`は視覚的な場面を説明する英語のDanbooruタグをカンマ区切りで記述してください（例："1girl, solo, classroom, sunlight, detailed background"）。空にしてはいけません。__DANBOORU_GUARDRAIL__
+- 場面には自然な日本語の台詞またはナレーションを最低__MINIMUM_DIALOGUES_PER_SCENE__回含め、各台詞は最低__MINIMUM_SENTENCES_PER_DIALOGUE__文にしてください。
+- __DEVELOPMENT__
+- `language`を`ja`に設定してください。
+- `bgm_mood`には次のいずれかの文字列を設定してください：`joyful`、`dangerous`、`mysterious`、`epic`、`peaceful`、`other`、`romantic`、`sad`、`funny`
+- `summary`は__MINIMUM_SENTENCES_IN_SUMMARY__文以内の自然な日本語で、簡潔な節を用い、1文につき2節以内にしてください。
+

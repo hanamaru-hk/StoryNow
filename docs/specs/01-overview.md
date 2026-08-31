@@ -11,6 +11,6 @@ A visual novel where **all content is AI-generated on the fly**. The player prov
 
 ## Current Implementation Snapshot
 
-- **Implemented:** Main menu → Brainstorm → Gameplay loop, LLM story/scene generation, ComfyUI image generation, TTS synthesis, save/load/gallery, server lifecycle & health overlay, i18n (en / zh_CN / zh_TW / yue), Chrome hide/show.
+- **Implemented:** Main menu → Brainstorm → Gameplay loop, LLM story/scene generation, ComfyUI image generation, TTS synthesis, save/load/gallery, server lifecycle & health overlay, i18n (en / zh_CN / zh_TW / yue / ja), Chrome hide/show.
 - **Partial / evolving:** Choice persistence (previously-selected marking), image carousel per scene, dialogue overlay edit/add/regenerate.
 - **Not implemented:** Automated testing suite (`tests/` planned, GUT), export/share.

@@ -41,7 +41,7 @@ The LLM returns **raw JSON** (no Markdown) conforming to `data/llm/<lang>/common
 | `image_prompt` | String | Danbooru tag list (English, comma-separated) for ComfyUI. Prefixed at runtime with `score_9, …` and suffixed with guardrail handling. Repaired if LLM emits bare quotes. |
 | `summary` | String | Compressed story state, ≤ `minimum_sentences_in_summary` sentences (default 3), simple clauses. Used as `story_background` for next scene. |
 | `end` | bool | Whether story should end; LLM instructed to set true when `current_round == expected_rounds`. |
-| `language` | String | `en` / `zh_CN` / `zh_TW` / `yue` (mirrors `I18n.current_lang`). |
+| `language` | String | `en` / `zh_CN` / `zh_TW` / `yue` / `ja` (mirrors `I18n.current_lang`). |
 | `title` | String | Short scene title shown in `%TitleLabel` as `"${round}. ${title}"` (`scripts/gameplay.gd:1088`). |
 | `uuid` / `prev_uuid` / `current_round` / `version` / `image_filenames` / `current_image_index` / `timestamp` | — | **Local meta** added/preserved by `Gameplay` & `SceneDataManager`; not expected from LLM but kept if present. |
 
@@ -81,7 +81,7 @@ Response `choices[0].message.content` is returned as `text`; `title` is best-eff
 | Component | Status |
 |-----------|--------|
 | Brainstorm scene UI (Random/Enhance/Start/Flow Settings) | ✅ Implemented (`scripts/brainstorm.gd:1`, `scenes/brainstorm.tscn`) |
-| LLM prompt templates (en, zh_CN, zh_TW, yue) | ✅ Implemented (`data/llm/*`) |
+| LLM prompt templates (en, zh_CN, zh_TW, yue, ja) | ✅ Implemented (`data/llm/*`) |
 | Random prompt generation | ✅ Implemented (`LLMManager.request_random`) |
 | Prompt enhancement | ✅ Implemented (`LLMManager.request_enhance`) |
 | LLM API call for new story / new scene | ✅ Implemented (`LLMManager.request_new_story/scene` + Gameplay retry loops) |

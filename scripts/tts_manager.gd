@@ -19,6 +19,7 @@ const MODEL_ZH_FEMALE := "vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onn
 const MODEL_ZH_MALE := "vits-piper-zh_CN-chaowen-medium/zh_CN-chaowen-medium.onnx"
 const MODEL_ZH_FALLBACK := "vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx"
 const MODEL_YUE_FALLBACK := "vits-cantonese-hf-xiaomaiiwn/vits-cantonese-hf-xiaomaiiwn.onnx"
+const MODEL_JA_FALLBACK := "vits-melo-tts-ja/model.onnx"
 
 var _queue: Array = [] # Array[Dictionary] {uuid, idx, dialogue, sex, language}
 var _generating: bool = false
@@ -51,7 +52,9 @@ func is_available() -> bool:
 func _model_for(sex: String, language: String) -> Dictionary:
 	var s := sex.strip_edges().to_lower()
 	var lang := language.strip_edges().to_lower()
-	if lang == "yue" or lang == "zh_hk" or lang.contains("cantonese"):
+	if lang == "ja" or lang.begins_with("ja_") or lang.begins_with("ja-") or lang.contains("japanese"):
+		return _resolve_model(MODEL_JA_FALLBACK)
+	elif lang == "yue" or lang == "zh_hk" or lang.contains("cantonese"):
 		return _resolve_model(MODEL_YUE_FALLBACK)
 	elif lang.begins_with("zh"):
 		if s == "female" or s == "woman" or s == "girl":

@@ -11,7 +11,8 @@ AI-generated visual novel — Godot client that drives local **llama.cpp**, **Co
    - `server/llama/llama-server.exe` (llama.cpp b10514+)
    - `data/llama-models/cen/huihui-qwen3.5-9b-Q4_K_M.gguf` (primary)
    - `server/ComfyUI/` (+ checkpoint `waiIllustriousSDXL_v170.safetensors` under `ComfyUI/models/checkpoints/`)
-   - `server/sherpa-onnx/` for TTS models and Sherpa runtime libs (`powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1`; native Godot wrapper lives in `addons/sherpa_tts/`)
+   - `server/sherpa-onnx/` for Sherpa runtime libs (`powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1`; native Godot wrapper lives in `addons/sherpa_tts/`)
+   - Optional Japanese MeloTTS voice under `data/sherpa-models/` (`powershell -ExecutionPolicy Bypass -File scripts/download_japanese_tts.ps1`)
 3. **Open** `project.godot` in Godot, run. `ServerRuntimeManager` auto-starts both servers, heartbeat 2s until connected and 10s after connected, status dots top-right.
 4. **Play:** Start → (optional Random/Enhance) → Start → Gameplay (choices → next scene). Saves under `user://saves/<uuid>/` (`OS.get_user_data_dir()`).
 
@@ -48,7 +49,7 @@ Autoloads: `I18n`, `GameSettingsManager`, `LLM/Image Server SettingsManager`, `L
 
 ## i18n
 
-`en`, `zh_CN`, `zh_TW`, `yue` — `I18n.current_lang` + `GameSettingsManager` language setting.
+`en`, `zh_CN`, `zh_TW`, `yue`, `ja` — `I18n.current_lang` + `GameSettingsManager` language setting.
 
 ## Testing
 

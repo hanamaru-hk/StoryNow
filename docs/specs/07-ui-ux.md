@@ -59,7 +59,7 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 
 | Overlay | Editable Fields | Persisted To |
 |---------|----------------|--------------|
-| **Game Settings** (`game_settings_overlay.gd`) | Language (en/zh_CN/zh_TW/yue), Screen size (Full/1344×768), Autoplay TTS | `user://game_settings.json` |
+| **Game Settings** (`game_settings_overlay.gd`) | Language (en/zh_CN/zh_TW/yue/ja), Screen size (Full/1344×768), Autoplay TTS | `user://game_settings.json` |
 | **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
 | **LLM Settings** (`llm_settings_overlay.gd`) | Port (default 48763) | `user://llm_settings.json` |
 | **Image Server Settings** (`image_server_settings_overlay.gd`) | Port, timeout, Low VRAM toggle, and free-mode-only editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
@@ -84,7 +84,7 @@ The PlotOverlay UI regression check runs with `godot --headless --path . --scene
 
 ## 7.9 Internationalization
 
-- Four languages: `en`, `zh_CN`, `zh_TW`, `yue` via `I18n` singleton (`scripts/i18n.gd:1`, `_translations` dict, `set_language`, `translate`).
+- Five languages: `en`, `zh_CN`, `zh_TW`, `yue`, `ja` via `I18n` singleton (`scripts/i18n.gd:1`, `_translations` dict, `set_language`, `translate`).
 - All UI strings resolved via `I18n.translate(key)`; `GameSettingsManager._apply_language()` syncs `TranslationServer`.
 - LLM templates per language under `data/llm/<lang>/`.
 

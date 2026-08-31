@@ -1,0 +1,26 @@
+{
+  "interactions": [
+    {
+      "character": "太郎",
+      "dialogue": "アイスクリームが食べたいな。",
+      "sex": "male"
+    }
+  ],
+  "choices": [
+    {
+      "plot": "アイスクリーム店へ行く"
+    },
+    {
+      "plot": "店に残って仕事を続ける"
+    },
+    {
+      "plot": "通りかかった客に相談する"
+    }
+  ],
+  "image_prompt": "man, mechanic",
+  "summary": "太郎は、一日の仕事を終えるとアイスクリームが恋しくなる整備士です。",
+  "language": "ja",
+  "title": "太郎とアイスクリームの悩み",
+  "bgm_mood": "joyful"
+}
+
