@@ -29,7 +29,7 @@ var _translations := {
 		"btn_game_setting": "Game Setting",
 		"btn_advanced_setting": "Advanced Setting",
 		"btn_flow_setting": "Flow Settings",
-		"btn_sidepanel_flow_setting": "Flow Settings",
+		"btn_sidepanel_flow_setting": "Settings",
 		"btn_gameplay_menu": "Menu",
 		"btn_back_to_main_menu": "Back to Main Menu",
 		"btn_quit_game": "Quit Game",
