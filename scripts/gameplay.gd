@@ -482,6 +482,13 @@ func _on_back_to_main_menu_requested() -> void:
 
 
 func _on_quit_game_requested() -> void:
+	if _is_leaving_scene:
+		return
+	_is_leaving_scene = true
+	if ServerRuntimeManager.has_generation_requests():
+		await ServerRuntimeManager.cancel_active_generation_tasks()
+	if not is_inside_tree():
+		return
 	get_tree().quit()
 
 

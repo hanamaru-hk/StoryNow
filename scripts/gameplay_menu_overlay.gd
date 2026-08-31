@@ -8,6 +8,14 @@ signal advanced_settings_requested
 signal main_menu_requested
 signal quit_game_requested
 
+enum LeaveAction {
+	NONE,
+	MAIN_MENU,
+	QUIT_GAME,
+}
+
+var _pending_leave_action := LeaveAction.NONE
+
 
 func _ready() -> void:
 	%Load.pressed.connect(_on_load_pressed)
@@ -17,15 +25,22 @@ func _ready() -> void:
 	%BackToMainMenu.pressed.connect(_on_back_to_main_menu_pressed)
 	%QuitGame.pressed.connect(_on_quit_game_pressed)
 	%Back.pressed.connect(_on_back_pressed)
+	%LeaveConfirmBack.pressed.connect(_on_leave_confirmation_back_pressed)
+	%LeaveConfirmOk.pressed.connect(_on_leave_confirmation_confirmed)
+	%LeaveConfirmPopup.visible = false
 	_update_labels()
 
 
 func open() -> void:
+	_pending_leave_action = LeaveAction.NONE
+	%LeaveConfirmPopup.visible = false
 	visible = true
 	_update_labels()
 
 
 func close() -> void:
+	_pending_leave_action = LeaveAction.NONE
+	%LeaveConfirmPopup.visible = false
 	visible = false
 	closed.emit()
 
@@ -51,13 +66,46 @@ func _on_advanced_setting_pressed() -> void:
 
 
 func _on_back_to_main_menu_pressed() -> void:
-	visible = false
-	main_menu_requested.emit()
+	_request_leave(LeaveAction.MAIN_MENU)
 
 
 func _on_quit_game_pressed() -> void:
+	_request_leave(LeaveAction.QUIT_GAME)
+
+
+func _request_leave(action: LeaveAction) -> void:
+	if ServerRuntimeManager.has_generation_requests():
+		_pending_leave_action = action
+		%LeaveConfirmPopup.visible = true
+		%LeaveConfirmBack.grab_focus()
+		return
+	_emit_leave_action(action)
+
+
+func _on_leave_confirmation_back_pressed() -> void:
+	var action := _pending_leave_action
+	_pending_leave_action = LeaveAction.NONE
+	%LeaveConfirmPopup.visible = false
+	if action == LeaveAction.QUIT_GAME:
+		%QuitGame.grab_focus()
+	else:
+		%BackToMainMenu.grab_focus()
+
+
+func _on_leave_confirmation_confirmed() -> void:
+	var action := _pending_leave_action
+	_pending_leave_action = LeaveAction.NONE
+	%LeaveConfirmPopup.visible = false
+	_emit_leave_action(action)
+
+
+func _emit_leave_action(action: LeaveAction) -> void:
 	visible = false
-	quit_game_requested.emit()
+	match action:
+		LeaveAction.MAIN_MENU:
+			main_menu_requested.emit()
+		LeaveAction.QUIT_GAME:
+			quit_game_requested.emit()
 
 
 func _on_back_pressed() -> void:
@@ -73,3 +121,7 @@ func _update_labels() -> void:
 	%BackToMainMenu.text = I18n.translate("btn_back_to_main_menu")
 	%QuitGame.text = I18n.translate("btn_quit_game")
 	%Back.text = I18n.translate("btn_back")
+	%LeaveConfirmTitle.text = I18n.translate("confirm_dialog_title")
+	%LeaveConfirmMessage.text = I18n.translate("confirm_leave_generation_pending")
+	%LeaveConfirmBack.text = I18n.translate("btn_back")
+	%LeaveConfirmOk.text = I18n.translate("btn_confirm")

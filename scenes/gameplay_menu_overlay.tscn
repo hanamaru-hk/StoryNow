@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://gameplay_menu_overlay"]
+[gd_scene load_steps=4 format=3 uid="uid://gameplay_menu_overlay"]
 
 [ext_resource type="Script" path="res://scripts/gameplay_menu_overlay.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/ornate_gold_frame.gd" id="2_gold_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_leave_popup"]
 
 [node name="GameplayMenuOverlay" type="Control"]
 visible = false
@@ -101,3 +103,81 @@ layout_mode = 2
 custom_minimum_size = Vector2(240, 48)
 size_flags_horizontal = 4
 text = "Back"
+
+[node name="LeaveConfirmPopup" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDim" type="ColorRect" parent="LeaveConfirmPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="CenterContainer" type="CenterContainer" parent="LeaveConfirmPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="LeaveConfirmPopup/CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(640, 300)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_leave_popup")
+script = ExtResource("2_gold_frame")
+background_color = Color(0.08, 0.08, 0.1, 0.9)
+
+[node name="Margin" type="MarginContainer" parent="LeaveConfirmPopup/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="LeaveConfirmPopup/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="LeaveConfirmTitle" type="Label" parent="LeaveConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PopupTitle"
+text = "Confirm"
+horizontal_alignment = 1
+
+[node name="LeaveConfirmMessage" type="Label" parent="LeaveConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "Generation tasks are still in progress. Are you sure you want to leave?"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ButtonRow" type="HBoxContainer" parent="LeaveConfirmPopup/CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="LeaveConfirmBack" type="Button" parent="LeaveConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Back"
+
+[node name="LeaveConfirmOk" type="Button" parent="LeaveConfirmPopup/CenterContainer/Panel/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(180, 48)
+text = "Confirm"

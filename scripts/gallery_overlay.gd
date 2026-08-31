@@ -505,13 +505,19 @@ func _on_preview_next_pressed() -> void:
 func _on_preview_load_pressed() -> void:
 	if _preview_uuid.strip_edges().is_empty() or _preview_entry.is_empty():
 		return
-	if not _are_story_servers_ready():
+	var has_pending_generation := ServerRuntimeManager.has_generation_requests()
+	if not has_pending_generation and not _are_story_servers_ready():
 		_show_preview_error(I18n.translate("notice_wait_llm_and_image_ready"), true, "show_confirmation")
 		return
-	var template := I18n.translate("gallery_load_scene_confirm")
-	if template == "gallery_load_scene_confirm":
-		template = "Load this scene?\n%s"
-	%GalleryPreviewConfirmMessage.text = template % _get_preview_title(_preview_uuid, _preview_entry)
+	if has_pending_generation:
+		%GalleryPreviewConfirmMessage.text = I18n.translate("confirm_leave_generation_pending")
+		%GalleryPreviewConfirmCancel.text = I18n.translate("btn_back")
+	else:
+		var template := I18n.translate("gallery_load_scene_confirm")
+		if template == "gallery_load_scene_confirm":
+			template = "Load this scene?\n%s"
+		%GalleryPreviewConfirmMessage.text = template % _get_preview_title(_preview_uuid, _preview_entry)
+		%GalleryPreviewConfirmCancel.text = I18n.translate("btn_cancel")
 	%GalleryPreviewConfirmPopup.visible = true
 	%GalleryPreviewConfirmLoad.grab_focus()
 

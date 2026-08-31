@@ -32,7 +32,7 @@ func _on_back_pressed() -> void:
 
 
 func _on_reset_pressed() -> void:
-	GameProgressManager.reset_to_defaults()
+	GameProgressManager.reset_flow_settings_to_defaults()
 	_pending = GameProgressManager.settings.duplicate(true)
 	_sync_ui_to_settings()
 	_update_labels()

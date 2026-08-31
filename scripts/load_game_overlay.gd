@@ -491,10 +491,16 @@ func _on_save_pressed(uuid: String, entry: Dictionary) -> void:
 	_pending_load_entry = entry.duplicate(true)
 	var data: Dictionary = _pending_load_entry.get("data", {}) as Dictionary if _pending_load_entry.get("data", {}) is Dictionary else {}
 	var title := _get_save_title(clean_uuid, data)
-	var template := I18n.translate("load_confirm")
-	if template == "load_confirm":
-		template = "Load this save?\n%s"
-	%LoadConfirmMessage.text = template % title
+	var has_pending_generation := ServerRuntimeManager.has_generation_requests()
+	if has_pending_generation:
+		%LoadConfirmMessage.text = I18n.translate("confirm_leave_generation_pending")
+		%LoadConfirmCancel.text = I18n.translate("btn_back")
+	else:
+		var template := I18n.translate("load_confirm")
+		if template == "load_confirm":
+			template = "Load this save?\n%s"
+		%LoadConfirmMessage.text = template % title
+		%LoadConfirmCancel.text = I18n.translate("btn_cancel")
 	%LoadConfirmPopup.visible = true
 
 
