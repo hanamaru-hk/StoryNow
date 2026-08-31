@@ -228,6 +228,49 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Off"
 
+[node name="VoiceVolumeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="VoiceVolumeLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/VoiceVolumeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Voice Volume"
+
+[node name="VoiceVolumeSlider" type="HSlider" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/VoiceVolumeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 40)
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="VoiceVolumeValue" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/VoiceVolumeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(48, 0)
+text = "100%"
+horizontal_alignment = 2
+
+[node name="VoiceMuteRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="VoiceMuteLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/VoiceMuteRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+size_flags_horizontal = 3
+text = "Mute Voice"
+
+[node name="VoiceMuteCheck" type="CheckButton" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList/VoiceMuteRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Off"
+
 [node name="Spacer2" type="Control" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 16)

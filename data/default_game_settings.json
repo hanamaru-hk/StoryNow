@@ -10,6 +10,8 @@
 	"show_streaming": true,
 	"dialogue_text_instant": false,
 	"dialogue_text_speed": 30,
+	"voice_volume": 100,
+	"voice_muted": false,
 	"music_volume": 70,
 	"music_muted": false
 }

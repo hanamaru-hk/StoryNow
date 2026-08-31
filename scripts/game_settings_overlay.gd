@@ -22,6 +22,10 @@ func _ready() -> void:
 		%DialogueInstantCheck.toggled.connect(_on_dialogue_instant_toggled)
 	if has_node("%DialogueSpeedSlider"):
 		%DialogueSpeedSlider.value_changed.connect(_on_dialogue_speed_changed)
+	if has_node("%VoiceVolumeSlider"):
+		%VoiceVolumeSlider.value_changed.connect(_on_voice_volume_changed)
+	if has_node("%VoiceMuteCheck"):
+		%VoiceMuteCheck.toggled.connect(_on_voice_mute_toggled)
 	if has_node("%MusicVolumeSlider"):
 		%MusicVolumeSlider.value_changed.connect(_on_music_volume_changed)
 	if has_node("%MusicMuteCheck"):
@@ -56,6 +60,7 @@ func _on_save_pressed() -> void:
 	GameSettingsManager._apply_language()
 	GameSettingsManager._apply_screen_size()
 	GameSettingsManager.music_settings_changed.emit()
+	GameSettingsManager.voice_settings_changed.emit()
 	GameSettingsManager.save_settings()
 	_pending = {}
 	visible = false
@@ -127,6 +132,16 @@ func _on_music_volume_changed(value: float) -> void:
 	_update_labels()
 
 
+func _on_voice_volume_changed(value: float) -> void:
+	_pending["voice_volume"] = int(round(value))
+	_update_labels()
+
+
+func _on_voice_mute_toggled(pressed: bool) -> void:
+	_pending["voice_muted"] = pressed
+	_update_labels()
+
+
 func _on_music_mute_toggled(pressed: bool) -> void:
 	_pending["music_muted"] = pressed
 	_update_labels()
@@ -158,6 +173,13 @@ func _sync_ui_to_settings() -> void:
 		%DialogueSpeedSlider.value = float(_pending.get("dialogue_text_speed", GameSettingsManager.DEFAULT_DIALOGUE_TEXT_SPEED))
 	if has_node("%DialogueSpeedValue"):
 		%DialogueSpeedValue.text = _dialogue_speed_text()
+	if has_node("%VoiceVolumeSlider"):
+		%VoiceVolumeSlider.value = float(_pending.get("voice_volume", 100))
+	if has_node("%VoiceVolumeValue"):
+		%VoiceVolumeValue.text = "%d%%" % int(_pending.get("voice_volume", 100))
+	if has_node("%VoiceMuteCheck"):
+		%VoiceMuteCheck.button_pressed = bool(_pending.get("voice_muted", false))
+		%VoiceMuteCheck.text = I18n.translate("settings_on") if bool(_pending.get("voice_muted", false)) else I18n.translate("settings_off")
 	if has_node("%MusicVolumeSlider"):
 		%MusicVolumeSlider.value = float(_pending.get("music_volume", 70))
 	if has_node("%MusicVolumeValue"):
@@ -188,6 +210,14 @@ func _update_labels() -> void:
 		%DialogueSpeedLabel.text = I18n.translate("settings_dialogue_speed")
 	if has_node("%DialogueSpeedValue"):
 		%DialogueSpeedValue.text = _dialogue_speed_text()
+	if has_node("%VoiceVolumeLabel"):
+		%VoiceVolumeLabel.text = I18n.translate("settings_voice_volume")
+	if has_node("%VoiceVolumeValue"):
+		%VoiceVolumeValue.text = "%d%%" % int(_pending.get("voice_volume", 100))
+	if has_node("%VoiceMuteLabel"):
+		%VoiceMuteLabel.text = I18n.translate("settings_voice_mute")
+	if has_node("%VoiceMuteCheck"):
+		%VoiceMuteCheck.text = I18n.translate("settings_on") if %VoiceMuteCheck.button_pressed else I18n.translate("settings_off")
 	if has_node("%MusicVolumeLabel"):
 		%MusicVolumeLabel.text = I18n.translate("settings_music_volume") if I18n.translate("settings_music_volume") != "settings_music_volume" else "Music Volume"
 	if has_node("%MusicVolumeValue"):

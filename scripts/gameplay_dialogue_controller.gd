@@ -13,6 +13,9 @@ var _typewriter_generation := 0
 
 func _init(host: Control) -> void:
 	_host = host
+	if is_instance_valid(GameSettingsManager) and not GameSettingsManager.voice_settings_changed.is_connected(apply_voice_settings):
+		GameSettingsManager.voice_settings_changed.connect(apply_voice_settings)
+	apply_voice_settings()
 
 
 func update_total() -> void:
@@ -269,6 +272,7 @@ func play_wav(global_path: String) -> void:
 		return
 	if player.playing:
 		player.stop()
+	apply_voice_settings()
 	player.pitch_scale = _playback_scale()
 	var pitch_effect := _pitch_effect(player)
 	if pitch_effect:
@@ -342,12 +346,7 @@ func _tts_player() -> AudioStreamPlayer:
 
 
 func _pitch_effect(player: AudioStreamPlayer) -> AudioEffectPitchShift:
-	var bus_index := AudioServer.get_bus_index(TTS_VOICE_BUS)
-	if bus_index == -1:
-		AudioServer.add_bus()
-		bus_index = AudioServer.get_bus_count() - 1
-		AudioServer.set_bus_name(bus_index, TTS_VOICE_BUS)
-		AudioServer.set_bus_send(bus_index, "Master")
+	var bus_index := _ensure_voice_bus()
 	player.bus = TTS_VOICE_BUS
 	for effect_index in AudioServer.get_bus_effect_count(bus_index):
 		var effect := AudioServer.get_bus_effect(bus_index, effect_index)
@@ -356,6 +355,26 @@ func _pitch_effect(player: AudioStreamPlayer) -> AudioEffectPitchShift:
 	var effect := AudioEffectPitchShift.new()
 	AudioServer.add_bus_effect(bus_index, effect)
 	return effect
+
+
+func apply_voice_settings() -> void:
+	var bus_index := _ensure_voice_bus()
+	var volume_percent := clampi(int(GameSettingsManager.settings.get("voice_volume", 100)), 0, 100)
+	AudioServer.set_bus_volume_db(bus_index, linear_to_db(float(volume_percent) / 100.0) if volume_percent > 0 else -80.0)
+	AudioServer.set_bus_mute(bus_index, bool(GameSettingsManager.settings.get("voice_muted", false)))
+	var player := _tts_player()
+	if player:
+		player.bus = TTS_VOICE_BUS
+
+
+func _ensure_voice_bus() -> int:
+	var bus_index := AudioServer.get_bus_index(TTS_VOICE_BUS)
+	if bus_index == -1:
+		AudioServer.add_bus()
+		bus_index = AudioServer.get_bus_count() - 1
+		AudioServer.set_bus_name(bus_index, TTS_VOICE_BUS)
+		AudioServer.set_bus_send(bus_index, "Master")
+	return bus_index
 
 
 func _pitch_scale() -> float:
