@@ -40,13 +40,13 @@ func _test_ports_and_timeouts() -> void:
 
 
 func _test_image_dimensions() -> void:
-	_expect(SettingsValidator.is_valid_image_dimension("16"), "minimum aligned dimension is accepted")
+	_expect(SettingsValidator.is_valid_image_dimension("16"), "minimum dimension is accepted")
 	_expect(SettingsValidator.image_dimension_or_default(1344.0, 16) == "1344", "JSON dimensions retain their value")
 	_expect(SettingsValidator.is_valid_image_dimension("1344"), "default width is accepted")
+	_expect(SettingsValidator.is_valid_image_dimension("1345"), "dimensions do not need to be multiples of eight")
 	_expect(SettingsValidator.is_valid_image_dimension("16384"), "maximum dimension is accepted")
 	_expect(not SettingsValidator.is_valid_image_dimension("0"), "zero dimension is rejected")
 	_expect(not SettingsValidator.is_valid_image_dimension("8"), "dimension below the minimum is rejected")
-	_expect(not SettingsValidator.is_valid_image_dimension("1345"), "unaligned dimension is rejected")
 	_expect(not SettingsValidator.is_valid_image_dimension("16392"), "dimension above the maximum is rejected")
 	_expect(SettingsValidator.image_dimension_or_default("-8", 768) == "768", "invalid persisted dimension uses its default")
 

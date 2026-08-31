@@ -6,7 +6,6 @@ const MAX_PORT := 65535
 const MIN_TIMEOUT := 1
 const MIN_IMAGE_DIMENSION := 16
 const MAX_IMAGE_DIMENSION := 16384
-const IMAGE_DIMENSION_STEP := 8
 
 
 static func is_non_negative_integer(value: Variant) -> bool:
@@ -38,8 +37,7 @@ static func is_valid_image_dimension(value: Variant) -> bool:
 		return false
 	var dimension := int(parsed["value"])
 	return dimension >= MIN_IMAGE_DIMENSION \
-		and dimension <= MAX_IMAGE_DIMENSION \
-		and dimension % IMAGE_DIMENSION_STEP == 0
+		and dimension <= MAX_IMAGE_DIMENSION
 
 
 static func non_negative_integer_or_default(value: Variant, default_value: int) -> int:
