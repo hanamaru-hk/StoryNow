@@ -101,7 +101,7 @@ text = "Timeout"
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(200, 40)
-placeholder_text = "120"
+placeholder_text = "720"
 
 [node name="LowVramRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsScroll/ContentMargin/SettingsList"]
 layout_mode = 2

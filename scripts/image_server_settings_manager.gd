@@ -10,7 +10,7 @@ const DEFAULT_SUFFIX := "4k"
 
 var settings := {
 	"port": 56321,
-	"timeout": 240,
+	"timeout": 720,
 	"low_vram": false,
 	"model_filename": "waiIllustriousSDXL_v170.safetensors",
 	"image_width": "1344",
@@ -71,7 +71,7 @@ func reset_to_defaults() -> void:
 
 func _normalize_integer_settings() -> void:
 	settings["port"] = SettingsValidator.port_or_default(settings.get("port", 56321), 56321)
-	settings["timeout"] = SettingsValidator.timeout_or_default(settings.get("timeout", 240), 240)
+	settings["timeout"] = SettingsValidator.timeout_or_default(settings.get("timeout", 720), 720)
 	settings["image_width"] = SettingsValidator.image_dimension_or_default(settings.get("image_width", 1344), 1344)
 	settings["image_height"] = SettingsValidator.image_dimension_or_default(settings.get("image_height", 768), 768)
 

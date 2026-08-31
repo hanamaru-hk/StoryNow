@@ -195,7 +195,7 @@ func _sync_ui_to_settings() -> void:
 	if model_index >= 0:
 		%ModelOption.selected = model_index
 	%PortInput.text = _integer_text(_pending.get("port", 48763))
-	%TimeoutInput.text = _integer_text(_pending.get("timeout", 60))
+	%TimeoutInput.text = _integer_text(_pending.get("timeout", 720))
 	%ContextSizeInput.text = _integer_text(_pending.get("context_size", 0))
 	%FitCheck.button_pressed = bool(_pending["fit"])
 	%FitCheck.text = I18n.translate("settings_on") if %FitCheck.button_pressed else I18n.translate("settings_off")

@@ -160,7 +160,7 @@ func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
 	%PortInput.text = _integer_text(_pending.get("port", 56321))
-	%TimeoutInput.text = _integer_text(_pending.get("timeout", 120))
+	%TimeoutInput.text = _integer_text(_pending.get("timeout", 720))
 	%ImageWidthInput.text = str(_pending["image_width"])
 	%ImageHeightInput.text = str(_pending["image_height"])
 	%LowVramCheck.button_pressed = bool(_pending["low_vram"])
@@ -177,8 +177,8 @@ func _update_field_visibility() -> void:
 	var show_prompt_affixes := GameSettingsManager.is_builder_mode()
 	%PrefixRow.visible = show_prompt_affixes
 	%SuffixRow.visible = show_prompt_affixes
-	%ImageWidthRow.visible = show_prompt_affixes
-	%ImageHeightRow.visible = show_prompt_affixes
+	%ImageWidthRow.visible = false
+	%ImageHeightRow.visible = false
 
 
 func _update_labels() -> void:

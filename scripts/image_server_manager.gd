@@ -6,7 +6,7 @@ const COMFYUI_DIR := "server/ComfyUI"
 const HEALTH_TIMEOUT := 5.0
 const WORKFLOW_TEMPLATE_PATH := "data/comfyui/workflow_template.json"
 const DEFAULT_MODEL := "waiIllustriousSDXL_v170.safetensors"
-const DEFAULT_IMAGE_TIMEOUT := 120.0
+const DEFAULT_IMAGE_TIMEOUT := 720.0
 const FILENAME_PREFIX := "SN"
 
 signal status_changed(status: Dictionary)

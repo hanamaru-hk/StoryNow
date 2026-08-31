@@ -4,10 +4,9 @@ extends Node
 const LLMServerArgs := preload("res://scripts/llm_server_args.gd")
 const STATUS_PATH := "user://llm_status.json"
 const LLAMA_DIR := "server/llama"
-const LLAMA_MODELS_DIR_CEN := "data/llama-models/cen"
-const LLAMA_MODELS_DIR_AB := "data/llama-models/ab"
+const TRIAL_LLM_MODEL_PATH := "data/llama-models/cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf"
 const HEALTH_TIMEOUT := 5.0
-const DEFAULT_BRAINSTORM_TIMEOUT := 60.0
+const DEFAULT_BRAINSTORM_TIMEOUT := 720.0
 const LLM_HOST := "127.0.0.1"
 const CHAT_ENDPOINT := "/v1/chat/completions"
 const PROMPT_DIR := "data/llm"
@@ -48,10 +47,7 @@ func start_server() -> void:
 	var port: int = LLMSettingsManager.settings["port"]
 	var port_number := str(port)
 	var exe_path := AppPaths.external_path(LLAMA_DIR + "/llama-server.exe")
-	var model_filename := str(LLMSettingsManager.settings.get("llm_model_filename", ""))
-	if model_filename.is_empty():
-		model_filename = "cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf"
-	var model_path := AppPaths.external_path("data/llama-models/" + model_filename)
+	var model_path := AppPaths.external_path(TRIAL_LLM_MODEL_PATH)
 	if not FileAccess.file_exists(exe_path):
 		push_error("llama-server executable not found: " + exe_path)
 		return
