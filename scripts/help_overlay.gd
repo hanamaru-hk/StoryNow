@@ -79,6 +79,7 @@ func _update_labels() -> void:
 	%TroubleshootingStepOne.text = I18n.translate("help_check_requirements")
 	%TroubleshootingMinimumRequirementsButton.text = I18n.translate("help_minimum_requirements")
 	%TroubleshootingStepTwo.text = I18n.translate("help_free_memory")
+	%TroubleshootingStepThree.text = I18n.translate("help_latest_nvidia_driver")
 	%TroubleshootingBack.text = I18n.translate("btn_back")
 	%GenerationRetryTitle.text = I18n.translate("help_generation_retry")
 	%GenerationRetryTimeout.text = I18n.translate("help_generation_retry_timeout")

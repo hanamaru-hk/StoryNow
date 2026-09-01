@@ -143,9 +143,17 @@ text = "Minimum System Requirements"
 [node name="TroubleshootingStepTwo" type="Label" parent="TroubleshootingOverlay/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(0, 130)
+custom_minimum_size = Vector2(0, 110)
 size_flags_vertical = 3
 text = "2. StoryNow uses a significant amount of memory. Close your web browser and other applications to free up memory."
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="TroubleshootingStepThree" type="Label" parent="TroubleshootingOverlay/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "3. Install the latest NVIDIA graphics driver."
 vertical_alignment = 1
 autowrap_mode = 3
 
