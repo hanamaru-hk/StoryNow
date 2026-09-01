@@ -6,7 +6,6 @@ const COMFYUI_DIR := "server/ComfyUI"
 const HEALTH_TIMEOUT := 5.0
 const WORKFLOW_TEMPLATE_PATH := "data/comfyui/workflow_template.json"
 const DEFAULT_MODEL := "waiIllustriousSDXL_v170.safetensors"
-const DEFAULT_IMAGE_TIMEOUT := 120.0
 const FILENAME_PREFIX := "SN"
 
 signal status_changed(status: Dictionary)
@@ -251,7 +250,7 @@ func _fix_comfy_workflow_dict(workflow_dict: Dictionary, seed_val: int) -> void:
 
 
 func _get_image_timeout() -> float:
-	return maxf(1.0, float(ImageServerSettingsManager.settings.get("timeout", DEFAULT_IMAGE_TIMEOUT)))
+	return float(ImageServerSettingsManager.settings["timeout"])
 
 
 func _queue_comfy_prompt(workflow_dict: Dictionary, request_timeout: float) -> String:

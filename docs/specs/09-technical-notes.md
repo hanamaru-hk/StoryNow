@@ -3,17 +3,17 @@
 ## 9.1 llama.cpp API
 
 - Health: `GET http://127.0.0.1:<port>/health` (`HTTPClient`, 5s timeout, `scripts/llm_manager.gd:72`)
-- Chat: `POST http://127.0.0.1:<port>/v1/chat/completions` with `{"messages":[{"role":"user","content":prompt}], "stream":false, "thinking":false, "cache_prompt":false, "chat_template_kwargs":{"enable_thinking":false}}` (`HTTPRequest`, 120s timeout, `scripts/llm_manager.gd:370`)
+- Chat: `POST http://127.0.0.1:<port>/v1/chat/completions` with `{"messages":[{"role":"user","content":prompt}], "stream":false, "thinking":false, "cache_prompt":false, "chat_template_kwargs":{"enable_thinking":false}}` (configurable timeout, default 360 seconds)
 - Default port **48763** (configurable via LLM Settings → `user://llm_settings.json`).
 - Model ≤9B GGUF is invoked with configurable llama.cpp fit and GPU-layer arguments. Defaults produce `llama-server.exe -c 0 --fit on -m <gguf> --port <port>`; enabling `ngl` adds `-ngl 99` by default (`scripts/llm_manager.gd`).
-- Request queue: `ServerRuntimeManager.push_request("llm","generate gameplay",120.0)` / `pop_request` for overlay display.
+- Request queue: `ServerRuntimeManager.push_request("llm", "generate gameplay", request_timeout)` / `pop_request` for overlay display.
 - JSON repair: `GameplaySceneService.parse_generation_result()` sanitizes `image_prompt` bare quotes before its second parse attempt; the request result keeps the best-effort title as a fallback.
 
 ## 9.2 ComfyUI API
 
 - Health: `GET http://127.0.0.1:<port>/system_stats` (`scripts/image_server_manager.gd:55`)
 - Submit: `POST http://127.0.0.1:<port>/prompt` with workflow dict
-- History: `GET http://127.0.0.1:<port>/history/<prompt_id>` (poll 0.5s, 120 attempts, `scripts/image_server_manager.gd:274`)
+- History: `GET http://127.0.0.1:<port>/history/<prompt_id>` (poll every 0.5 seconds until the configurable timeout, default 360 seconds)
 - View: `GET http://127.0.0.1:<port>/view?filename=&subfolder=&type=` (binary download to `user://saves/<uuid>/images/`, `scripts/image_server_manager.gd:327`)
 - Default port **56321**.
 - Workflow template: `data/comfyui/workflow_template.json` (note underscore, not hyphen).

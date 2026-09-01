@@ -7,7 +7,6 @@ const LLAMA_DIR := "server/llama"
 const LLAMA_MODELS_DIR_CEN := "data/llama-models/cen"
 const LLAMA_MODELS_DIR_AB := "data/llama-models/ab"
 const HEALTH_TIMEOUT := 5.0
-const DEFAULT_BRAINSTORM_TIMEOUT := 60.0
 const LLM_HOST := "127.0.0.1"
 const CHAT_ENDPOINT := "/v1/chat/completions"
 const PROMPT_DIR := "data/llm"
@@ -417,7 +416,7 @@ func request_new_scene() -> Dictionary:
 
 func _request_completion(prompt: String) -> Dictionary:
 	_cancel_requested = false
-	var request_timeout: float = float(LLMSettingsManager.settings.get("timeout", DEFAULT_BRAINSTORM_TIMEOUT))
+	var request_timeout: float = float(LLMSettingsManager.settings["timeout"])
 	var queue_id := ServerRuntimeManager.push_request("llm", I18n.translate("request_generating_gameplay"), request_timeout)
 	var port: int = LLMSettingsManager.settings["port"]
 	var body := JSON.stringify({

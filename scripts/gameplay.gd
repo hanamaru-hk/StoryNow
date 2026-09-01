@@ -1,6 +1,7 @@
 extends Control
 
 const AUTO_DIALOGUE_PAUSE_SECONDS := 0.8
+const FADE_IN_SECONDS := 0.5
 
 var _choice_controller: GameplayChoiceController
 var _dialogue_controller: GameplayDialogueController
@@ -24,6 +25,7 @@ var _is_leaving_scene: bool = false
 var _auto_advance_generation := 0
 
 func _ready() -> void:
+	_play_fade_in()
 	_choice_controller = GameplayChoiceController.new(self)
 	_dialogue_controller = GameplayDialogueController.new(self)
 	_image_controller = GameplayImageController.new(self)
@@ -130,6 +132,12 @@ func _ready() -> void:
 	_set_all_side_buttons_disabled_except_settings_back()
 
 	await _flow_controller.run_startup()
+
+
+func _play_fade_in() -> void:
+	modulate.a = 0.0
+	var tween := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "modulate:a", 1.0, FADE_IN_SECONDS)
 
 func _load_startup_scene_status() -> String:
 	return _flow_controller.load_startup_status()

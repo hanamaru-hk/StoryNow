@@ -160,7 +160,7 @@ func _sync_ui_to_settings() -> void:
 	if _pending.is_empty():
 		return
 	%PortInput.text = _integer_text(_pending.get("port", 56321))
-	%TimeoutInput.text = _integer_text(_pending.get("timeout", 120))
+	%TimeoutInput.text = _integer_text(_pending["timeout"])
 	%ImageWidthInput.text = str(_pending["image_width"])
 	%ImageHeightInput.text = str(_pending["image_height"])
 	%LowVramCheck.button_pressed = bool(_pending["low_vram"])

@@ -1,10 +1,13 @@
 extends Control
 
+const FADE_IN_SECONDS := 0.5
+
 var _brainstorm_request_active := false
 var _pending_engine_retry_action := ""
 
 
 func _ready() -> void:
+	_play_fade_in()
 	ServerRuntimeManager.set_chrome_visible(true)
 	MusicManager.play_random_mood("main_menu")
 	%Random.pressed.connect(_on_random_pressed)
@@ -21,6 +24,12 @@ func _ready() -> void:
 	%EnhanceConfirmOk.pressed.connect(_on_enhance_confirmed)
 	_update_labels()
 	_set_default_prompt()
+
+
+func _play_fade_in() -> void:
+	modulate.a = 0.0
+	var tween := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "modulate:a", 1.0, FADE_IN_SECONDS)
 
 
 func _exit_tree() -> void:

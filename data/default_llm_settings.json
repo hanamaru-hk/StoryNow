@@ -1,6 +1,6 @@
 {
 	"port": 48763,
-	"timeout": 240,
+	"timeout": 360,
 	"context_size": 0,
 	"fit": true,
 	"ngl": false,

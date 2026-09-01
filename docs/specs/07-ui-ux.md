@@ -38,6 +38,7 @@ First launch (no `user://game_settings.json`) shows `FirstTimeLanguageOverlay`. 
 
 - **Title/Description/Placeholder** via i18n.
 - **Top bar/server chrome:** gameplay-style top bar keeps the global LLM and image server status widget legible; entering the scene restores chrome hidden by the main menu.
+- **Scene transition:** the full Brainstorm interface fades in when the scene opens; Gameplay uses the same entrance treatment.
 - **Readability panel:** an opaque dark panel backs the title, description, textarea, and button row over the illustrated background.
 - **Textarea** `%BackgroundInput` for story background, initialized with a localized humorous starter story.
 - **Button row:** Random, Enhance, Start, Flow Settings (→ `GameProgressOverlay`), Back. Start uses the inverted primary/secondary button palette for emphasis.
@@ -63,8 +64,8 @@ All are `Control` overlays instanced inside `scenes/gameplay.tscn`, each with `o
 |---------|----------------|--------------|
 | **Game Settings** (`game_settings_overlay.gd`) | Scrollable settings form with language (en/zh_CN/zh_TW/yue/ja), screen size, autoplay/streaming toggles, instant dialogue toggle, dialogue text speed (5–120 characters/second), TTS voice volume/mute, music controls, and button sound-effect volume/mute | `user://game_settings.json` |
 | **Flow Settings / Game Progress** (`game_progress_overlay.gd`) | Expected rounds, Min dialogues/scene, Min sentences/dialogue, Max plot directions, Min summary sentences | `user://game_progress.json` (preset `data/default_game_progress.json`) |
-| **LLM Settings** (`llm_settings_overlay.gd`) | Scrollable settings form with model, port (1–65535, default 48763), positive timeout, non-negative context size, auto-fit, and optional GPU-layer count | `user://llm_settings.json` |
-| **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port (1–65535), positive timeout, Low VRAM toggle, and builder-mode-only image width/height (16–16384) plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
+| **LLM Settings** (`llm_settings_overlay.gd`) | Scrollable settings form with model, port (1–65535, default 48763), positive timeout (default 360 seconds), non-negative context size, auto-fit, and optional GPU-layer count | `user://llm_settings.json` |
+| **Image Server Settings** (`image_server_settings_overlay.gd`) | Scrollable settings form with port (1–65535), positive timeout (default 360 seconds), Low VRAM toggle, and builder-mode-only image width/height (16–16384) plus editable positive-prompt prefix/suffix | `user://image_server_settings.json` |
 
 All follow **open → edit `_pending` → Save/Reset/Back** pattern; the LLM and Image Server overlays confirm Save and Reset while warning that StoryNow must restart before changes take effect. Save merges into the manager singleton and calls `save_settings()`. All editable flow settings accept only positive integers. Invalid persisted numeric values are replaced with safe defaults when loaded or saved. Flow Settings Reset restores only the editable generation parameters and preserves runtime progress such as `current_uuid`, round, dialogue, and `game_status`; the other Reset actions reload their complete defaults.
 

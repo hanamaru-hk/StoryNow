@@ -2,9 +2,11 @@ class_name GameplayImageController
 extends RefCounted
 
 const GENERATING_VIDEO_PATH := "res://assets/videos/3.ogv"
+const IMAGE_FADE_IN_SECONDS := 0.5
 
 var _host
 var _generating_dot_count := 1
+var _background_fade_tween: Tween
 
 
 func _init(host: Control) -> void:
@@ -28,6 +30,7 @@ func set_no_image_visible(is_visible: bool) -> void:
 
 
 func show_generating_background() -> void:
+	_stop_background_fade()
 	_show_generating_text()
 	var video := _node("BackgroundVideo") as VideoStreamPlayer
 	if video == null:
@@ -133,8 +136,10 @@ func set_background_from_file(user_path: String) -> bool:
 	hide_generating_background()
 	var background := _node("BackgroundImage") as TextureRect
 	background.texture = ImageTexture.create_from_image(image)
-	background.modulate = Color.WHITE
+	background.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	set_no_image_visible(false)
+	_background_fade_tween = _host.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_background_fade_tween.tween_property(background, "modulate:a", 1.0, IMAGE_FADE_IN_SECONDS)
 	return true
 
 
@@ -286,6 +291,7 @@ func _get_no_image_placeholder() -> Control:
 
 
 func _load_placeholder_background(path: String, alpha: float) -> void:
+	_stop_background_fade()
 	hide_generating_background()
 	var image := Image.new()
 	var error := image.load(ProjectSettings.globalize_path(path))
@@ -302,6 +308,12 @@ func _load_placeholder_background(path: String, alpha: float) -> void:
 		if resource is Texture2D:
 			background.texture = resource
 	background.modulate = Color(1, 1, 1, alpha)
+
+
+func _stop_background_fade() -> void:
+	if _background_fade_tween != null and _background_fade_tween.is_valid():
+		_background_fade_tween.kill()
+	_background_fade_tween = null
 
 
 func _load_image_buffer(image: Image, path: String) -> Error:

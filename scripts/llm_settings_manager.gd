@@ -8,7 +8,7 @@ const LLAMA_MODELS_DIR_AB := "data/llama-models/ab"
 
 var settings := {
 	"port": 48763,
-	"timeout": 240,
+	"timeout": 360,
 	"context_size": 0,
 	"fit": true,
 	"ngl": false,
@@ -124,7 +124,7 @@ func _ensure_selected_model_is_available() -> void:
 
 func _normalize_integer_settings() -> void:
 	settings["port"] = SettingsValidator.port_or_default(settings.get("port", 48763), 48763)
-	settings["timeout"] = SettingsValidator.timeout_or_default(settings.get("timeout", 240), 240)
+	settings["timeout"] = SettingsValidator.timeout_or_default(settings["timeout"], 360)
 	settings["context_size"] = SettingsValidator.non_negative_integer_or_default(settings.get("context_size", 0), 0)
 	settings["fit"] = settings["fit"] if settings["fit"] is bool else true
 	settings["ngl"] = settings["ngl"] if settings["ngl"] is bool else false
