@@ -1,4 +1,5 @@
 server/
+c/
 build/
 .godot/
 *.uid

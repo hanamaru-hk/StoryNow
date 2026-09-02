@@ -2,7 +2,7 @@ extends Node
 ## Library functions for managing the ComfyUI (Image Server) process.
 
 const STATUS_PATH := "user://image_server_status.json"
-const COMFYUI_DIR := "server/ComfyUI"
+const COMFYUI_DIR := "c"
 const HEALTH_TIMEOUT := 5.0
 const WORKFLOW_TEMPLATE_PATH := "data/comfyui/workflow_template.json"
 const DEFAULT_MODEL := "waiIllustriousSDXL_v170.safetensors"
@@ -27,7 +27,7 @@ func start_server() -> void:
 		return
 	var port: int = ImageServerSettingsManager.settings["port"]
 	var base_path := AppPaths.external_path(COMFYUI_DIR)
-	var exe_path := base_path + "/python_embeded/python.exe"
+	var exe_path := base_path + "/py/python.exe"
 	if not FileAccess.file_exists(exe_path):
 		push_error("ComfyUI Python not found: " + exe_path)
 		return

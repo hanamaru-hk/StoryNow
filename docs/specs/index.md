@@ -14,3 +14,7 @@
 10. [Testing Strategy](10-testing-strategy.md)
 11. [Open Questions / TODO](11-open-questions.md)
 12. [Project Structure](12-project-structure.md)
+
+## Packaging Operations
+
+- [Steam package path-shortening and ComfyUI patching](../steam-package-patching.md)
