@@ -28,7 +28,7 @@
 └──────────┘           └────────────┘         └──────────────┘
 ```
 
-Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions`, `/health`) and ComfyUI (`/prompt`, `/history/<id>`, `/view`, `/system_stats`). TTS uses the native `SherpaOfflineTTS` GDExtension in `addons/sherpa_tts/`, backed by Sherpa-ONNX runtime libraries under `server/sherpa-onnx/`. No middleware.
+Communication: **Direct HTTP from GDScript** to llama.cpp (`/v1/chat/completions`, `/health`) and ComfyUI (`/prompt`, `/history/<id>`, `/view`, `/system_stats`). TTS uses the native `SherpaOfflineTTS` GDExtension in `addons/sherpa_tts/`, backed by Sherpa-ONNX runtime libraries under `s/sherpa-onnx/`. No middleware.
 
 ## Key Components
 

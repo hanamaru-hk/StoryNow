@@ -94,7 +94,7 @@ story-now/
 ├── assets/
 │   └── images/generating.jpg            # Generating placeholder background (50% opacity)
 ├── saves/                               # Runtime saves mirror (dev); real saves in user://saves/
-├── server/                              # AI server binaries (gitignored: server/, .godot/, *.uid/import)
+├── s/                                   # AI server binaries (gitignored: s/, .godot/, *.uid/import)
 │   ├── llama/llama-server.exe
 │   └── sherpa-onnx/{bin,lib,models}/
 ├── c/                                   # Shortened ComfyUI portable root (gitignored)

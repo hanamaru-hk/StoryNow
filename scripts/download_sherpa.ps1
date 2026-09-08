@@ -1,11 +1,11 @@
-# Download latest portable sherpa-onnx and put inside server folder
+# Download latest portable sherpa-onnx and put inside s folder
 # Usage: powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1
 $ErrorActionPreference = "Stop"
 
 $version = "v1.13.5"
 $variant = "win-x64-shared-MD-Release"
 $url = "https://github.com/k2-fsa/sherpa-onnx/releases/download/$version/sherpa-onnx-$version-$variant.tar.bz2"
-$serverDir = Join-Path $PSScriptRoot ".." | Join-Path -ChildPath "server"
+$serverDir = Join-Path $PSScriptRoot ".." | Join-Path -ChildPath "s"
 $sherpaDest = Join-Path $serverDir "sherpa-onnx"
 $tmpArchive = Join-Path $env:TEMP "sherpa-onnx-$version-$variant.tar.bz2"
 $tmpExtract = Join-Path $env:TEMP "sherpa-extract-$version"

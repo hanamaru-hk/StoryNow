@@ -5,11 +5,11 @@ env = SConscript("godot-cpp/SConstruct", {"api_version": "4.7"})
 
 env.Append(CPPPATH=[
     "#src",
-    "#../../server/sherpa-onnx/include",
+    "#../../s/sherpa-onnx/include",
 ])
 
 env.Append(LIBPATH=[
-    "#../../server/sherpa-onnx/lib",
+    "#../../s/sherpa-onnx/lib",
 ])
 
 env.Append(LIBS=[
@@ -23,7 +23,7 @@ library = env.SharedLibrary(target=target_path, source=sources)
 
 def copy_runtime_dlls(target, source, env):
     bin_dir = "bin"
-    sherpa_lib_dir = os.path.join("..", "..", "server", "sherpa-onnx", "lib")
+    sherpa_lib_dir = os.path.join("..", "..", "s", "sherpa-onnx", "lib")
     for dll in [
         "sherpa-onnx-c-api.dll",
         "onnxruntime.dll",

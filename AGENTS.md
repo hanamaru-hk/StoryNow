@@ -20,7 +20,7 @@ StoryNow is a Godot visual-novel client that generates story text with a local l
 - `tools/`: headless checks and smoke-test scripts.
 - `addons/sherpa_tts/`: native Sherpa-ONNX wrapper and its checked-in runtime DLLs.
 - `c/`: shortened local ComfyUI portable root (`py/` is the renamed embedded Python directory); ignored and machine-specific. Follow `docs/steam-package-patching.md` when installing or replacing it.
-- `server/`: local llama.cpp and Sherpa installations; ignored and machine-specific.
+- `s/`: local llama.cpp and Sherpa installations; ignored and machine-specific.
 - `docs/specs/`: architecture and behavior specifications. Some status notes may lag behind the implementation, so verify against current code.
 
 ## Before changing code

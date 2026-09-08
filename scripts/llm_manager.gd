@@ -3,7 +3,7 @@ extends Node
 
 const LLMServerArgs := preload("res://scripts/llm_server_args.gd")
 const STATUS_PATH := "user://llm_status.json"
-const LLAMA_DIR := "server/llama"
+const LLAMA_DIR := "s/llama"
 const LLAMA_MODELS_DIR_CEN := "data/llama-models/cen"
 const LLAMA_MODELS_DIR_AB := "data/llama-models/ab"
 const HEALTH_TIMEOUT := 5.0

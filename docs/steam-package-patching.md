@@ -17,7 +17,7 @@ root as `c`:
     └── ComfyUI/main.py
 ```
 
-Here, `c` replaces `server/ComfyUI` and `py` replaces `python_embeded`. With the
+Here, `c` replaces `s/ComfyUI` and `py` replaces `python_embeded`. With the
 ComfyUI bundle measured on 2026-09-02, its longest path under the default Steam
 library becomes 245 visible characters:
 
