@@ -10,7 +10,7 @@ AI-generated visual novel — Godot client that drives local **llama.cpp**, **Co
 2. **Servers:** install the local runtimes:
    - `s/llama/llama-server.exe` (llama.cpp b10514+)
    - `data/llama-models/cen/huihui-qwen3.5-9b-Q4_K_M.gguf` (primary)
-   - `c/` for the shortened ComfyUI portable root, with embedded Python renamed to `c/py/` (+ checkpoint `waiIllustriousSDXL_v170.safetensors` under `c/ComfyUI/models/checkpoints/`; follow the [patching guide](docs/steam-package-patching.md))
+   - `s/c/` for the shortened ComfyUI portable root, with embedded Python renamed to `s/c/py/` (+ checkpoint `waiIllustriousSDXL_v170.safetensors` under `s/c/ComfyUI/models/checkpoints/`; follow the [patching guide](docs/steam-package-patching.md))
    - `s/sherpa-onnx/` for Sherpa runtime libs (`powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1`; native Godot wrapper lives in `addons/sherpa_tts/`)
    - Optional Japanese MeloTTS voice under `data/sherpa-models/` (`powershell -ExecutionPolicy Bypass -File scripts/download_japanese_tts.ps1`)
 3. **Open** `project.godot` in Godot, run. `ServerRuntimeManager` auto-starts both servers, heartbeat 2s until connected and 10s after connected, status dots top-right.
@@ -40,8 +40,7 @@ Chrome hides on right-click background, restores on left-click; `ServerStatusOve
 scenes/  main, brainstorm, gameplay (+ 12 overlays)
 scripts/ managers (llm, image_server, server_runtime, game_progress, scene_data, tts, i18n, game_settings) + overlays + gameplay/brainstorm/main
 data/    theme, defaults, llama models, comfyui workflow/negative prompts, llm prompts per lang
-c/       shortened ComfyUI portable runtime with embedded Python under py/ (gitignored)
-s/       llama and sherpa-onnx models/runtime libs (gitignored)
+s/       local server runtimes: llama, sherpa-onnx, and ComfyUI under c/ (gitignored)
 addons/  sherpa_tts native Godot TTS extension
 saves/   dev mirror; runtime saves in user://saves/<uuid>/
 ```

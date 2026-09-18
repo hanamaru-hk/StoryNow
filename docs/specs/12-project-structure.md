@@ -96,10 +96,10 @@ story-now/
 ├── saves/                               # Runtime saves mirror (dev); real saves in user://saves/
 ├── s/                                   # AI server binaries (gitignored: s/, .godot/, *.uid/import)
 │   ├── llama/llama-server.exe
-│   └── sherpa-onnx/{bin,lib,models}/
-├── c/                                   # Shortened ComfyUI portable root (gitignored)
-│   ├── py/python.exe
-│   └── ComfyUI/main.py
+│   ├── sherpa-onnx/{bin,lib,models}/
+│   └── c/                               # Shortened ComfyUI portable root
+│       ├── py/python.exe
+│       └── ComfyUI/main.py
 ├── project.godot                        # Autoloads + main_scene + viewport/renderer
 ├── .gitignore
 └── README.md

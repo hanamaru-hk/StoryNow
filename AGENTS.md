@@ -19,8 +19,7 @@ StoryNow is a Godot visual-novel client that generates story text with a local l
 - `data/`: default JSON, LLM prompt templates, ComfyUI workflow data, and music.
 - `tools/`: headless checks and smoke-test scripts.
 - `addons/sherpa_tts/`: native Sherpa-ONNX wrapper and its checked-in runtime DLLs.
-- `c/`: shortened local ComfyUI portable root (`py/` is the renamed embedded Python directory); ignored and machine-specific. Follow `docs/steam-package-patching.md` when installing or replacing it.
-- `s/`: local llama.cpp and Sherpa installations; ignored and machine-specific.
+- `s/`: local server runtimes; contains llama.cpp, Sherpa, and the shortened ComfyUI portable root under `s/c/` (`py/` is its renamed embedded Python directory). Ignored and machine-specific. Follow `docs/steam-package-patching.md` when installing or replacing ComfyUI.
 - `docs/specs/`: architecture and behavior specifications. Some status notes may lag behind the implementation, so verify against current code.
 
 ## Before changing code
@@ -31,7 +30,7 @@ StoryNow is a Godot visual-novel client that generates story text with a local l
 4. Search usages with `rg` before renaming signals, node paths, dictionary keys, settings, or save fields.
 5. Prefer a small change in the existing architecture over a broad rewrite.
 
-Do not edit generated/imported content in `.godot/`, `*.uid`, or `*.import`. Do not commit machine-local models, the `c/` ComfyUI runtime, server installations, build output, or `data/builder`; see `.gitignore`.
+Do not edit generated/imported content in `.godot/`, `*.uid`, or `*.import`. Do not commit machine-local models, the `s/` server runtimes, build output, or `data/builder`; see `.gitignore`.
 
 ## Coding conventions
 

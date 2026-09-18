@@ -2,7 +2,7 @@ extends Node
 ## Library functions for managing the ComfyUI (Image Server) process.
 
 const STATUS_PATH := "user://image_server_status.json"
-const COMFYUI_DIR := "c"
+const COMFYUI_DIR := "s/c"
 const HEALTH_TIMEOUT := 5.0
 const WORKFLOW_TEMPLATE_PATH := "data/comfyui/workflow_template.json"
 const DEFAULT_MODEL := "waiIllustriousSDXL_v170.safetensors"

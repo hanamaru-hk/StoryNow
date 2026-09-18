@@ -68,7 +68,7 @@ var save_path = await _download_comfy_image(filename, subfolder, type, uuid)
   - `ServerStatusOverlay` added deferred to `get_tree().root`.
   - `set_chrome_visible` and `request_queue` signals drive overlay.
   - On `_exit_tree` / `WM_CLOSE_REQUEST` kills owned processes via `taskkill /T /F /PID` (Windows).
-- **LLMManager / ImageServerManager**: status persisted to `user://*_status.json`; started via `OS.create_process` (llama defaults: `llama-server.exe -c 0 --fit on …`; ComfyUI: `c/py/python.exe -s c/ComfyUI/main.py --port <port> --windows-standalone-build --disable-auto-launch`, plus `--lowvram` when enabled in image settings).
+- **LLMManager / ImageServerManager**: status persisted to `user://*_status.json`; started via `OS.create_process` (llama defaults: `llama-server.exe -c 0 --fit on …`; ComfyUI: `s/c/py/python.exe -s s/c/ComfyUI/main.py --port <port> --windows-standalone-build --disable-auto-launch`, plus `--lowvram` when enabled in image settings).
 - Health uses `HTTPClient` raw polling with frame-await loop and timeout accounting (`get_process_delta_time()`).
 
 ## 9.4 Display

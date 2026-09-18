@@ -3,10 +3,10 @@
 | Server | Version (bundled) | Download |
 |--------|-------------------|----------|
 | llama.cpp | b10514 (and later) | [llama-b10514-bin-win-x64.zip](https://github.com/ggerganov/llama.cpp/releases/download/b10514/llama-b10514-bin-win-x64.zip) — extracted to `s/llama/` |
-| ComfyUI | v0.33.1 (portable) | [ComfyUI_windows_portable_nvidia.7z](https://github.com/Comfy-Org/ComfyUI/releases/download/v0.33.1/ComfyUI_windows_portable_nvidia.7z) — portable root installed as `c/`, with `python_embeded/` renamed to `py/` and patched per the packaging guide |
+| ComfyUI | v0.33.1 (portable) | [ComfyUI_windows_portable_nvidia.7z](https://github.com/Comfy-Org/ComfyUI/releases/download/v0.33.1/ComfyUI_windows_portable_nvidia.7z) — portable root installed as `s/c/`, with `python_embeded/` renamed to `py/` and patched per the packaging guide |
 | LLM model | ≤9B GGUF | `data/llama-models/cen/huihui-qwen3.5-9b-Q4_K_M.gguf` (primary, `scripts/llm_manager.gd:45`); alt `data/llama-models/ab/DeepSeek-R1-Distill-Llama-8B-Uncensored.Q4_K_M.gguf`, `data/llama-models/cen/unsloth__Qwen3.5-9B-UD-Q3_K_XL.gguf` supported |
 | Sherpa-ONNX | v1.13.5 | [sherpa-onnx-v1.13.5-win-x64-shared.tar.bz2](https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.5/sherpa-onnx-v1.13.5-win-x64-shared.tar.bz2) — extracted to `s/sherpa-onnx/` (run `powershell -ExecutionPolicy Bypass -File scripts/download_sherpa.ps1`; native Godot wrapper lives in `addons/sherpa_tts/`) |
-| SDXL Checkpoint | e.g. `waiIllustriousSDXL_v170.safetensors` | Placed in `c/ComfyUI/models/checkpoints/`; selected via `ImageServerSettingsManager.settings.model_filename` |
+| SDXL Checkpoint | e.g. `waiIllustriousSDXL_v170.safetensors` | Placed in `s/c/ComfyUI/models/checkpoints/`; selected via `ImageServerSettingsManager.settings.model_filename` |
 
 The local and Steam layouts both use the shortened ComfyUI paths to stay below
 legacy Windows path limits; follow
@@ -42,7 +42,7 @@ s/
 ```
 
 ```
-c/
+s/c/
 ├── py/python.exe
 └── ComfyUI/main.py
 ```
