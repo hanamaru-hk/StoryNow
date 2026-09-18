@@ -3,7 +3,7 @@
 **Title:** StoryNow
 **Engine:** Godot 4.3 (GDScript 2.x, .tscn scenes, `gl_compatibility` renderer)
 **Platform:** Desktop (Windows primary; Linux/macOS via same Godot export)
-**Resolution:** 1920×1080 viewport, `canvas_items` stretch; windowed 1344×768 or fullscreen toggle via `GameSettingsManager`
+**Resolution:** 1920×1080 viewport, `canvas_items` stretch; the initial splash window is 1344×768, followed by windowed 1344×768 or fullscreen selection via `GameSettingsManager`
 **Audio:** Sherpa-ONNX TTS (offline, per-dialogue WAV) with auto-play via `TTSVoice` bus; voice shaping for Cantonese and Japanese male dialogue
 **Saving:** Implemented — per-scene `user://saves/<uuid>/scene_data.json` + images `…/images/` + TTS `…/sounds/`; progress in `user://game_progress.json`
 
