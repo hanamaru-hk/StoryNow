@@ -12,3 +12,6 @@ addons/sherpa_tts/src/*.obj
 data/sherpa-models
 data/llama-models
 data/builder/*
+/patch/StoryNowBuilderMode.msi
+/patch/StoryNowBuilderMode.wixpdb
+/patch/StoryNowBuilderMode.zip

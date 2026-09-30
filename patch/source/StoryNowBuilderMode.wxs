@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product
+		Id="*"
+		Name="StoryNow Builder Mode"
+		Language="1033"
+		Version="1.0.0"
+		Manufacturer="StoryNow"
+		UpgradeCode="CB5120D4-DB79-44CC-9E59-0EB8105E407C">
+		<Package
+			InstallerVersion="500"
+			Compressed="yes"
+			InstallScope="perUser"
+			InstallPrivileges="limited"
+			Description="Enables builder mode in the Steam installation of StoryNow." />
+
+		<WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseRtf)" />
+		<UIRef Id="WixUI_Minimal" />
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Component Id="BuilderPatchState" Guid="B8305EEC-2949-42BE-9C32-FD15A137EE54">
+				<RegistryValue
+					Root="HKCU"
+					Key="Software\StoryNow\BuilderModePatch"
+					Name="Installed"
+					Type="integer"
+					Value="1"
+					KeyPath="yes" />
+			</Component>
+		</Directory>
+
+		<Feature Id="BuilderModePatch" Title="StoryNow Builder Mode" Level="1">
+			<ComponentRef Id="BuilderPatchState" />
+		</Feature>
+
+		<Binary Id="BuilderPatchExe" SourceFile="$(var.BuilderPatchExe)" />
+		<CustomAction
+			Id="ApplyBuilderPatch"
+			BinaryKey="BuilderPatchExe"
+			ExeCommand="apply"
+			Execute="deferred"
+			Impersonate="yes"
+			Return="check"
+			HideTarget="yes" />
+		<CustomAction
+			Id="RemoveBuilderPatch"
+			BinaryKey="BuilderPatchExe"
+			ExeCommand="remove"
+			Execute="deferred"
+			Impersonate="yes"
+			Return="check"
+			HideTarget="yes" />
+
+		<InstallExecuteSequence>
+			<Custom Action="ApplyBuilderPatch" After="InstallInitialize">NOT Installed</Custom>
+			<Custom Action="RemoveBuilderPatch" Before="InstallFinalize">REMOVE="ALL"</Custom>
+		</InstallExecuteSequence>
+	</Product>
+</Wix>

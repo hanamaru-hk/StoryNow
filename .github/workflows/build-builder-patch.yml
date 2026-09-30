@@ -1,0 +1,67 @@
+name: Build builder-mode patch
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build-builder-patch.yml"
+      - "patch/source/**"
+  pull_request:
+    paths:
+      - ".github/workflows/build-builder-patch.yml"
+      - "patch/source/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Download WiX Toolset 3.14.1
+        id: wix
+        shell: pwsh
+        run: |
+          $wixArchive = Join-Path $env:RUNNER_TEMP "wix314-binaries.zip"
+          $wixBin = Join-Path $env:RUNNER_TEMP "wix314"
+          $wixUrl = "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip"
+          $expectedHash = "6AC824E1642D6F7277D0ED7EA09411A508F6116BA6FAE0AA5F2C7DAA2FF43D31"
+
+          Invoke-WebRequest -Uri $wixUrl -OutFile $wixArchive
+          $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $wixArchive).Hash
+          if ($actualHash -ne $expectedHash) {
+            throw "WiX archive checksum mismatch. Expected $expectedHash, received $actualHash."
+          }
+
+          Expand-Archive -LiteralPath $wixArchive -DestinationPath $wixBin
+          "bin=$wixBin" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Build and stage installer
+        id: package
+        shell: pwsh
+        run: |
+          & ./patch/source/build.ps1 -WixBin "${{ steps.wix.outputs.bin }}"
+
+          $destination = Join-Path $env:RUNNER_TEMP "storynow-builder-patch"
+          $patchDestination = Join-Path $destination "patch"
+          $msi = Join-Path $PWD "patch/StoryNowBuilderMode.msi"
+          $stagedMsi = Join-Path $patchDestination "StoryNowBuilderMode.msi"
+          $zip = Join-Path $patchDestination "StoryNowBuilderMode.zip"
+
+          New-Item -ItemType Directory -Force -Path $patchDestination | Out-Null
+          Copy-Item -LiteralPath $msi -Destination $stagedMsi
+          Compress-Archive -LiteralPath $stagedMsi -DestinationPath $zip
+
+          "artifact_path=$destination" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: storynow-builder-mode-patch
+          path: ${{ steps.package.outputs.artifact_path }}
+          if-no-files-found: error
+          retention-days: 30

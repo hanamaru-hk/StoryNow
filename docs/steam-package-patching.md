@@ -86,3 +86,44 @@ compatible long-path handling.
 
 Finally, launch the build through Steam and exercise image-server start,
 health check, image generation, stop, and any supported update path.
+
+## Standalone Builder-Mode Patch
+
+The `patch/` directory contains `StoryNowBuilderMode.msi`, a per-user Windows
+Installer package that enables builder mode in an installed Steam copy. It
+contains no PowerShell or batch scripts, does not download anything, and does
+not request elevation. The embedded patch action reads Steam's Windows registry
+locations, parses `steamapps/libraryfolders.vdf` so custom Steam libraries are
+included, and looks for the exact install folder `steamapps/common/SN`.
+
+For every installed `SN` folder found, it creates this zero-byte marker:
+
+```text
+SN/data/builder/builder
+```
+
+The install fails and makes no changes when no matching install is found.
+Uninstalling the MSI removes the marker. Build sources are under `patch/source`;
+its build script expects the portable WiX 3.14 tools under `build/wix314`.
+
+GitHub Actions also builds the installer whenever its source or workflow changes,
+or when the `Build builder-mode patch` workflow is run manually. The uploaded
+`storynow-builder-mode-patch` artifact contains both the MSI and a ZIP containing
+that MSI under its `patch/` directory.
+
+The package deliberately does not attempt to disable Windows security checks.
+Before public distribution, Authenticode-sign the MSI with a trusted code-
+signing certificate to give Windows verifiable publisher identity and reduce
+reputation warnings. An unsigned MSI downloaded from the Internet can still
+trigger a Windows warning even though the package itself requests no elevation.
+Pass the certificate's SHA-1 thumbprint to the build script to sign and
+timestamp the MSI using the Windows SDK's SignTool:
+
+```powershell
+./patch/source/build.ps1 -CertificateThumbprint '<thumbprint>'
+```
+
+For a patch shipped as part of a Steam depot, prefer a signed Steam install
+script instead: Steam exposes the exact application path as `%INSTALLDIR%` and
+can run a bundled process before first launch. The standalone patch exists for
+distribution outside that depot workflow.

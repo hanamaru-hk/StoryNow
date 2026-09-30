@@ -18,6 +18,8 @@ StoryNow is a Godot visual-novel client that generates story text with a local l
 - `scenes/`: Godot scenes. Scene node paths, exported properties, and connected signals are contracts with their attached scripts.
 - `data/`: default JSON, LLM prompt templates, ComfyUI workflow data, and music.
 - `tools/`: headless checks and smoke-test scripts.
+- `patch/`: source for the standalone builder-mode MSI; its GitHub Actions
+  workflow publishes both the MSI and a ZIP under the artifact's `patch/` folder.
 - `addons/sherpa_tts/`: native Sherpa-ONNX wrapper and its checked-in runtime DLLs.
 - `s/`: local server runtimes; contains llama.cpp, Sherpa, and the shortened ComfyUI portable root under `s/c/` (`py/` is its renamed embedded Python directory). Ignored and machine-specific. Follow `docs/steam-package-patching.md` when installing or replacing ComfyUI.
 - `docs/specs/`: architecture and behavior specifications. Some status notes may lag behind the implementation, so verify against current code.
