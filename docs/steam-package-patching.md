@@ -106,11 +106,6 @@ The install fails and makes no changes when no matching install is found.
 Uninstalling the MSI removes the marker. Build sources are under `patch/source`;
 its build script expects the portable WiX 3.14 tools under `build/wix314`.
 
-GitHub Actions also builds the installer whenever its source or workflow changes,
-or when the `Build builder-mode patch` workflow is run manually. The uploaded
-`storynow-builder-mode-patch` artifact contains both the MSI and a ZIP containing
-that MSI under its `patch/` directory.
-
 The package deliberately does not attempt to disable Windows security checks.
 Before public distribution, Authenticode-sign the MSI with a trusted code-
 signing certificate to give Windows verifiable publisher identity and reduce
